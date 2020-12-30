@@ -6,10 +6,17 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Passport\HasApiTokens;
+use App\Traits\UuidTrait;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, UuidTrait;
+    
+    protected $with = [
+        'client',
+        'employee'
+    ];
 
     /**
      * The attributes that are mass assignable.
@@ -17,9 +24,21 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name',
+        'first_name',
+        'last_name',
         'email',
+        'phone',
         'password',
+    ];
+
+    protected $visible = [
+        'id',
+        'client_id',
+        'employee_id',
+        'first_name',
+        'last_name',
+        'email',
+        'phone'
     ];
 
     /**
@@ -40,4 +59,15 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function employee()
+    {
+        return $this->hasOne(Employee::class);
+    }
+
+    public function client()
+    {
+        return $this->hasOne(Client::class);
+    }
+    
 }

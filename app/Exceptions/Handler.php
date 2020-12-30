@@ -2,7 +2,9 @@
 
 namespace App\Exceptions;
 
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Laravel\Passport\Exceptions\OAuthServerException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -26,15 +28,26 @@ class Handler extends ExceptionHandler
         'password_confirmation',
     ];
 
-    /**
-     * Register the exception handling callbacks for the application.
-     *
-     * @return void
-     */
-    public function register()
+
+    public function render($request, Throwable $t)
     {
-        $this->reportable(function (Throwable $e) {
-            //
-        });
+        if ($t instanceof OAuthServerException)
+            return $this->handleOAuthServerException($t);  
     }
+
+    // TODO: refine this, make sure we're checking for everything
+    protected function handleOAuthServerException(OAuthServerException $t)
+    {
+        if ($t->statusCode() === 400)
+        {
+            return response()->json('Username or password did not match.', $t->statusCode());
+        }
+        else if ($t->statusCode() === 401)
+        {
+            return response()->json('Your credentials are incorrect.  Please try again.', $t->statusCode());
+        }
+
+        return response()->json($t, 500);
+    }
+
 }
