@@ -1,11 +1,11 @@
 <?php
 
-namespace Tests\Feature\Controllers;
+namespace Tests\Feature;
 
 use Faker\Factory;
 use Faker\Generator;
 
-class AuthControllerMock
+class UserMock
 {
     protected Generator $faker;
 
@@ -48,7 +48,5 @@ class AuthControllerMock
             'admin' => true
         ];
     }
-
-
 
 }

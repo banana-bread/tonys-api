@@ -4,38 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Services\AuthService;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
 
-class AuthController extends Controller
+class AuthController extends ApiController
 {
-    public function registerClient(Request $request)
+    public function login(Request $request): JsonResponse
     {
         $service = new AuthService();
-        $client = $service->registerClient($request);
+        $token = $service->login($request);
 
-        return $client;
-    }
-
-    public function registerEmployee(Request $request)
-    {
-        $service = new AuthService();
-        $employee = $service->registerEmployee($request);
-
-        return $employee;
-    }
-
-    public function login(Request $request)
-    {
-        $service = new AuthService();
-        $response = $service->login($request);
-
-        return $response;
+        return $this->success($token, 'User logged in.');
     } 
 
-    public function logout()
+    public function logout(): JsonResponse
     {
        $service = new AuthService();
        $response = $service->logout();
 
-       return $response;
+       return $this->success(null, 'User logged out.');
     }
 }

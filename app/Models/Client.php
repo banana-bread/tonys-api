@@ -2,21 +2,36 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use App\Traits\UuidTrait;
+use App\Traits\HasUuid;
 
-class Client extends Model
+class Client extends BaseModel
 {
-    use HasFactory, UuidTrait;
+    use HasUuid;
+
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $with = ['user'];
 
-    protected $fillable = ['user_id'];
+    protected $fillable = [
+        'id',
+        'user_id'
+    ];
+
+    protected $visible = [
+        'id',
+        'user_id',
+
+        'user'
+    ];
+
+    protected $rules = [];
+
+    // Relations
 
     public function user()
     {
-        return $this->belongsTo(Client::class);
+        return $this->belongsTo(User::class);
     }
 
     public function bookings()

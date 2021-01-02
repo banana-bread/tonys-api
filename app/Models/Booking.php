@@ -2,13 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
-class Booking extends Model
+class Booking extends BaseModel
 {
-    use HasFactory;
-
     protected $visible = [
         'id',
         'client_id',
@@ -21,6 +16,10 @@ class Booking extends Model
         'started_at' => 'datetime',
         'ended_at' => 'datetime',
     ];
+
+    protected $rules = [];
+
+    // Relations
 
     public function client()
     {

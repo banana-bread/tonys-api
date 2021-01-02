@@ -14,7 +14,7 @@ class CreateUsersTables extends Migration
     public function up()
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->uuid('id')->primary();
+            $table->uuid('id');
             $table->string('first_name');
             $table->string('last_name');
             $table->string('email')->unique();
@@ -23,22 +23,26 @@ class CreateUsersTables extends Migration
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
+
+            $table->primary('id');
         });
 
         Schema::create('clients', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('user_id');
+            $table->uuid('id');
+            $table->uuid('user_id')->unique();
             $table->timestamps();
 
+            $table->primary('id');
             $table->foreign('user_id')->references('id')->on('users');
         });
 
         Schema::create('employees', function (Blueprint $table) {
-            $table->uuid('id')->primary();
-            $table->uuid('user_id');
+            $table->uuid('id');
+            $table->uuid('user_id')->unique();
             $table->boolean('admin');
             $table->timestamps();
 
+            $table->primary('id');
             $table->foreign('user_id')->references('id')->on('users');
         });
     }

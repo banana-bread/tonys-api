@@ -2,19 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
-class Service extends Model
+class Service extends BaseModel
 {
-    use HasFactory;
-
     protected $visible = [
         'id',
         'service_definition_id',
         'booking_id'
     ];
 
+    protected $rules = [];
+
+    // Relations
+    
     public function service_definition()
     {
         return $this->belongsTo(ServiceDefinition::class);

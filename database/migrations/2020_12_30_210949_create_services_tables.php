@@ -39,6 +39,9 @@ class CreateServicesTables extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('services_tables');
+        Schema::disableForeignKeyConstraints();
+        Schema::dropIfExists('service_definitions');
+        Schema::dropIfExists('services');
+        Schema::enableForeignKeyConstraints();
     }
 }

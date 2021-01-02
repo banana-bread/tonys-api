@@ -7,16 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
-use App\Traits\UuidTrait;
+use App\Traits\HasUuid;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, UuidTrait;
-    
-    protected $with = [
-        'client',
-        'employee'
-    ];
+    use HasApiTokens, Notifiable, HasFactory, HasUuid;
+
+    public $incrementing = false;
+    protected $keyType = 'string';
 
     /**
      * The attributes that are mass assignable.
@@ -60,6 +58,8 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    // Relations
+    
     public function employee()
     {
         return $this->hasOne(Employee::class);
@@ -69,5 +69,4 @@ class User extends Authenticatable
     {
         return $this->hasOne(Client::class);
     }
-    
 }

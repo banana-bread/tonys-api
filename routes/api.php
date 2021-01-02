@@ -1,8 +1,9 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\EmployeeController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -19,19 +20,18 @@ Route::get('/', function(Request $r) {
     return response()->json('tony\'s api');
 });
 
-// Route::get('/test', function(Request $r) {
-//     $shit = Http::get('https://canada-holidays.ca/api/v1/provinces/BC?year=2022');
-//     \Log::info($shit);
-// });
-
-
-
-
+// TODO: maybe we change the endpoint to /token.  would be more restful and more
+//       representatvie of whats being created and returned to the client, ie the auth token
 Route::post('/login',    [AuthController::class, 'login']);
-Route::post('/register/client', [AuthController::class, 'registerClient']);
-Route::post('/register/employee', [AuthController::class, 'registerEmployee']);
 
-Route::group(['middleware' => ['auth:api']], function()
-{
-    Route::post('/logout',   [AuthController::class, 'logout']);
-});
+
+// Route::group(['middleware' => ['auth:api']], function()
+// {
+    Route::post('/clients',         [ClientController::class,    'store']);
+    Route::post('/clients/{id}',    [ClientController::class,    'update']);
+    Route::post('/employees',       [EmployeeController::class,  'store']);
+    Route::put('/employees/{id}',   [EmployeeController::class,  'update']);
+
+    Route::post('/logout',          [AuthController::class,      'logout']);
+
+// });

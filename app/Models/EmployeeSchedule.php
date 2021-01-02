@@ -2,12 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-
-class EmployeeSchedule extends Model
+class EmployeeSchedule extends BaseModel
 {
-    use HasFactory;
+    protected $fillable = [
+        'employee_id',
+        'work_date',
+        'start_time',
+        'end_time',
+        'weekend',
+        'holiday'
+    ];
 
     protected $visible = [
         'id',
@@ -26,6 +30,10 @@ class EmployeeSchedule extends Model
         'weekend' => 'boolean',
         'holiday' => 'boolean',
     ];
+
+    protected $rules = [];
+
+    // Relations
 
     public function employee()
     {

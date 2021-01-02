@@ -2,23 +2,50 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use App\Traits\UuidTrait;
+use App\Exceptions\ModelValidationException;
+use App\Traits\HasUuid;
+use Carbon\Carbon;
 
-
-class Employee extends Model
+class Employee extends BaseModel
 {
-    use HasFactory, UuidTrait;
+    use HasUuid;
 
-    protected $with = ['user'];
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    protected $with = [
+        'user'
+    ];
 
     protected $fillable = [
+        'id',
         'user_id',
         'admin'
     ];
 
-    protected $casts = ['admin' => 'boolean'];
+    protected $visible = [
+        'id',
+        'user_id',
+        'admin',
+
+        'user',
+        'schedules',
+        'bookings',
+
+        'past_bookings',
+        'future_bookings'
+    ];
+
+    protected $casts = [
+        'admin' => 'boolean'
+    ];
+
+    protected $rules = [
+        'user_id' => 'required|string',
+        'admin'   => 'required|boolean'
+    ];
+
+    // Relations
 
     public function user()
     {
@@ -33,5 +60,20 @@ class Employee extends Model
     public function bookings()
     {
         return $this->hasMany(Booking::class);
+    }
+
+    // Custom Relations
+    // TODO: test
+    public function getPastBookingsAttribute()
+    {
+        return $this->hasMany(Booking::class)
+            ->where('started_at', '<', Carbon::now());
+    }
+
+    // TODO: test
+    public function getFutureBookingsAttribute()
+    {
+        return $this->hasMany(Booking::class)
+            ->where('started_at', '>', Carbon::now());
     }
 }

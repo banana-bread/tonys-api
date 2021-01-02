@@ -16,7 +16,8 @@
         "laravel/framework": "^8.12",
         "laravel/passport": "^10.1",
         "laravel/tinker": "^2.5",
-        "ramsey/uuid": "^4.1"
+        "ramsey/uuid": "^4.1",
+        "watson/validating": "^6.1"
     },
     "require-dev": {
         "facade/ignition": "^2.5",
