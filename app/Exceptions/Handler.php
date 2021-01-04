@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Laravel\Passport\Exceptions\OAuthServerException;
+use Illuminate\Validation\ValidationException;
 use Throwable;
 use App\Traits\ApiResponse;
 use App\Exceptions\EmployeeAuthorizationException;
@@ -35,6 +36,8 @@ class Handler extends ExceptionHandler
 
     public function render($request, Throwable $t): JsonResponse
     {
+        \Log::info($t);
+
         if ($t instanceof OAuthServerException) 
         {
             return $this->handleOAuthServerException($t);
@@ -43,6 +46,16 @@ class Handler extends ExceptionHandler
         if ($t instanceof EmployeeAuthorizationException) 
         {
             return $this->handleEmployeeAuthorizationException($t);
+        }
+
+        if ($t instanceof EmployeeAuthorizationException) 
+        {
+            return $this->handleEmployeeAuthorizationException($t);
+        }
+
+        if ($t instanceof ValidationException) 
+        {
+            return $this->handleValidationException($t);
         }
 
         return $this->error('Unknown server error.');
@@ -66,6 +79,11 @@ class Handler extends ExceptionHandler
     protected function handleEmployeeAuthorizationException(EmployeeAuthorizationException $t): JsonResponse
     {
         return $this->error($t->getDebugMessage(), 400);
+    }
+
+    protected function handleValidationException(ValidationException $t): JsonResponse
+    {
+        return $this->error('The given data was invalid.', 400);
     }
 
 }

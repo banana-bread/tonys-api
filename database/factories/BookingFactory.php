@@ -50,7 +50,7 @@ class BookingFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'ended_at' => $attributes['started_at']->addMinutes(15)
+                'ended_at' => $attributes['started_at']->copy()->addMinutes(15)
             ];
         });
     }
@@ -59,7 +59,7 @@ class BookingFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'ended_at' => $attributes['started_at']->addMinutes(45)
+                'ended_at' => $attributes['started_at']->copy()->addMinutes(45)
             ];
         });
     }

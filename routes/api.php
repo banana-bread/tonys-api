@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\BookingController;
 use App\Http\Controllers\EmployeeController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -29,8 +30,12 @@ Route::post('/login',    [AuthController::class, 'login']);
 // {
     Route::post('/clients',         [ClientController::class,    'store']);
     Route::post('/clients/{id}',    [ClientController::class,    'update']);
+
     Route::post('/employees',       [EmployeeController::class,  'store']);
     Route::put('/employees/{id}',   [EmployeeController::class,  'update']);
+
+    Route::post('/bookings',        [BookingController::class,   'store']);
+    Route::put('/bookings/{id}',    [BookingController::class,   'update']);
 
     Route::post('/logout',          [AuthController::class,      'logout']);
 

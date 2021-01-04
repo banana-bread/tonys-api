@@ -13,10 +13,10 @@ class EmployeeService
         $employee = Employee::findOrFail($id);
         
         // TODO: I feel like there's a better way of making this work...
-        $adminStatusChanged = $employee->admin !== Arr::get($attributes, 'admin');
+        $adminStatusHasChanged = $employee->admin !== Arr::get($attributes, 'admin');
         $authorizedIsAdmin = auth()->user()->employee->admin;
         
-        if ($adminStatusChanged && !$authorizedIsAdmin )
+        if ($adminStatusHasChanged && !$authorizedIsAdmin )
         {
             throw new EmployeeAuthorizationException([], 'Non-admin employees cannot grant or revoke admin privileges.');
         } 

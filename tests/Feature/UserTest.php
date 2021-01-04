@@ -56,6 +56,18 @@ class UserTest extends TestCase
     }
 
     /** @test */
+    public function a_client_account_can_be_retrieved()
+    {
+        
+    }
+
+    /** @test */
+    public function an_employee_account_can_be_retrieved()
+    {
+
+    }
+
+    /** @test */
     public function an_admin_can_grant_employees_admin_privileges(): void
     {
         $admin = Employee::factory()->admin()->create();

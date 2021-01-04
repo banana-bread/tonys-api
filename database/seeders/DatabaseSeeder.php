@@ -140,9 +140,9 @@ class DatabaseSeeder extends Seeder
     {
         $serviceDefinitions = new Collection();
 
-        $serviceDefinitions->push(ServiceDefinition::factory()->state(['name' => 'Hair Cut'])->create());
-        $serviceDefinitions->push(ServiceDefinition::factory()->state(['name' => 'Child Cut'])->create());
-        $serviceDefinitions->push(ServiceDefinition::factory()->state(['name' => 'Beard Trim'])->create());
+        $serviceDefinitions->push(ServiceDefinition::factory()->create(['name' => 'Child Cut']));
+        $serviceDefinitions->push(ServiceDefinition::factory()->create(['name' => 'Beard Trim']));
+        $serviceDefinitions->push(ServiceDefinition::factory()->create(['name' => 'Hair Cut']));
 
         return $serviceDefinitions;
     }
