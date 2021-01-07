@@ -154,8 +154,6 @@ class DatabaseSeeder extends Seeder
                 {
                     // 20% chance the booking gets overridden
                     $overridden = rand(1, 10) < 3 ? true : false;
-
-                    $overriddenBy = $overridden ? $schedule->employee_id : null;
                     
                     $startedAt = $schedule->start_time->copy()->addMinutes($i * 30);
                     $endedAt = $startedAt->copy()->addMinutes(30);
@@ -163,7 +161,6 @@ class DatabaseSeeder extends Seeder
                     Booking::create([
                         'employee_id' => $schedule->employee_id,
                         'overridden' => $overridden,
-                        'overridden_by' => $overriddenBy,
                         'started_at' => $startedAt,
                         'ended_at' => $endedAt,
                     ]);

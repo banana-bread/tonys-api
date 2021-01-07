@@ -27,8 +27,8 @@ class BookingFactory extends Factory
         $startedAt = Carbon::today()->subDays(rand(0, 90)) // within last 3 months
                                     ->addHours(9)          // shop opens at 9am 
                                     ->addHours(rand(0, 9)) // hour starts between 9am and 6pm
-                                    ->addMinutes(          // minute starts on :00, :15, :30, or :45
-                                        collect([0, 15, 30, 45])->random()
+                                    ->addMinutes(          // minute starts on :00, or :30
+                                        collect([0, 30])->random()
                                     );
 
 
@@ -44,22 +44,13 @@ class BookingFactory extends Factory
             'started_at' => $startedAt,
             'ended_at' => $endedAt
         ];
-    }
+    }    
 
-    public function shorter()
+    public function overridden()
     {
         return $this->state(function (array $attributes) {
             return [
-                'ended_at' => $attributes['started_at']->copy()->addMinutes(15)
-            ];
-        });
-    }
-
-    public function longer()
-    {
-        return $this->state(function (array $attributes) {
-            return [
-                'ended_at' => $attributes['started_at']->copy()->addMinutes(45)
+                'overridden' => true
             ];
         });
     }

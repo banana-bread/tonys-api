@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\BookingException;
 use App\Models\Booking;
+use App\Models\Client;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-
+use Illuminate\Support\Facades\DB;
 
 class BookingController extends ApiController
 {
@@ -50,21 +52,52 @@ class BookingController extends ApiController
         $attributes = $request->all();
         $booking = Booking::findOrFail($id);
 
-        $clientIsReservingBooking = !$booking->client_id && Arr::get($attributes, 'client_id');
-
-        if ($clientIsReservingBooking)
-        {
-            // 1. check that client does not have overlapping bookings with any other employees
-            
-            
-        }
-
-
-        // $overriddenStatusHasChanged = $booking->overridden !== Arr::get($attributes, 'overridden');
         $booking->fill($attributes);
         $booking->save();
 
         return $this->success($booking, 'Booking updated');
+    }
+
+    public function client(Request $request, $id)
+    {
+        
+        $this->validate($request, [
+            'client_id' => 'string|required|max:36'
+        ]);
+        $attributes = $request->all();
+
+        $booking = Booking::find($id);
+
+        $client = Client::find(Arr::get($attributes, 'client_id'));
+
+
+        if ($booking->overridden || $booking->client_id)
+        {
+            throw new BookingException([], 'This booking is no longer available');
+        }
+
+        $bookingStart = $booking->started_at;
+        $bookingEnd = $booking->ended_at;
+
+        $hasOverlappingBooking = (bool)
+            DB::table('bookings')
+                ->join('clients', 'clients.id', '=', 'bookings.client_id')
+                ->where('bookings.client_id', $client->id)
+                ->whereRaw('bookings.started_at BETWEEN ? AND ?', [$bookingStart, $bookingEnd])
+                ->orWhereRaw('bookings.ended_at BETWEEN ? AND ?', [$bookingStart, $bookingEnd])
+                ->orWhereRaw('? BETWEEN bookings.started_at AND bookings.ended_at', [$bookingStart])
+                ->count();
+        
+        if ($hasOverlappingBooking)
+        {
+            throw new BookingException([], 'The booking you are trying to reserve overlaps with an existing booking for this client.');
+        }
+
+        $booking->client_id = $client->id;
+        $booking->save();
+
+        return $this->success($booking, 'Booking reserved');
+
     }
 
     public function destroy($id)

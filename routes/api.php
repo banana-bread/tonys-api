@@ -28,15 +28,16 @@ Route::post('/login',    [AuthController::class, 'login']);
 
 // Route::group(['middleware' => ['auth:api']], function()
 // {
-    Route::post('/clients',         [ClientController::class,    'store']);
-    Route::post('/clients/{id}',    [ClientController::class,    'update']);
+    Route::post('/clients',             [ClientController::class,    'store']);
+    Route::put('/clients/{id}',         [ClientController::class,    'update']);
 
-    Route::post('/employees',       [EmployeeController::class,  'store']);
-    Route::put('/employees/{id}',   [EmployeeController::class,  'update']);
+    Route::post('/employees',           [EmployeeController::class,  'store']);
+    Route::put('/employees/{id}',       [EmployeeController::class,  'update']);
 
-    Route::post('/bookings',        [BookingController::class,   'store']);
-    Route::put('/bookings/{id}',    [BookingController::class,   'update']);
+    Route::post('/bookings',            [BookingController::class,   'store']);
+    Route::put('/bookings/{id}',        [BookingController::class,   'update']);
+    Route::put('/bookings/{id}/client', [BookingController::class,   'client']);
 
-    Route::post('/logout',          [AuthController::class,      'logout']);
+    Route::post('/logout',              [AuthController::class,      'logout']);
 
 // });

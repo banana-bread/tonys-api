@@ -18,7 +18,6 @@ class CreateBookingsTable extends Migration
             $table->uuid('client_id')->nullable();
             $table->uuid('employee_id');
             $table->boolean('overridden')->default(false);
-            $table->uuid('overridden_by')->nullable();
             $table->dateTime('started_at');
             $table->dateTime('ended_at');
             $table->timestamps();

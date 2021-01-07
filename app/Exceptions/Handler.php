@@ -58,6 +58,11 @@ class Handler extends ExceptionHandler
             return $this->handleValidationException($t);
         }
 
+        if ($t instanceof BookingException)
+        {
+            return $this->handleBookingException($t);
+        }
+
         return $this->error('Unknown server error.');
     }
 
@@ -84,6 +89,11 @@ class Handler extends ExceptionHandler
     protected function handleValidationException(ValidationException $t): JsonResponse
     {
         return $this->error('The given data was invalid.', 400);
+    }
+
+    protected function handleBookingException(BookingException $t): JsonResponse
+    {
+        return $this->error($t->getDebugMessage(), 400);
     }
 
 }
