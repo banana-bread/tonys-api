@@ -8,7 +8,9 @@ class Booking extends BaseModel
         'client_id', 
         'employee_id', 
         'started_at',
-        'ended_at'
+        'ended_at',
+        'overridden',
+        'overridden_by'
     ];
 
     protected $visible = [
@@ -29,9 +31,8 @@ class Booking extends BaseModel
     protected $rules = [
         'client_id'     => 'nullable|string|max:36',
         'employee_id'   => 'required|string|max:36',
-        'overridden'    => 'nullable|boolean',
+        'overridden'    => 'required|boolean',
         'overridden_by' => 'nullable|string|max:36',
-        'employee_id'   => 'required|string|max:36',
         'started_at'    => 'date|before:ended_at',
         'ended_at'      => 'date|after:started_at'
     ];

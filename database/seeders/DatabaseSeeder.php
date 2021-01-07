@@ -14,6 +14,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
+// TODO: this whole class is a mess.... should clean this up one day.... maybe
 class DatabaseSeeder extends Seeder
 {
     /**
@@ -24,12 +25,14 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->init();
-
         $employees = $this->createEmployees();
         $clients = $this->createClients();
         $allEmployeeSchedules = $this->createEmployeeSchedules($employees);
+        $allEmployeesBookings = $this->createEmployeeBookings($allEmployeeSchedules);
         $serviceDefinitions = $this->createServiceDefinitions();        
-        $this->createBookings($allEmployeeSchedules, $clients, $serviceDefinitions);        
+        
+        // TODO: this needs to be changed to 'reserveBookings' and modified accordingly
+        // $this->createBookings($allEmployeeSchedules, $clients, $serviceDefinitions);        
     }
 
     private function init(): void
@@ -75,7 +78,7 @@ class DatabaseSeeder extends Seeder
     private function createEmployeeSchedules(Collection $employees): Collection
     {
         $startDate = Carbon::today()->subMonths(1); 
-        $endDate = Carbon::today()->addMonths(3);   
+        $endDate = Carbon::today()->addMonths(1);   
         $numberOfDays = $startDate->diffInDays($endDate);
 
         $scheduleDates = new Collection();
@@ -132,6 +135,41 @@ class DatabaseSeeder extends Seeder
 
             return $employeeSchedules;
         });
+
+        return $allEmployeeSchedules;
+    }
+
+    private function createEmployeeBookings(Collection $allEmployeeSchedules): Collection
+    {
+        foreach($allEmployeeSchedules as $employeeSchedules)
+        {
+            foreach($employeeSchedules as $schedule)
+            {
+                if ($schedule->hoilday || $schedule->weekend) {continue;}
+
+                $totalMinutesInDay = $schedule->end_time->diffInMinutes($schedule->start_time);
+                $totalHalfHourBlocks = $totalMinutesInDay / 30; // bookings are 30 minutes long
+
+                for ($i = 0; $i < $totalHalfHourBlocks; $i++)
+                {
+                    // 20% chance the booking gets overridden
+                    $overridden = rand(1, 10) < 3 ? true : false;
+
+                    $overriddenBy = $overridden ? $schedule->employee_id : null;
+                    
+                    $startedAt = $schedule->start_time->copy()->addMinutes($i * 30);
+                    $endedAt = $startedAt->copy()->addMinutes(30);
+
+                    Booking::create([
+                        'employee_id' => $schedule->employee_id,
+                        'overridden' => $overridden,
+                        'overridden_by' => $overriddenBy,
+                        'started_at' => $startedAt,
+                        'ended_at' => $endedAt,
+                    ]);
+                }
+            }
+        }
 
         return $allEmployeeSchedules;
     }
