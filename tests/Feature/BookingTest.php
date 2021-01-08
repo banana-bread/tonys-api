@@ -5,6 +5,8 @@ namespace Tests\Feature;
 use App\Models\Booking;
 use App\Models\Client;
 use App\Models\Employee;
+use App\Models\Service;
+use App\Models\ServiceDefinition;
 use App\Models\User;
 use Carbon\Carbon;
 use Tests\TestCase;
@@ -217,12 +219,55 @@ class BookingTest extends TestCase
     /** @test */
     public function when_a_client_books_many_services_and_their_times_exceed_a_single_booking_the_next_booking_is_also_reserved_if_available(): void
     {
-
+        $booking = Booking::factory()->overridden()->create();
+          $client = Client::factory()->create();
+  
+          $response = $this->put("/bookings/$booking->id/client", [
+              'client_id' => $client->id
+          ]);
+  
+          $response->assertStatus(400);
+          $this->assertDatabaseMissing('bookings', [
+              'id' => $booking->id,
+              'client_id' => $client->id
+          ]);
     }
 
     /** @test */
     public function a_client_cannot_book_many_services_if_their_times_exceed_a_single_booking_and_the_next_booking_is_not_available(): void
     {
+        // $services = Service::factory()
+        //                    ->count(2)
+        //                    ->state(['booking_id' => null])
+        //                    ->for(ServiceDefinition::factory()->state(['duration' => 1800]), 'service_definition');
+
+        // $booking = Booking::factory()
+        //                   ->has($services)
+        //                   ->raw();
+
+        $employee = Employee::factory()->create();
+        $client = Client::factory()->create();
+        $startedAt = Carbon::today()->addHours(9);
+
+        $booking1 = Booking::factory()->create([
+                                'client_id' => null,
+                                'employee_id' => $employee->id,
+                                'started_at' => $startedAt,
+                                'ended_at' => $startedAt->copy()->addMinutes(30)
+                            ]);
+
+        $booking2 = Booking::factory()->create([
+                                'employee_id' => $employee->id,
+                                'started_at' => $startedAt->copy()->addMinutes(30),
+                                'ended_at' => $startedAt->copy()->addHour()
+                            ]);
+
+        $serviceDefinitions = ServiceDefinition()->factory()->count(2)->create(['duration' => 1800]);
+
+        $response = $this->put("/bookings/$booking1->id/client", [
+            'client' => $client,
+            'services' => $serviceDefinitions
+        ]);
 
     }
 }

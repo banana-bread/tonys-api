@@ -58,12 +58,15 @@ class BookingController extends ApiController
         return $this->success($booking, 'Booking updated');
     }
 
-    public function client(Request $request, $id)
+    public function reserve(Request $request, $id)
     {
-        
+     
+        \Log::info($request);
         $this->validate($request, [
-            'client_id' => 'string|required|max:36'
-        ]);
+            'client.id' => 'string|required|max:36',
+            'services.id' => 'string|required|max:36',
+            'services.duration' => 'int|required|max:'
+            ]);
         $attributes = $request->all();
 
         $booking = Booking::find($id);

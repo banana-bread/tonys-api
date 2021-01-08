@@ -36,7 +36,7 @@ Route::post('/login',    [AuthController::class, 'login']);
 
     Route::post('/bookings',            [BookingController::class,   'store']);
     Route::put('/bookings/{id}',        [BookingController::class,   'update']);
-    Route::put('/bookings/{id}/client', [BookingController::class,   'client']);
+    Route::put('/bookings/{id}/client', [BookingController::class,   'reserve']);
 
     Route::post('/logout',              [AuthController::class,      'logout']);
 
