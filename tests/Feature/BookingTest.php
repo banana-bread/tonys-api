@@ -94,7 +94,7 @@ class BookingTest extends TestCase
         $client = Client::factory()->create();
 
         $response = $this->put("/bookings/$booking->id/client", [
-            'client_id' => $client->id
+            'client' => $client
         ]);
 
         $response->assertOk();
@@ -217,56 +217,58 @@ class BookingTest extends TestCase
     }    
 
     /** @test */
-    public function when_a_client_books_many_services_and_their_times_exceed_a_single_booking_the_next_booking_is_also_reserved_if_available(): void
+    public function when_a_client_books_many_services_and_their_summed_durations_exceed_a_single_booking_the_next_booking_is_also_reserved_if_available(): void
     {
         $booking = Booking::factory()->overridden()->create();
-          $client = Client::factory()->create();
+        $client = Client::factory()->create();
   
-          $response = $this->put("/bookings/$booking->id/client", [
-              'client_id' => $client->id
-          ]);
-  
-          $response->assertStatus(400);
-          $this->assertDatabaseMissing('bookings', [
-              'id' => $booking->id,
-              'client_id' => $client->id
-          ]);
+        $response = $this->put("/bookings/$booking->id/client", [
+            'client_id' => $client->id
+        ]);
+
+        $response->assertStatus(400);
+        $this->assertDatabaseMissing('bookings', [
+            'id' => $booking->id,
+            'client_id' => $client->id
+        ]);
     }
 
     /** @test */
-    public function a_client_cannot_book_many_services_if_their_times_exceed_a_single_booking_and_the_next_booking_is_not_available(): void
+    public function a_client_cannot_book_many_services_if_their_summed_durations_exceed_a_single_booking_and_the_next_booking_is_not_available(): void
     {
-        // $services = Service::factory()
-        //                    ->count(2)
-        //                    ->state(['booking_id' => null])
-        //                    ->for(ServiceDefinition::factory()->state(['duration' => 1800]), 'service_definition');
-
-        // $booking = Booking::factory()
-        //                   ->has($services)
-        //                   ->raw();
-
         $employee = Employee::factory()->create();
         $client = Client::factory()->create();
         $startedAt = Carbon::today()->addHours(9);
 
-        $booking1 = Booking::factory()->create([
-                                'client_id' => null,
-                                'employee_id' => $employee->id,
-                                'started_at' => $startedAt,
-                                'ended_at' => $startedAt->copy()->addMinutes(30)
-                            ]);
+        $bookingStartingAt930Available = 
+            Booking::factory()->create([
+                'client_id' => null,
+                'employee_id' => $employee->id,
+                'started_at' => $startedAt,
+                'ended_at' => $startedAt->copy()->addMinutes(30)
+            ]);
 
-        $booking2 = Booking::factory()->create([
-                                'employee_id' => $employee->id,
-                                'started_at' => $startedAt->copy()->addMinutes(30),
-                                'ended_at' => $startedAt->copy()->addHour()
-                            ]);
+        $bookingStartingAt10Unavailable = 
+            Booking::factory()->create([
+                'employee_id' => $employee->id,
+                'started_at' => $startedAt->copy()->addMinutes(30),
+                'ended_at' => $startedAt->copy()->addHour()
+            ]);
 
-        $serviceDefinitions = ServiceDefinition()->factory()->count(2)->create(['duration' => 1800]);
-
-        $response = $this->put("/bookings/$booking1->id/client", [
+        $serviceDefinitions = ServiceDefinition::factory()->count(2)->create(['duration' => 1800]);
+        $response = $this->put("/bookings/$bookingStartingAt930Available->id/client", [
             'client' => $client,
-            'services' => $serviceDefinitions
+            'bookings' => [
+                $bookingStartingAt930Available,
+                $bookingStartingAt10Unavailable
+            ],
+            'service_definitions' => $serviceDefinitions
+        ]);
+
+        $response->assertStatus(400);
+        $this->assertDatabaseMissing('bookings', [
+            'id' => $bookingStartingAt930Available->id,
+            'client_id' => $client->id
         ]);
 
     }

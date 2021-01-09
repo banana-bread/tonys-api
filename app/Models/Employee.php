@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Exceptions\ModelValidationException;
 use App\Traits\HasUuid;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 
 class Employee extends BaseModel
 {
@@ -75,5 +76,47 @@ class Employee extends BaseModel
     {
         return $this->hasMany(Booking::class)
             ->where('started_at', '>', Carbon::now());
+    }
+
+    public function isAvailableAt(Carbon $bookingStartedAt)
+    {
+        return $this->bookings()
+                    ->where('started_at', $bookingStartedAt)
+                    ->first()
+                    ->available;
+    }
+
+    public function isAvailableBetween(Carbon $bookingPeriodStart, Carbon $bookingPeriodEnd)
+    {
+        $bookingsWithinPeriod = 
+            $this->bookings()
+                 ->whereBetween('started_at', [
+                    $bookingPeriodStart, 
+                    $bookingPeriodEnd
+                 ])
+                 ->get();
+        // TODO: check what happens when nothing is returend from above query
+
+        $isOverridden = $bookingsWithinPeriod->contains('overridden', true);
+        $isReserved = $bookingsWithinPeriod->contains(function ($booking) {
+            return !!$booking->client_id;
+        });
+
+        $isAvailable = !$isOverridden && !$isReserved;
+        
+        return $isAvailable;
+    }
+
+
+    public function hasFullAvailabilityIn(Collection $bookings)
+    {
+        $isOverridden = $bookings->contains('overridden', true);
+        $isReserved = $bookings->contains(function ($booking) {
+            return !!$booking->client_id;
+        });
+
+        $isAvailable = !$isOverridden && !$isReserved;
+        
+        return $isAvailable;
     }
 }

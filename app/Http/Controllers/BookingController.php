@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exceptions\BookingException;
 use App\Models\Booking;
 use App\Models\Client;
+use App\Models\ServiceDefinition;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -60,38 +61,56 @@ class BookingController extends ApiController
 
     public function reserve(Request $request, $id)
     {
-     
-        \Log::info($request);
         $this->validate($request, [
             'client.id' => 'string|required|max:36',
-            'services.id' => 'string|required|max:36',
-            'services.duration' => 'int|required|max:'
-            ]);
+
+            // FIXME: this validation isn't working
+            // 'service_definitions.*.id' => 'string|required',
+        ]);
+
         $attributes = $request->all();
+        $startingBookingSlot = Booking::find($id);
 
-        $booking = Booking::find($id);
+        $client = Client::find(Arr::get($attributes, 'client.id'));
 
-        $client = Client::find(Arr::get($attributes, 'client_id'));
-
-
-        if ($booking->overridden || $booking->client_id)
+        // check 1
+        if (! $startingBookingSlot->available)
         {
             throw new BookingException([], 'This booking is no longer available');
         }
 
-        $bookingStart = $booking->started_at;
-        $bookingEnd = $booking->ended_at;
+        $allBookingSlotIds = Arr::pluck($attributes['bookings'], 'id');
+        $allBookingSlots = Booking::orderBy('started_at')->find($allBookingSlotIds);
+        
+        $serviceDefinitionIds = Arr::pluck($attributes['service_definitions'], 'id');
+        $serviceDefinitions = ServiceDefinition::find($serviceDefinitionIds);
 
-        $hasOverlappingBooking = (bool)
-            DB::table('bookings')
+        $totalDurationOfServices = $serviceDefinitions->sum('duration');
+        $lengthOfOneBooking = 1800; // should probably store this in company settings table
+        $requiresManyBookingSlots = $totalDurationOfServices > $lengthOfOneBooking;
+
+        // check 2
+        if ($requiresManyBookingSlots &&
+            !$startingBookingSlot->employee->hasFullAvailabilityIn($allBookingSlots))
+        {
+
+            throw new BookingException([], 'The total duration of services exceeds one booking slot, and some of the following slots are unavailable.');
+        }
+
+        $bookingStart = $allBookingSlots->first()->started_at;
+        $bookingEnd = $allBookingSlots->last()->ended_at;
+
+        $hasAnOverlappingBooking = 
+            !!DB::table('bookings')
                 ->join('clients', 'clients.id', '=', 'bookings.client_id')
                 ->where('bookings.client_id', $client->id)
                 ->whereRaw('bookings.started_at BETWEEN ? AND ?', [$bookingStart, $bookingEnd])
                 ->orWhereRaw('bookings.ended_at BETWEEN ? AND ?', [$bookingStart, $bookingEnd])
                 ->orWhereRaw('? BETWEEN bookings.started_at AND bookings.ended_at', [$bookingStart])
                 ->count();
-        
-        if ($hasOverlappingBooking)
+
+        // check 3
+        if ($hasAnOverlappingBooking)
         {
             throw new BookingException([], 'The booking you are trying to reserve overlaps with an existing booking for this client.');
         }

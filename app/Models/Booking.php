@@ -19,6 +19,12 @@ class Booking extends BaseModel
         'overridden',
         'started_at',
         'ended_at',
+
+        'client',
+        'employee',
+        'services',
+
+        'available'
     ];
 
     protected $casts = [
@@ -50,5 +56,10 @@ class Booking extends BaseModel
     public function services()
     {
         return $this->hasMany(Service::class);
+    }
+
+    public function getAvailableAttribute()
+    {
+        return !$this->overridden && !$this->client_id;
     }
 }
