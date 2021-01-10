@@ -20,33 +20,8 @@ class BookingTest extends TestCase
 {
     use WithFaker, RefreshDatabase;
 
-    // This is bad
-    /** @test */
-    // public function a_booking_can_be_created(): void
-    // {
-    //     $booking = Booking::factory()->raw();
-        
-    //     $response = $this->post("/bookings", $booking);
-
-    //     $response->assertCreated();
-    //     $this->assertDatabaseHas('bookings', [
-    //         'id' => Arr::get($response->json(), 'data.id')
-    //     ]);
-    // }
-
-    /** @test */
-    // public function a_booking_can_be_created_before_being_reserved_by_a_client(): void
-    // {
-    //     $booking = Booking::factory()->raw(['client_id' => null]);
-
-    //     $response = $this->post("/bookings", $booking);
-
-    //     $response->assertStatus(201);
-    //     $this->assertDatabaseHas('bookings', [
-    //         'id' => Arr::get($response->json(), 'data.id')
-    //     ]);
-    // }
-
+    // TODO: need to fix ALL of the tests from...
+    // HERE ...
     /** @test */
     public function a_booking_requires_an_employee(): void
     {
@@ -219,7 +194,7 @@ class BookingTest extends TestCase
     /** @test */
     public function when_a_client_books_many_services_and_their_summed_durations_exceed_a_single_booking_the_next_booking_is_also_reserved_if_available(): void
     {
-        $booking = Booking::factory()->overridden()->create();
+        $booking = TimeSlot::factory()->reserved()->create();
         $client = Client::factory()->create();
   
         $response = $this->put("/bookings/$booking->id/client", [
@@ -271,5 +246,28 @@ class BookingTest extends TestCase
             'client_id' => $client->id
         ]);
 
+    }
+    // ... TO HERE
+
+    /** @test */
+    public function when_a_client_requests_many_services_with_summed_durations_requiring_2_bookings_then_only_time_slots_with_an_available_slot_after_are_shown()
+    {
+        $s1 = ServiceDefinition::factory()->create(['duration', 1800]); // 30 minutes
+        $s2 = ServiceDefinition::factory()->create(['duration', 900]); // 15 minutes
+        $e = Employee::factory()->create();
+        $from = Carbon::today();
+        $to = $from->copy()->addMonth();
+        
+        $response = $this->get("/time-slots?
+            service-definition-ids=$s1->id,$s2->id&
+            employee-id=$e->id&
+            date-from=$from&
+            date-to=$to");
+    }
+
+    /** @test */
+    public function when_a_client_requests_many_services_with_summed_durations_requiring_3_bookings_then_only_time_slots_with_2_available_slots_after_are_shown()
+    {
+        
     }
 }

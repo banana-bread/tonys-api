@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\TimeSlotController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -38,6 +39,7 @@ Route::post('/login',    [AuthController::class, 'login']);
     Route::put('/bookings/{id}',        [BookingController::class,   'update']);
     Route::put('/bookings/{id}/client', [BookingController::class,   'reserve']);
 
+    Route::get('/time-slots',           [TimeSlotController::class,  'index']);
     Route::post('/logout',              [AuthController::class,      'logout']);
 
 // });

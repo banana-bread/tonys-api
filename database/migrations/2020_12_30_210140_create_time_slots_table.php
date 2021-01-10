@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBookingsTable extends Migration
+class CreateTimeSlotsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,14 @@ class CreateBookingsTable extends Migration
      */
     public function up()
     {
-        Schema::create('bookings', function (Blueprint $table) {
+        Schema::create('time_slots', function (Blueprint $table) {
             $table->id();
-            $table->uuid('client_id')->nullable();
             $table->uuid('employee_id');
-            $table->boolean('overridden')->default(false);
+            $table->boolean('reserved')->default(false);
             $table->dateTime('started_at');
             $table->dateTime('ended_at');
             $table->timestamps();
 
-            $table->foreign('client_id')->references('id')->on('clients');
             $table->foreign('employee_id')->references('id')->on('employees');
         });
     }
