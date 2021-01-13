@@ -12,16 +12,12 @@ use Carbon\Carbon;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
-use Ramsey\Uuid\Uuid;
 
 class BookingTest extends TestCase
 {
     use WithFaker, RefreshDatabase;
 
-    // TODO: need to fix ALL of the tests from...
-    // HERE ...
+    // TODO: need to fix ALL of the tests 
     /** @test */
     public function a_booking_requires_an_employee(): void
     {
@@ -246,28 +242,5 @@ class BookingTest extends TestCase
             'client_id' => $client->id
         ]);
 
-    }
-    // ... TO HERE
-
-    /** @test */
-    public function when_a_client_requests_many_services_with_summed_durations_requiring_2_bookings_then_only_time_slots_with_an_available_slot_after_are_shown()
-    {
-        $s1 = ServiceDefinition::factory()->create(['duration', 1800]); // 30 minutes
-        $s2 = ServiceDefinition::factory()->create(['duration', 900]); // 15 minutes
-        $e = Employee::factory()->create();
-        $from = Carbon::today();
-        $to = $from->copy()->addMonth();
-        
-        $response = $this->get("/time-slots?
-            service-definition-ids=$s1->id,$s2->id&
-            employee-id=$e->id&
-            date-from=$from&
-            date-to=$to");
-    }
-
-    /** @test */
-    public function when_a_client_requests_many_services_with_summed_durations_requiring_3_bookings_then_only_time_slots_with_2_available_slots_after_are_shown()
-    {
-        
     }
 }

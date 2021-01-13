@@ -17,8 +17,8 @@ class CreateTimeSlotsTable extends Migration
             $table->id();
             $table->uuid('employee_id');
             $table->boolean('reserved')->default(false);
-            $table->dateTime('started_at');
-            $table->dateTime('ended_at');
+            $table->dateTime('start_time');
+            $table->dateTime('end_time');
             $table->timestamps();
 
             $table->foreign('employee_id')->references('id')->on('employees');
@@ -33,7 +33,7 @@ class CreateTimeSlotsTable extends Migration
     public function down()
     {
         Schema::disableForeignKeyConstraints();
-        Schema::dropIfExists('bookings');
+        Schema::dropIfExists('time_slots');
         Schema::enableForeignKeyConstraints();
     }
 }

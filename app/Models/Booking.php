@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-class TimeSlot extends BaseModel
+class Booking extends BaseModel
 {
     protected $fillable = [
         'employee_id', 
-        'start_time',
-        'end_time',
+        'started_at',
+        'ended_at',
         'overridden',
     ];
 
@@ -15,23 +15,25 @@ class TimeSlot extends BaseModel
         'id',
         'employee_id',
         'reserved',
-        'start_time',
-        'end_time',
+        'started_at',
+        'ended_at',
 
         'employee',
+        'client',
+        'services',
     ];
 
     protected $casts = [
-        'start_time' => 'datetime',
-        'end_time'   => 'datetime',
+        'started_at' => 'datetime',
+        'ended_at'   => 'datetime',
         'reserved'   => 'boolean'
     ];
     // TODO: need to rethink the usefulness of this watson validating package.
     protected $rules = [
     //     'employee_id'   => 'required|string|max:36',
     //     // 'overridden'    => 'required|boolean',
-    //     'start_time'    => 'date|before:end_time',
-    //     'end_time'      => 'date|after:start_time'
+    //     'started_at'    => 'date|before:ended_at',
+    //     'ended_at'      => 'date|after:started_at'
     ];
 
     // Relations
@@ -39,5 +41,15 @@ class TimeSlot extends BaseModel
     public function employee()
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
+
+    public function services()
+    {
+        return $this->hasMany(Service::class);
     }
 }

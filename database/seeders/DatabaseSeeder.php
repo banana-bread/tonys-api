@@ -8,6 +8,7 @@ use App\Models\Employee;
 use App\Models\EmployeeSchedule;
 use App\Models\Service;
 use App\Models\ServiceDefinition;
+use App\Models\TimeSlot;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Seeder;
@@ -26,13 +27,11 @@ class DatabaseSeeder extends Seeder
     {
         $this->init();
         $employees = $this->createEmployees();
-        $clients = $this->createClients();
+        $this->createClients();
         $allEmployeeSchedules = $this->createEmployeeSchedules($employees);
-        $allEmployeesBookings = $this->createEmployeeBookings($allEmployeeSchedules);
-        $serviceDefinitions = $this->createServiceDefinitions();        
-        
-        // TODO: this needs to be changed to 'reserveBookings' and modified accordingly
-        // $this->createBookings($allEmployeeSchedules, $clients, $serviceDefinitions);        
+        $this->createEmployeeTimeslots($allEmployeeSchedules);
+        $this->createServiceDefinitions();        
+        $this->createBookings();     
     }
 
     private function init(): void
@@ -49,6 +48,7 @@ class DatabaseSeeder extends Seeder
             'employee_schedules',
             'services',
             'service_definitions',
+            'time_slots',
             'users',
         ];
 
@@ -70,9 +70,9 @@ class DatabaseSeeder extends Seeder
         return $employees->concat($managers);
     }
 
-    private function createClients(): Collection
+    private function createClients(): void
     {
-        return Client::factory()->count(500)->create();
+        Client::factory()->count(500)->create();
     }
 
     private function createEmployeeSchedules(Collection $employees): Collection
@@ -139,7 +139,7 @@ class DatabaseSeeder extends Seeder
         return $allEmployeeSchedules;
     }
 
-    private function createEmployeeBookings(Collection $allEmployeeSchedules): Collection
+    private function createEmployeeTimeSlots(Collection $allEmployeeSchedules): void
     {
         foreach($allEmployeeSchedules as $employeeSchedules)
         {
@@ -148,95 +148,64 @@ class DatabaseSeeder extends Seeder
                 if ($schedule->hoilday || $schedule->weekend) {continue;}
 
                 $totalMinutesInDay = $schedule->end_time->diffInMinutes($schedule->start_time);
-                $totalHalfHourBlocks = $totalMinutesInDay / 30; // bookings are 30 minutes long
+                $totalHalfHourSlots = $totalMinutesInDay / 30; // time slots are 30 minutes long
 
-                for ($i = 0; $i < $totalHalfHourBlocks; $i++)
+                for ($i = 0; $i < $totalHalfHourSlots; $i++)
                 {
-                    // 20% chance the booking gets overridden
-                    $overridden = rand(1, 10) < 3 ? true : false;
+                    // 10% chance the slot gets reserved
+                    $reserved = rand(1, 10) < 2 ? true : false;
                     
-                    $startedAt = $schedule->start_time->copy()->addMinutes($i * 30);
-                    $endedAt = $startedAt->copy()->addMinutes(30);
+                    $startTime = $schedule->start_time->copy()->addMinutes($i * 30);
+                    $endTime = $startTime->copy()->addMinutes(30);
 
-                    Booking::create([
+                    TimeSlot::create([
                         'employee_id' => $schedule->employee_id,
-                        'overridden' => $overridden,
-                        'started_at' => $startedAt,
-                        'ended_at' => $endedAt,
+                        'reserved' => $reserved,
+                        'start_time' => $startTime,
+                        'end_time' => $endTime,
                     ]);
                 }
             }
         }
-
-        return $allEmployeeSchedules;
     }
 
-    private function createServiceDefinitions(): Collection
+    private function createServiceDefinitions(): void
     {
-        $serviceDefinitions = new Collection();
-
-        $serviceDefinitions->push(ServiceDefinition::factory()->create(['name' => 'Child Cut']));
-        $serviceDefinitions->push(ServiceDefinition::factory()->create(['name' => 'Beard Trim']));
-        $serviceDefinitions->push(ServiceDefinition::factory()->create(['name' => 'Hair Cut']));
-
-        return $serviceDefinitions;
+        ServiceDefinition::factory()->create(['name' => 'Child Cut']);
+        ServiceDefinition::factory()->create(['name' => 'Beard Trim']);
+        ServiceDefinition::factory()->create(['name' => 'Hair Cut']);
     }
 
-    private function createBookings(Collection $allEmployeeSchedules, Collection $clients, Collection $serviceDefinitions): void
+    private function createBookings(): void
     {
-        $today = Carbon::today();
-        $twoWeeksFromToday = $today->addWeeks(2);
-        
-        foreach ($allEmployeeSchedules as $schedules)
-        {
-            foreach ($schedules as $schedule)
-            {
-                if ($schedule->weekend ||
-                    $schedule->holiday ||
-                    $schedule->work_date->gt($twoWeeksFromToday))
-                {
-                    continue;
-                }
+        $clients = Client::get();
+        $hairCutServiceDefinition = ServiceDefinition::where('name', 'Hair Cut')->first();
 
-                // initialize
-                $bookingEndedAt = $schedule->start_time; 
+        TimeSlot::where('reserved', false)
+                ->chunk(3000, function ($timeSlots) use ($clients, $hairCutServiceDefinition){
+                    $timeSlots->each( function($slot) use ($clients, $hairCutServiceDefinition) {
 
-                // booking end time doesn't exceed schedule end time
-                while ($bookingEndedAt->lte($schedule->end_time))
-                {
-                    // choose 1 or 2 services for booking
-                    $applicableServiceDefinitions = $serviceDefinitions->random(rand(1, 2));
-                    $bookingDuration = $applicableServiceDefinitions->sum('duration');
+                        // 70% chance a booking is created
+                        $shouldCreateBooking = rand(1, 10) > 3 ? true : false;
 
-                    $lastBookingEndedAt = $bookingEndedAt;
+                        if ($shouldCreateBooking)
+                        {
+                            $booking = Booking::create([
+                                'client_id' => $clients->random()->id,
+                                'employee_id' => $slot->employee_id,
+                                'started_at' => $slot->start_time,
+                                'ended_at' => $slot->end_time,
+                            ]);
 
-                    // $bookingStartedAt = $schedule->work_date->copy()
-                    $bookingStartedAt = $schedule->start_time->copy()
-                        ->addSeconds($lastBookingEndedAt->secondsSinceMidnight() - $schedule->start_time->secondsSinceMidnight()) // end time of last booking
-                        ->addSeconds(collect([0, 1800])->random()); // buffer between bookings is 0 or 30 minutes
-
-                    $bookingEndedAt = $bookingStartedAt->copy()->addSeconds($bookingDuration);
-                    if ($bookingEndedAt->gt($schedule->end_time))
-                    {
-                        continue;
-                    }
-
-                    $booking = Booking::create([
-                        'client_id' => $clients->random()->id,
-                        'employee_id' => $schedule->employee_id,
-                        'started_at' => $bookingStartedAt,
-                        'ended_at' => $bookingEndedAt,
-                    ]);
-
-                    foreach ($applicableServiceDefinitions as $serviceDefinition)
-                    {
-                        Service::create([
-                            'service_definition_id' => $serviceDefinition->id,
-                            'booking_id' => $booking->id
-                        ]);
-                    }                   
-                }
-            }
-        }
+                            Service::create([
+                                'service_definition_id' => $hairCutServiceDefinition->id,
+                                'booking_id' => $booking->id
+                            ]);  
+                            
+                            $slot->reserved = true;
+                            $slot->save();
+                        }
+                    });
+                });
     }
 }

@@ -31,6 +31,7 @@ class Employee extends BaseModel
 
         'user',
         'schedules',
+        'time_slots',
         'bookings',
 
         'past_bookings',
@@ -56,6 +57,11 @@ class Employee extends BaseModel
     public function schedules()
     {
         return $this->hasMany(EmployeeSchedule::class);
+    }
+
+    public function time_slots()
+    {
+        return $this->hasMany(TimeSlot::class);
     }
 
     public function bookings()
