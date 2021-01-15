@@ -14,22 +14,25 @@ class ClientController extends ApiController
         //
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(ClientRequest $request): JsonResponse
     {
-        $service = new AuthService();
-        $client = $service->registerClient($request);
+        $service = new ClientService();
+        $client = $service->create($request);
 
-        return $this->success($client, 'Client registered.', 201);
+        return $this->success($client, 'Client created.', 201);
     }
 
     public function show($id)
     {
-        //
+  
     }
 
-    public function update(Request $request, $id)
+    public function update(ClientRequest $request, $id)
     {
-        //
+        $service = new ClientService();
+        $client = $service->create($request);
+
+        return $this->success($client, 'Client created.', 201);
     }
 
     public function destroy($id)

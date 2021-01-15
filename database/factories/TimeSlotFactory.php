@@ -39,8 +39,8 @@ class TimeSlotFactory extends Factory
                 return Employee::factory()->create()->id;
             },
             'reserved' => false,
-            'started_at' => $startedAt,
-            'ended_at' => $endedAt
+            'start_time' => $startedAt,
+            'end_time' => $endedAt
         ];
     }    
 

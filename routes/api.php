@@ -25,21 +25,22 @@ Route::get('/', function(Request $r) {
 // TODO: maybe we change the endpoint to /token.  would be more restful and more
 //       representatvie of whats being created and returned to the client, ie the auth token
 Route::post('/login',    [AuthController::class, 'login']);
+Route::post('/clients',  [ClientController::class, 'store']);
 
 
 // Route::group(['middleware' => ['auth:api']], function()
 // {
-    Route::post('/clients',             [ClientController::class,    'store']);
-    Route::put('/clients/{id}',         [ClientController::class,    'update']);
+    Route::post('/employees',                [EmployeeController::class,  'store']);
+    Route::put('/employees/{id}',            [EmployeeController::class,  'update']);
 
-    Route::post('/employees',           [EmployeeController::class,  'store']);
-    Route::put('/employees/{id}',       [EmployeeController::class,  'update']);
+    Route::get('/time-slots',                [TimeSlotController::class,  'index']);
 
-    Route::post('/bookings',            [BookingController::class,   'store']);
-    Route::put('/bookings/{id}',        [BookingController::class,   'update']);
-    Route::put('/bookings/{id}/client', [BookingController::class,   'reserve']);
+    Route::put('/clients/{id}',              [ClientController::class,    'update']);
 
-    Route::get('/time-slots',           [TimeSlotController::class,  'index']);
-    Route::post('/logout',              [AuthController::class,      'logout']);
+    Route::post('/bookings',                 [BookingController::class,   'store']);
+    Route::put('/bookings/{id}',             [BookingController::class,   'update']);
+    Route::patch('/bookings/{id}/cancelled', [BookingController::class,   'cancel']);
+
+    Route::post('/logout',                   [AuthController::class,      'logout']);
 
 // });

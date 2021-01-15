@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Collection;
+
 class TimeSlot extends BaseModel
 {
     protected $fillable = [
@@ -26,18 +28,21 @@ class TimeSlot extends BaseModel
         'end_time'   => 'datetime',
         'reserved'   => 'boolean'
     ];
-    // TODO: need to rethink the usefulness of this watson validating package.
-    protected $rules = [
-    //     'employee_id'   => 'required|string|max:36',
-    //     // 'overridden'    => 'required|boolean',
-    //     'start_time'    => 'date|before:end_time',
-    //     'end_time'      => 'date|after:start_time'
-    ];
 
     // Relations
 
     public function employee()
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public function getNextSlots(int $numberOfSlotsRequired): Collection
+    {
+        return TimeSlot::where('start_time', '>', $this->start_time)
+            ->where('employee_id', $this->employee_id)
+            ->whereRaw('DATE(?) = DATE(start_time)', [$this->start_time])
+            ->orderBy('start_time')
+            ->take($numberOfSlotsRequired - 1)
+            ->get();
     }
 }

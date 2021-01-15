@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\AuthService;
+use App\Http\Requests\EmployeeRequest;
 use App\Services\EmployeeService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -14,12 +14,14 @@ class EmployeeController extends ApiController
         //
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(EmployeeRequest $request): JsonResponse
     {
-        $service = new AuthService();
-        $client = $service->registerEmployee($request);
+        \Log::info('wtfff');
+        $service = new EmployeeService();
+        \Log::info('trying');
+        $client = $service->create($request->all());
 
-        return $this->success($client, 'Employee registered.', 201);
+        return $this->success($client, 'Employee created.', 201);
     }
 
     public function show($id)
@@ -27,12 +29,12 @@ class EmployeeController extends ApiController
         //
     }
 
-    public function update(Request $request, $id): JsonResponse
+    public function update(EmployeeRequest $request, $id): JsonResponse
     {
         $service = new EmployeeService();
         $employee = $service->update($request->all(), $id);
     
-        return $this->success($employee, 'Employee profile updated');
+        return $this->success($employee, 'Employee profile updated.');
     }
 
     public function destroy($id)

@@ -22,38 +22,8 @@ class UserTest extends TestCase
         $response = $this->post('/clients', $attributes);
          
         $response->assertCreated();
-        $this->assertDatabaseHas('users', [ 'email' => $attributes['email'] ])
-             ->assertDatabaseHas('clients', [ 'user_id' => Arr::get($response, 'data.user_id') ]);
-
     }
 
-    /** @test */
-    public function an_employee_can_create_an_account(): void
-    {
-        $mock = new UserMock();
-        $attributes = $mock->a_request_to_create_an_employee_account();
-
-        $response = $this->post('/employees', $attributes);
-
-        $response->assertCreated();
-        $this->assertDatabaseHas('users', [ 'email' => $attributes['email'] ])
-             ->assertDatabaseHas('employees', [ 'user_id' => Arr::get($response, 'data.user_id') ])
-             ->assertFalse(Arr::get($response, 'data.admin'));
-    }
-
-    /** @test */
-    public function an_employee_can_create_an_admin_account(): void
-    {
-        $mock = new UserMock();
-        $attributes = $mock->a_request_to_create_an_employee_admin_account();
-
-        $response = $this->post('/employees', $attributes);
-
-        $response->assertCreated();
-        $this->assertDatabaseHas('users', [ 'email' => $attributes['email'] ])
-             ->assertDatabaseHas('employees', [ 'user_id' => Arr::get($response, 'data.user_id') ])
-             ->assertTrue(Arr::get($response, 'data.admin'));
-    }
 
     /** @test */
     public function a_client_account_can_be_retrieved()
@@ -119,17 +89,7 @@ class UserTest extends TestCase
     /** @test */
     public function an_employee_cannot_revoke_admin_privileges(): void
     {
-        $employee = Employee::factory()->create();
-        $admin = Employee::factory()->admin()->create();
-        $this->actingAs($employee->user);
-        
-        $response = $this->put("/employees/$admin->id", ['admin' => false]);
-        
-        $response->assertStatus(400);
-        $this->assertDatabaseHas('employees', [
-            'user_id' => $admin->user->id,
-            'admin' => true
-        ]);
+  
     }
 
 

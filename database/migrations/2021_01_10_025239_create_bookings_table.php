@@ -19,6 +19,8 @@ class CreateBookingsTable extends Migration
             $table->uuid('client_id');
             $table->dateTime('started_at');
             $table->dateTime('ended_at');
+            $table->dateTime('cancelled_at')->nullable();
+            $table->uuid('cancelled_by')->nullable();
             $table->timestamps();
 
             $table->foreign('employee_id')->references('id')->on('employees');

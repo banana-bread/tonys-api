@@ -5,47 +5,44 @@ namespace App\Models;
 class Booking extends BaseModel
 {
     protected $fillable = [
+        'client_id',
         'employee_id', 
+        'cancelled_at',
+        'cancelled_by',
         'started_at',
         'ended_at',
-        'overridden',
     ];
 
     protected $visible = [
         'id',
+        'client_id',
         'employee_id',
-        'reserved',
+        'cancelled_at',
+        'cancelled_by',
         'started_at',
         'ended_at',
 
-        'employee',
         'client',
+        'employee',
         'services',
     ];
 
     protected $casts = [
-        'started_at' => 'datetime',
-        'ended_at'   => 'datetime',
-        'reserved'   => 'boolean'
-    ];
-    // TODO: need to rethink the usefulness of this watson validating package.
-    protected $rules = [
-    //     'employee_id'   => 'required|string|max:36',
-    //     // 'overridden'    => 'required|boolean',
-    //     'started_at'    => 'date|before:ended_at',
-    //     'ended_at'      => 'date|after:started_at'
+        'started_at'   => 'datetime',
+        'ended_at'     => 'datetime',
+        'cancelled_at' => 'datetime'
     ];
 
     // Relations
 
-    public function employee()
-    {
-        return $this->belongsTo(Employee::class);
-    }
-
     public function client()
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class);
     }
 
     public function services()

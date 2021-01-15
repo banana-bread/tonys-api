@@ -44,11 +44,11 @@ class TimeSlotPdo
         {
             $leadColumnsPart .= 
                 "LEAD (reserved, $i) over(PARTITION BY employee_id ORDER BY start_time) AS next_reserved_$i,
-                 LEAD (start_time, $i) over(PARTITION BY employee_id ORDER BY start_time) AS next_started_at_$i";
+                 LEAD (start_time, $i) over(PARTITION BY employee_id ORDER BY start_time) AS next_start_time_$i";
             
             $whereLeadColumnsPart .= 
                 "AND next_reserved_$i = 0
-                 AND DATE(start_time) = DATE(next_started_at_$i)";
+                 AND DATE(start_time) = DATE(next_start_time_$i)";
 
             if ($i != ($slotsRequired - 1))
             {

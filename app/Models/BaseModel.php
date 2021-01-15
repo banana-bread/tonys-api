@@ -4,12 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Watson\Validating\ValidatingTrait;
 
 class BaseModel extends Model
 {
-    use HasFactory, ValidatingTrait;
-
-    protected $throwValidationExceptions = true;
-
+    use HasFactory;
 }

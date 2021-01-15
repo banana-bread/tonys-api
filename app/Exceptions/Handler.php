@@ -7,7 +7,6 @@ use Laravel\Passport\Exceptions\OAuthServerException;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 use App\Traits\ApiResponse;
-use App\Exceptions\EmployeeAuthorizationException;
 use Illuminate\Http\JsonResponse;
 
 
@@ -36,31 +35,20 @@ class Handler extends ExceptionHandler
 
     public function render($request, Throwable $t): JsonResponse
     {
-        \Log::info($t);
+
+        if ($t instanceof BaseException) 
+        {
+            return $this->handleBaseException($t);
+        }
 
         if ($t instanceof OAuthServerException) 
         {
             return $this->handleOAuthServerException($t);
         }
 
-        if ($t instanceof EmployeeAuthorizationException) 
-        {
-            return $this->handleEmployeeAuthorizationException($t);
-        }
-
-        if ($t instanceof EmployeeAuthorizationException) 
-        {
-            return $this->handleEmployeeAuthorizationException($t);
-        }
-
         if ($t instanceof ValidationException) 
         {
             return $this->handleValidationException($t);
-        }
-
-        if ($t instanceof BookingException)
-        {
-            return $this->handleBookingException($t);
         }
 
         return $this->error('Unknown server error.');
@@ -81,19 +69,13 @@ class Handler extends ExceptionHandler
         return $this->error('OAuth server error.');
     }
 
-    protected function handleEmployeeAuthorizationException(EmployeeAuthorizationException $t): JsonResponse
+    protected function handleBaseException(BaseException $t): JsonResponse
     {
         return $this->error($t->getDebugMessage(), 400);
     }
 
     protected function handleValidationException(ValidationException $t): JsonResponse
     {
-        return $this->error('The given data was invalid.', 400);
+        return $this->error('The given data was invalid.', 422);
     }
-
-    protected function handleBookingException(BookingException $t): JsonResponse
-    {
-        return $this->error($t->getDebugMessage(), 400);
-    }
-
 }
