@@ -10,16 +10,7 @@ use Illuminate\Support\Facades\DB;
 
 class EmployeeService
 {
-    public function create(array $attributes): Employee
-    {   // TODO: figure out a way to create a trait that wraps all public functions in db transactions?
-        return DB::transaction(function () use ($attributes) {
-            $user = User::create($attributes);
-            
-            return $user->employee()->create([
-                'admin' => Arr::get($attributes, 'admin'),
-            ]);
-        });
-    }
+
 
     public function update(array $attributes, string $id): Employee
     {

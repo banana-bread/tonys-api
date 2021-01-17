@@ -27,12 +27,13 @@ class ClientController extends ApiController
   
     }
 
-    public function update(ClientRequest $request, $id)
+    public function update(ClientRequest $request, string $id)
     {
-        $service = new ClientService();
-        $client = $service->create($request);
+        // TODO: implement
+        // $service = new ClientService();
+        // $client = $service->create($request);
 
-        return $this->success($client, 'Client created.', 201);
+        // return $this->success($client, 'Client created.', 201);
     }
 
     public function destroy($id)

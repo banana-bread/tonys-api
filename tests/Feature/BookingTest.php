@@ -25,6 +25,7 @@ class BookingTest extends TestCase
     {
         $timeSlot = TimeSlot::factory()->create();
         $client = Client::factory()->create();
+        $this->actingAs($client->user, 'api');
         $serviceDefinition = ServiceDefinition::factory()->create(['duration' => 1800]);
 
         $response = $this->post('/bookings',[
@@ -42,7 +43,7 @@ class BookingTest extends TestCase
     public function a_booking_can_be_cancelled(): void
     {
         $booking = Booking::factory()->create();
-        $this->actingAs($booking->client->user);
+        $this->actingAs($booking->client->user, 'api');
 
         $response = $this->patch("/bookings/$booking->id/cancelled");
 

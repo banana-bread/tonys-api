@@ -69,14 +69,14 @@ class Employee extends BaseModel
     public function getPastBookingsAttribute()
     {
         return $this->hasMany(Booking::class)
-            ->where('started_at', '<', Carbon::now());
+            ->where('started_at', '<', now());
     }
 
     // TODO: test
     public function getFutureBookingsAttribute()
     {
         return $this->hasMany(Booking::class)
-            ->where('started_at', '>', Carbon::now());
+            ->where('started_at', '>', now());
     }
 
 }

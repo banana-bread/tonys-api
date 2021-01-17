@@ -14,15 +14,13 @@ class EmployeeController extends ApiController
         //
     }
 
-    public function store(EmployeeRequest $request): JsonResponse
-    {
-        \Log::info('wtfff');
-        $service = new EmployeeService();
-        \Log::info('trying');
-        $client = $service->create($request->all());
+    // public function store(EmployeeRequest $request): JsonResponse
+    // {
+    //     $service = new EmployeeService();
+    //     $client = $service->create($request->all());
 
-        return $this->success($client, 'Employee created.', 201);
-    }
+    //     return $this->success($client, 'Employee created.', 201);
+    // }
 
     public function show($id)
     {

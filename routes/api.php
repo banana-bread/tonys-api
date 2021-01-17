@@ -1,6 +1,8 @@
 <?php
 
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\EmployeeController;
@@ -22,15 +24,17 @@ Route::get('/', function(Request $r) {
     return response()->json('tony\'s api');
 });
 
-// TODO: maybe we change the endpoint to /token.  would be more restful and more
-//       representatvie of whats being created and returned to the client, ie the auth token
-Route::post('/login',    [AuthController::class, 'login']);
-Route::post('/clients',  [ClientController::class, 'store']);
+Route::post('/login',                        [LoginController::class,     'login'])->name('login');
+Route::post('/register/employee',            [RegisterController::class,  'employee']);
+Route::post('/register/client',              [RegisterController::class,  'client']);
+Route::get('/login/{provider}',              [LoginController::class,     'redirectToProvider']);
+Route::get('/login/{provider}/callback',     [LoginController::class,     'handleProviderCallback']);
 
-
-// Route::group(['middleware' => ['auth:api']], function()
-// {
-    Route::post('/employees',                [EmployeeController::class,  'store']);
+Route::group(['middleware' => ['auth:api']], function() {
+    Route::get('/test', function(Request $request) {
+        return response()->json('sucessful time');
+    });
+    Route::post('/logout',                   [LogoutController::class,    'logout']);
     Route::put('/employees/{id}',            [EmployeeController::class,  'update']);
 
     Route::get('/time-slots',                [TimeSlotController::class,  'index']);
@@ -40,7 +44,4 @@ Route::post('/clients',  [ClientController::class, 'store']);
     Route::post('/bookings',                 [BookingController::class,   'store']);
     Route::put('/bookings/{id}',             [BookingController::class,   'update']);
     Route::patch('/bookings/{id}/cancelled', [BookingController::class,   'cancel']);
-
-    Route::post('/logout',                   [AuthController::class,      'logout']);
-
-// });
+});

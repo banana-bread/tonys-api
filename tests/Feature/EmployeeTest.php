@@ -16,8 +16,7 @@ class EmployeeTest extends TestCase
     public function an_employee_can_create_an_account(): void
     {
         $response = $this->post('/employees', [ 
-            'first_name' => $this->faker->firstName,
-            'last_name' => $this->faker->lastName,
+            'name' => $this->name,
             'email' => $this->faker->unique()->safeEmail,
             'phone' => '+18195551234',
             'password' => 'password',
@@ -31,8 +30,7 @@ class EmployeeTest extends TestCase
        public function an_employee_can_create_an_admin_account(): void
        {
            $response = $this->post('/employees', [
-                'first_name' => $this->faker->firstName,
-                'last_name' => $this->faker->lastName,
+                'name' => $this->faker->name,
                 'email' => $this->faker->unique()->safeEmail,
                 'phone' => '+18195551234',
                 'password' => 'password',

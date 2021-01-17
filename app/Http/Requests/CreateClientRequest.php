@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
-
-class ClientRequest extends FormRequest
+class CreateClientRequest extends CreateUserRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,10 +21,10 @@ class ClientRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'name' => 'required|string',
-            'email'      => 'required|email|unique:users',
-            'phone'      => 'phone:CA',
-        ];
+        return $this->userRules();
+
+        // return array_merge([
+        //     // nothing for now, think there will be extra stuff eventually
+        // ], $this->userRules());
     }
 }

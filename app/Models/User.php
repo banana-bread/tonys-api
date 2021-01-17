@@ -17,24 +17,17 @@ class User extends Authenticatable
     protected $keyType = 'string';
 
     /**
-     * The attributes that are mass assignable.
+     * The attributes that are not mass assignable.
      *
      * @var array
      */
-    protected $fillable = [
-        'first_name',
-        'last_name',
-        'email',
-        'phone',
-        'password',
-    ];
+    protected $guarded = [];
 
     protected $visible = [
         'id',
         'client_id',
         'employee_id',
-        'first_name',
-        'last_name',
+        'name',
         'email',
         'phone'
     ];

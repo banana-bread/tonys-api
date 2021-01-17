@@ -4,11 +4,12 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Laravel\Passport\Exceptions\OAuthServerException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 use App\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
-
+use Illuminate\Support\Collection;
 
 class Handler extends ExceptionHandler
 {
@@ -38,7 +39,7 @@ class Handler extends ExceptionHandler
 
         if ($t instanceof BaseException) 
         {
-            return $this->handleBaseException($t);
+            return $this->error($t->getDebugMessage(), 400);
         }
 
         if ($t instanceof OAuthServerException) 
@@ -46,11 +47,16 @@ class Handler extends ExceptionHandler
             return $this->handleOAuthServerException($t);
         }
 
-        if ($t instanceof ValidationException) 
+        if ($t instanceof AuthenticationException)
         {
-            return $this->handleValidationException($t);
+            return $this->error('User not authenticated', 401);
         }
 
+        if ($t instanceof ValidationException) 
+        {   
+            return $this->error(collect($t->errors())->first()[0], 422);
+        }
+        
         return $this->error('Unknown server error.');
     }
 
@@ -67,15 +73,5 @@ class Handler extends ExceptionHandler
         }
 
         return $this->error('OAuth server error.');
-    }
-
-    protected function handleBaseException(BaseException $t): JsonResponse
-    {
-        return $this->error($t->getDebugMessage(), 400);
-    }
-
-    protected function handleValidationException(ValidationException $t): JsonResponse
-    {
-        return $this->error('The given data was invalid.', 422);
     }
 }
