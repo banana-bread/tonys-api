@@ -56,7 +56,7 @@ class Handler extends ExceptionHandler
         {   
             return $this->error(collect($t->errors())->first()[0], 422);
         }
-        
+        \Log::info($t);
         return $this->error('Unknown server error.');
     }
 
