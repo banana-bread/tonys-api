@@ -24,8 +24,8 @@ class TimeSlotPdo
     public function fetchAvailableSlots(): Collection
     {
         $query = TimeSlot::where('reserved', 0)
-                         ->where('start_time', '>', $this->start_time) 
-                         ->where('end_time', '<', $this->end_time); 
+            ->where('start_time', '>', $this->dateFrom) 
+            ->where('end_time', '<', $this->dateTo); 
         
         if (!! $this->employeeId)
         {

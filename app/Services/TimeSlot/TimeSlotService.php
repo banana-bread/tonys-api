@@ -23,11 +23,12 @@ class TimeSlotService
         $summedServiceDuration = $serviceDefinitions->sum('duration');
         $slotsRequired = ceil($summedServiceDuration / $singleSlotDuration);
 
+        // TODO: rename TimeSlotPdo to something else
         $tsPdo = new TimeSlotPdo($dateFrom, $dateTo, $employeeId);
 
         $slots = $slotsRequired > 1
             ? $tsPdo->fetchConsecutiveAvailableSlots($slotsRequired)
-            : $tdPdo->fetchAvailableSlots();
+            : $tsPdo->fetchAvailableSlots();
 
         return $slots;
     }

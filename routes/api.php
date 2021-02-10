@@ -40,6 +40,7 @@ Route::group(['middleware' => ['auth:api']], function() {
     Route::get('/time-slots',                [TimeSlotController::class,  'index']);
 
     Route::put('/clients/{id}',              [ClientController::class,    'update']);
+    Route::get('/clients/{id}',              [ClientController::class,    'show']);
 
     Route::post('/bookings',                 [BookingController::class,   'store']);
     Route::put('/bookings/{id}',             [BookingController::class,   'update']);

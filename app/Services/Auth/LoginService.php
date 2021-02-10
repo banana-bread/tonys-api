@@ -9,7 +9,7 @@ use Laravel\Socialite\Facades\Socialite;
 
 class LoginService
 {
-    public function loginWithPassport(Request $request): string
+    public function loginWithPassport(Request $request): array
     {
         $request->request->add([
             'grant_type'     => 'password',
@@ -20,7 +20,7 @@ class LoginService
         return $this->requestToken($request);
     }
 
-    public function loginWithProvider(Request $request, string $provider): string
+    public function loginWithProvider(Request $request, string $provider): array
     {
         $providerUser = Socialite::driver($provider)->stateless()->user();
 
@@ -40,8 +40,8 @@ class LoginService
         return $this->requestToken($request);
     }
 
-    protected function requestToken(Request $request)
+    protected function requestToken(Request $request): array
     {
-        return App::call('\Laravel\Passport\Http\Controllers\AccessTokenController@issueToken', [$request])->content();
+        return json_decode(App::call('\Laravel\Passport\Http\Controllers\AccessTokenController@issueToken', [$request])->content(), true);
     }
 }

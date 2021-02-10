@@ -28,4 +28,9 @@ class ClientService
             return $client;
         });
     }
+
+    public function get(string $id): Client
+    {
+        return Client::findOrFail($id);
+    }
 }
