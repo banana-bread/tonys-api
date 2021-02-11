@@ -3,12 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Services\TimeSlot\TimeSlotService;
-
-use Illuminate\Http\Request;
+use App\Http\Requests\TimeSlotRequest;
 
 class TimeSlotController extends ApiController
 {
-    public function index(Request $request)
+    public function index(TimeSlotRequest $request)
     {
         $service = new TimeSlotService();
         $availableSlots = $service->getAvailableSlots($request->all());

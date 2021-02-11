@@ -30,10 +30,7 @@ Route::post('/register/client',              [RegisterController::class,  'clien
 Route::get('/login/{provider}',              [LoginController::class,     'redirectToProvider']);
 Route::get('/login/{provider}/callback',     [LoginController::class,     'handleProviderCallback']);
 
-Route::group(['middleware' => ['auth:api']], function() {
-    Route::get('/test', function(Request $request) {
-        return response()->json('sucessful time');
-    });
+// Route::group(['middleware' => ['auth:api']], function() {
     Route::post('/logout',                   [LogoutController::class,    'logout']);
     Route::put('/employees/{id}',            [EmployeeController::class,  'update']);
 
@@ -41,8 +38,9 @@ Route::group(['middleware' => ['auth:api']], function() {
 
     Route::put('/clients/{id}',              [ClientController::class,    'update']);
     Route::get('/clients/{id}',              [ClientController::class,    'show']);
+    Route::get('/authed/client',             [ClientController::class,    'authed']);
 
     Route::post('/bookings',                 [BookingController::class,   'store']);
     Route::put('/bookings/{id}',             [BookingController::class,   'update']);
     Route::patch('/bookings/{id}/cancelled', [BookingController::class,   'cancel']);
-});
+// });

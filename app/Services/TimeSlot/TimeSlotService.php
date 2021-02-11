@@ -4,6 +4,7 @@ namespace App\Services\TimeSlot;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Illuminate\Support\Collection;
 use App\Models\ServiceDefinition;
 use App\Services\TimeSlot\TimeSlotPdo;
 
