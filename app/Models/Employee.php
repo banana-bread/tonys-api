@@ -3,8 +3,6 @@
 namespace App\Models;
 
 use App\Traits\HasUuid;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection;
 
 class Employee extends BaseModel
 {
@@ -13,8 +11,10 @@ class Employee extends BaseModel
     public $incrementing = false;
     protected $keyType = 'string';
 
-    protected $with = [
-        'user'
+    protected $appends = [
+        'name',
+        'phone',
+        'email'
     ];
 
     protected $fillable = [
@@ -25,22 +25,15 @@ class Employee extends BaseModel
 
     protected $visible = [
         'id',
-        'user_id',
-        'admin',
-
-        'user',
-        'schedules',
-        'time_slots',
-        'bookings',
-
-        'past_bookings',
-        'future_bookings'
+        'name',
+        'phone',
+        'email',
+        'admin'
     ];
 
     protected $casts = [
         'admin' => 'boolean'
     ];
-
 
     // Relations
 
@@ -62,6 +55,21 @@ class Employee extends BaseModel
     public function bookings()
     {
         return $this->hasMany(Booking::class);
+    }
+
+    public function getNameAttribute()
+    {
+        return $this->user->name;
+    }
+
+    public function getPhoneAttribute()
+    {
+        return $this->user->phone;
+    }
+
+    public function getEmailAttribute()
+    {
+        return $this->user->email;
     }
 
     // Custom Relations

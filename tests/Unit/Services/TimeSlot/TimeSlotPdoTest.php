@@ -84,34 +84,6 @@ class TimeSlotPdoTest extends TestCase
         $this->assertEquals(2, $availableTimeSlots->count());
     }
 
-
-    /** @test */
-    public function not_specifying_employee_id_will_return_consecutive_available_slots_for_all_employees()
-    {
-        $employee1 = Employee::factory()->create();
-        $employee2 = Employee::factory()->create();
-
-        $available1 = TimeSlot::factory()->create(['start_time' => Carbon::today()->addHours(9),'end_time' => Carbon::today()->addHours(9)->addMinutes(30),'employee_id' => $employee1->id]);
-        $available2 = TimeSlot::factory()->create(['start_time' => Carbon::today()->addHours(9)->addMinutes(30),'end_time' => Carbon::today()->addHours(10),'employee_id' => $employee1->id]);
-        $available3 = TimeSlot::factory()->create(['start_time' => Carbon::today()->addHours(10),'end_time' => Carbon::today()->addHours(10)->addMinutes(30),'employee_id' => $employee2->id]);
-        $available4 = TimeSlot::factory()->create(['start_time' => Carbon::today()->addHours(10)->addMinutes(30),'end_time' => Carbon::today()->addHours(11),'employee_id' => $employee2->id]);
-
-        $from = Carbon::today();
-        $to = $from->copy()->addMonth();
-        $slotsRequired = 2;
-
-        $tsPdo = new TimeSlotPdo($to, $from);
-        $availableTimeSlots = $tsPdo->fetchConsecutiveAvailableSlots($slotsRequired);
-
-        $this->assertTrue($availableTimeSlots->contains(function ($slot) use ($employee1) {
-            return $slot['employee_id'] == $employee1->id;
-        }));
-
-        $this->assertTrue($availableTimeSlots->contains(function ($slot) use ($employee2) {
-            return $slot['employee_id'] == $employee2->id;
-        }));
-    }
-
     /** @test */
     public function specifying_employee_id_will_return_available_slots_for_only_that_particular_employee()
     {
@@ -181,5 +153,48 @@ class TimeSlotPdoTest extends TestCase
         $availableTimeSlots = $tsPdo->fetchConsecutiveAvailableSlots($slotsRequired);
 
         $this->assertEquals(0, $availableTimeSlots->count());
+    }
+
+    // TODO: need to finish. need to set up second mysql testing db
+    /** @test */
+    public function time_slots_before_the_provided_date_from_will_not_be_retrieved()
+    {
+        $from = Carbon::today();
+        $to = Carbon::today()->addDays(5);
+        $slotsRequired = 2;
+
+        $tsPdo = new TimeSlotPdo($to, $from);
+        $availableTimeSlots = $tsPdo->fetchConsecutiveAvailableSlots($slotsRequired);
+
+    }
+
+    /** @test */
+    public function time_slots_after_the_provided_date_to_will_not_be_retrieved()
+    {
+        
+    }
+
+    /** @test */
+    public function time_slots_retrieved_are_inclusive_of_date_from()
+    {
+        
+    }
+
+    /** @test */
+    public function time_slots_retrieved_are_inclusive_of_date_to()
+    {
+        
+    }
+
+    /** @test */
+    public function a_random_time_slot_is_retrieved_when_employee_is_not_specified_and_many_available_slots_exist_for_the_same_time()
+    {
+        
+    }
+
+    /** @test */
+    public function only_one_time_slot_can_be_retrieved_per_date_time()
+    {
+        
     }
 }

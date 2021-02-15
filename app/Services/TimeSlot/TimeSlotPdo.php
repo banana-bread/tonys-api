@@ -2,7 +2,6 @@
 
 namespace App\Services\TimeSlot;
 
-use App\Models\TimeSlot;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -18,27 +17,52 @@ class TimeSlotPdo
     {
         $this->dateFrom = $dateFrom;
         $this->dateTo = $dateTo;
-        $this->employeeId = $employeeId;        
+        $this->employeeId = $employeeId;
     }
 
     public function fetchAvailableSlots(): Collection
-    {
-        $query = TimeSlot::where('reserved', 0)
-            ->where('start_time', '>', $this->dateFrom) 
-            ->where('end_time', '<', $this->dateTo); 
-        
-        if (!! $this->employeeId)
-        {
-            $query = $query->where('employee_id', $this->employeeId);
-        }
-
-        return $query->get();
+    {        
+        $sql = $this->prepareAvailableSlotsSql();
+        return $this->executeSqlAndProcessResults($sql);
     }
 
     public function fetchConsecutiveAvailableSlots(int $slotsRequired): Collection
     {
+        $sql = $this->prepareConsecutiveAvailableSlotsSql($slotsRequired);
+        return $this->executeSqlAndProcessResults($sql);
+    }
+
+    protected function executeSqlAndProcessResults(string $sql): Collection
+    {
+        $availableSlots = $this->executeAvailableSlotsSql($sql);
+
+        if (! $this->employeeId)
+        {
+            $availableSlots = $this->chooseRandomSlotWhenManyAreAvailable($availableSlots);
+        }
+
+        return $this->mapAvailableSlotsCollection($availableSlots);
+    }
+
+    protected function prepareAvailableSlotsSql(): string
+    {
+        $andEmployeeIdPart = !!$this->employeeId
+        ? "AND employee_id = :employee_id"
+        : "";
+    
+        return    
+            "SELECT id, employee_id, start_time, end_time
+            FROM time_slots
+            WHERE date(start_time) >= date(:date_from)
+            AND date(end_time) <= date(:date_to) " .
+            $andEmployeeIdPart .
+            " ORDER BY start_time";
+    }
+
+    protected function prepareConsecutiveAvailableSlotsSql(int $slotsRequired): string
+    {
         $leadColumnsPart = "";
-        $whereLeadColumnsPart = "";
+        $andLeadColumnsPart = "";
 
         for ($i = 1; $i < $slotsRequired; $i++)
         {
@@ -46,46 +70,62 @@ class TimeSlotPdo
                 "LEAD (reserved, $i) over(PARTITION BY employee_id ORDER BY start_time) AS next_reserved_$i,
                  LEAD (start_time, $i) over(PARTITION BY employee_id ORDER BY start_time) AS next_start_time_$i";
             
-            $whereLeadColumnsPart .= 
+            $andLeadColumnsPart .= 
                 "AND next_reserved_$i = 0
                  AND DATE(start_time) = DATE(next_start_time_$i)";
 
             if ($i != ($slotsRequired - 1))
             {
                 $leadColumnsPart .= ",\n";
-                $whereLeadColumnsPart .= "\n";
+                $andLeadColumnsPart .= "\n";
             }
         }
 
-        $whereEmployeeIdPart = !!$this->employeeId
-            ? "WHERE employee_id = :employee_id"
+        $andEmployeeIdPart = !!$this->employeeId
+            ? "AND employee_id = :employee_id"
             : "";
 
-        $sql = 
+        return
             "WITH s AS (SELECT id, employee_id, start_time, end_time, reserved, $leadColumnsPart
                         FROM time_slots
-                        $whereEmployeeIdPart)
+                        WHERE date(start_time) >= date(:date_from)
+                        AND date(start_time) <= date(:date_to)                      
+                        $andEmployeeIdPart)
                         SELECT id, employee_id, start_time, end_time
                         FROM s
                         WHERE reserved = 0
-                        $whereLeadColumnsPart;";
+                        $andLeadColumnsPart                        
+                        ORDER BY start_time;";
+    }
 
-        
+    protected function executeAvailableSlotsSql(string $sql): Collection
+    {
         $stmt = DB::getPdo()->prepare($sql);
-        $params = [':employee_id' => $this->employeeId];
+        $params = [
+            ':date_from' => $this->dateFrom->copy()->startOfDay()->toDateString(),
+            ':date_to' => $this->dateTo->copy()->endOfDay()->toDateString(),
+        ];
 
-        $queryWasSuccessful = !!$this->employeeId
-            ? $stmt->execute($params)
-            : $stmt->execute();
+        \Log::info($this->dateTo->endOfDay());
+
+        if (!! $this->employeeId)
+        {
+            $params[':employee_id'] = $this->employeeId;
+        }
+
+        $queryWasSuccessful = $stmt->execute($params);
 
         if (! $queryWasSuccessful)
         {
             throw new TimeSlotException([], 'There was an error in retrieving available time slots.');
         } 
 
-        $availableSlots = $stmt->fetchAll();
+        return collect($stmt->fetchAll());
+    }
 
-        return collect($availableSlots)->map(function ($slot) {
+    protected function mapAvailableSlotsCollection(Collection $availableSlots): Collection
+    {
+        return $availableSlots->map(function ($slot) {
             return [
                 'id' => $slot['id'],
                 'employee_id' => $slot['employee_id'],
@@ -93,5 +133,14 @@ class TimeSlotPdo
                 'end_time' => $slot['end_time'],
             ];
         });
+    }
+
+    protected function chooseRandomSlotWhenManyAreAvailable(Collection $availableSlots): Collection
+    {
+        $availableSlots = $availableSlots->groupBy('start_time');
+
+        return $availableSlots->map(function($slot) {
+            return $slot->random();
+        })->values();
     }
 }

@@ -11,7 +11,6 @@ class Client extends BaseModel
     public $incrementing = false;
     protected $keyType = 'string';
 
-    // protected $with = ['user'];
     protected $appends = [
         'name',
         'phone',
