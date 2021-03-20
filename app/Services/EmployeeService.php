@@ -6,11 +6,15 @@ use App\Models\Employee;
 use App\Exceptions\EmployeeAuthorizationException;
 use App\Models\User;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class EmployeeService
 {
-
+    public function getEmployees(): Collection
+    {
+        return Employee::all();
+    }
 
     public function update(array $attributes, string $id): Employee
     {

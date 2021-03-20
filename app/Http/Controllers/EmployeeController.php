@@ -9,9 +9,12 @@ use Illuminate\Http\JsonResponse;
 
 class EmployeeController extends ApiController
 {
-    public function index()
+    public function index(): JsonResponse
     {
-        //
+        $service = new EmployeeService();
+        $employees = $service->getEmployees();
+
+        return $this->success(['employees' => $employees], 'Employees retrieved.');
     }
 
     // public function store(EmployeeRequest $request): JsonResponse
@@ -22,7 +25,7 @@ class EmployeeController extends ApiController
     //     return $this->success($client, 'Employee created.', 201);
     // }
 
-    public function show($id)
+    public function get($id)
     {
         //
     }

@@ -22,7 +22,7 @@ class ClientController extends ApiController
         return $this->success(['client' => $client], 'Client created.', 201);
     }
 
-    public function show(string $id): JsonResponse
+    public function get(string $id): JsonResponse
     {
         $service = new ClientService();
         $client = $service->get($id);
