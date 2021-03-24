@@ -51,12 +51,13 @@ class TimeSlotPdo
         : "";
     
         return    
-            "SELECT id, employee_id, start_time, end_time
+            "SELECT id, employee_id, start_time, end_time, reserved
             FROM time_slots
             WHERE date(start_time) >= date(:date_from)
             AND date(end_time) <= date(:date_to) " .
             $andEmployeeIdPart .
-            " ORDER BY start_time";
+            " AND reserved = 0
+             ORDER BY start_time";
     }
 
     protected function prepareConsecutiveAvailableSlotsSql(int $slotsRequired): string
@@ -105,8 +106,6 @@ class TimeSlotPdo
             ':date_from' => $this->dateFrom->copy()->startOfDay()->toDateString(),
             ':date_to' => $this->dateTo->copy()->endOfDay()->toDateString(),
         ];
-
-        \Log::info($this->dateTo->endOfDay());
 
         if (!! $this->employeeId)
         {
