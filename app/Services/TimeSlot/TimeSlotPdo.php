@@ -7,6 +7,11 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use TimeSlotException;
 
+/* TODO: 
+    - [ ] I think we need to filter out any time slots that overlap with an existing client booking. IE
+          If the client has a booking on that same time and day, we shouldn't show any results of time slots
+          that are available, but would conflict with the existing appointment.
+*/
 class TimeSlotPdo
 {
     protected Carbon $dateFrom;

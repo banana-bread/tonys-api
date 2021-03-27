@@ -36,13 +36,13 @@ class TimeSlot extends BaseModel
         return $this->belongsTo(Employee::class);
     }
 
-    public function getNextSlots(int $numberOfSlotsRequired): Collection
+    public function getNextSlots(int $totalSlotsRequired): Collection
     {
         return TimeSlot::where('start_time', '>', $this->start_time)
             ->where('employee_id', $this->employee_id)
             ->whereRaw('DATE(?) = DATE(start_time)', [$this->start_time])
             ->orderBy('start_time')
-            ->take($numberOfSlotsRequired - 1)
+            ->take($totalSlotsRequired - 1)
             ->get();
     }
 }

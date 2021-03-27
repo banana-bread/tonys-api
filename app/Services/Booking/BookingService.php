@@ -2,6 +2,7 @@
 
 namespace App\Services\Booking;
 
+use App\Exceptions\BookingException;
 use App\Models\Booking;
 use App\Models\Client;
 use App\Models\Employee;
@@ -15,64 +16,84 @@ use Illuminate\Support\Facades\DB;
 
 class BookingService
 {
-    // TODO: needs to be tested, likely broken down to be unit tested further
     public function create(array $attributes): ?Booking
     {
         return DB::transaction(function () use ($attributes) {
+            // getting query data
             $client = Client::findOrFail(Arr::get($attributes, 'client_id'));
             $startingTimeSlot = TimeSlot::findOrFail(Arr::get($attributes, 'time_slot_id'));
             $serviceDefinitions = ServiceDefinition::findOrFail(Arr::get($attributes, 'service_definition_ids'));
-
-            $timeSlots = new Collection();
-            $timeSlots->push($startingTimeSlot);
-
-            $verifier = new BookingVerifier($startingTimeSlot);
-            $verifier->verifyStillAvailable();
-            $verifier->verifyNoOverlap($client);
-
-            $singleSlotDuration = 1800;  // this really needs to be a company setting
             $bookingDuration = $serviceDefinitions->sum('duration');
 
-            if ($bookingDuration > $singleSlotDuration)
-            {
-                $numberOfSlotsRequired = ceil($bookingDuration / $singleSlotDuration);
-                $nextSlots = $startingTimeSlot->getNextSlots($numberOfSlotsRequired);
-                $verifier->verifyNextSlotsAreAvailable($nextSlots);
-                $timeSlots->push($nextSlots);
-            }
-            // TODO: lets test that this works
-            TimeSlot::whereIn('id', Arr::pluck($timeSlots, 'id'))
-                ->lockForUpdate()
-                ->update(['reserved' => true]);
+            $singleSlotDuration = 1800;  // this really needs to be a company setting
+            $numberOfSlotsRequired = ceil($bookingDuration / $singleSlotDuration);
 
-            $booking = Booking::create([
-                'client_id' => $client->id,
-                'employee_id' => $timeSlots->first()->employee_id,
-                'started_at' => $timeSlots->first()->start_time,
-                'ended_at' => $timeSlots->first()->start_time->copy()->addSeconds($bookingDuration)
-            ]);
+            $allTimeSlots = $numberOfSlotsRequired > 1
+                ? $startingTimeSlot->getNextSlots($numberOfSlotsRequired)->prepend($startingTimeSlot)
+                : $startingTimeSlot;
 
-            $services = $serviceDefinitions->map(function ($definition) use ($booking) {
-                $service = new Service();
-                $service->service_definition_id = $definition->id;
-                $service->booking_id = $booking->id;
-                
-                return $service;
-            });
+            $this->_verifySlotsAreAvailable($allTimeSlots, $client);
+            $booking = $this->_createBooking($allTimeSlots, $client, $bookingDuration, $serviceDefinitions);
 
-            $booking->services()->saveMany($services);
+            /* TODO:
+                Once booking is created successfully we need to send the client a confirmation email.
+                We should do this in parallel with responding with 201 to the client.  Need to fire a job
+                here to send an email.
+
+                SendBookingConfirmationEmail::dipatch($booking);
+            */
 
             return $booking;
         });
+    }
+
+    protected function _verifySlotsAreAvailable($allTimeSlots, Client $client)
+    {
+        $isReserved = $allTimeSlots instanceof TimeSlot
+            ? $allTimeSlots->reserved
+            : $allTimeSlots->contains(function ($slot) { return $slot->reserved; });
+
+        if ($isReserved || !$client->isAvailableDuring($allTimeSlots))
+        {
+            throw new BookingException([], 'The requested booking is not available for this client.');
+        }
+    }
+
+    protected function _createBooking($allTimeSlots, Client $client, int $bookingDuration, $serviceDefinitions): Booking
+    {
+        // TODO: lets test that this works.  It's for race conditions
+        // marking timeslots(s) as reserved
+        TimeSlot::whereIn('id', Arr::pluck($allTimeSlots, 'id'))
+            ->lockForUpdate()
+            ->update(['reserved' => true]);
+
+        // creating booking
+        $booking = Booking::create([
+            'client_id' => $client->id,
+            'employee_id' => $allTimeSlots->first()->employee_id,
+            'started_at' => $allTimeSlots->first()->start_time,
+            'ended_at' => $allTimeSlots->first()->start_time->copy()->addSeconds($bookingDuration)
+        ]);
+
+        // creating services for booking
+        $services = $serviceDefinitions->map(function ($definition) use ($booking) {
+            $service = new Service();
+            $service->service_definition_id = $definition->id;
+            $service->booking_id = $booking->id;
+            
+            return $service;
+        });
+
+        $booking->services()->saveMany($services);
+
+        return $booking;
     }
 
     public function cancel(string $id): Booking
     {
         return DB::transaction(function () use ($id) {
             $booking = Booking::findOrFail($id);
-            $booking->cancelled_at = Carbon::now();
-           // $booking->cancelled_by = auth()->user()->id // TODO: implement this part
-            $booking->save();
+            $booking->cancel(auth()->user());
 
             return $booking;
         });

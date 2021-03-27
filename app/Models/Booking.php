@@ -49,4 +49,12 @@ class Booking extends BaseModel
     {
         return $this->hasMany(Service::class);
     }
+
+    public function cancel(User $user)
+    {
+        return $this->update([
+            'cancelled_at' => now(),
+            'cancelled_by' => $user->id
+        ]);
+    }
 }

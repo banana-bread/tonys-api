@@ -45,8 +45,8 @@ class BookingTest extends TestCase
         $booking = Booking::factory()->create();
         $this->actingAs($booking->client->user, 'api');
 
-        $response = $this->patch("/bookings/$booking->id/cancelled");
+        $response = $this->delete("/bookings/$booking->id");
 
-        $response->assertOk();
+        $response->assertStatus(204);
     }
 }

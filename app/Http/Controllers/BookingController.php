@@ -32,8 +32,8 @@ class BookingController extends ApiController
     public function cancel(string $id): JsonResponse
     {
         $service = new BookingService();
-        $booking = $service->cancel($id);
+        $service->cancel($id);
 
-        return $this->success(['booking' => $booking], 'Booking cancelled.');
+        return $this->success([], 'Booking cancelled.', 204);
     }
 }

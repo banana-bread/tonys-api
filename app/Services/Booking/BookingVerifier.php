@@ -26,8 +26,22 @@ class BookingVerifier
         }
     }
 
+
+    
     public function verifyNoOverlap(Client $client): void
     {
+        /*
+            if (!! $ids->isArray())
+            {
+                $startTime = $ids->first()->start_time;
+                $endTime = $ids->last()->end_time;
+            }
+            else if (isString)
+            {
+                $startTime = $ids->start_time;
+                $endTime = $ids->end_time;
+            }
+        */
         $hasAnOverlappingBooking = 
             !!DB::table('bookings')
                 ->join('clients', 'clients.id', '=', 'bookings.client_id')

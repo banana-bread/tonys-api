@@ -9,25 +9,21 @@ use Illuminate\Support\Collection;
 use App\Models\ServiceDefinition;
 use App\Services\TimeSlot\TimeSlotPdo;
 use Carbon\Carbon;
+use App\Http\Requests\TimeSlotRequest;
 
 class TimeSlotService
 {
-    public function getAvailableSlots(array $attributes): Collection
-    {
-        $serviceDefinitionIdsString = Arr::get($attributes, 'service-definition-ids');
-        $serviceDefinitionIds = Str::of($serviceDefinitionIdsString)->explode(',');
+    public function getAvailableSlots(TimeSlotRequest $request): Collection
+    {   
+        $serviceDefinitionIds = Str::of( request('service-definition-ids') )->explode(',');
+        $employeeId = request('employee-id');
         
-        $employeeId = Arr::get($attributes, 'employee-id');
-        
-        $dateFrom = Carbon::createFromTimestamp(
-            Arr::get($attributes, 'date-from')
-        );
-        $dateTo = Carbon::createFromTimestamp(
-            Arr::get($attributes, 'date-to')
-        );
+        $dateFrom = Carbon::createFromTimestamp( request('date-from') );
+        $dateTo = Carbon::createFromTimestamp( request('date-to') );
 
         $singleSlotDuration = 1800; // 30 minutes... this should be a company setting
         $serviceDefinitions = ServiceDefinition::find($serviceDefinitionIds);
+
         $summedServiceDuration = $serviceDefinitions->sum('duration');
         $slotsRequired = ceil($summedServiceDuration / $singleSlotDuration);
 

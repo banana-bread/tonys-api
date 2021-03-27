@@ -25,27 +25,27 @@ Route::get('/', function(Request $r) {
     return response()->json('tony\'s api');
 });
 
-Route::post('/login',                        [LoginController::class,               'login'])->name('login');
-Route::post('/register/employee',            [RegisterController::class,            'employee']);
-Route::post('/register/client',              [RegisterController::class,            'client']);
-Route::get('/login/{provider}',              [LoginController::class,               'redirectToProvider']);
-Route::get('/login/{provider}/callback',     [LoginController::class,               'handleProviderCallback']);
+Route::post('/login',                        [LoginController::class, 'login'])->name('login');
+Route::post('/register/employee',            [RegisterController::class, 'employee']);
+Route::post('/register/client',              [RegisterController::class, 'client']);
+Route::get('/login/{provider}',              [LoginController::class, 'redirectToProvider']);
+Route::get('/login/{provider}/callback',     [LoginController::class, 'handleProviderCallback']);
 
 // Route::group(['middleware' => ['auth:api']], function() {
-    Route::post('/logout',                   [LogoutController::class,              'logout']);
+    Route::post('/logout',                   [LogoutController::class, 'logout']);
 
-    Route::put('/employees/{id}',            [EmployeeController::class,            'update']);
-    Route::get('/employees',                 [EmployeeController::class,            'index']);
-    Route::get('/employees/{id}',            [EmployeeController::class,            'get']);
+    Route::put('/employees/{id}',            [EmployeeController::class, 'update']);
+    Route::get('/employees',                 [EmployeeController::class, 'index']);
+    Route::get('/employees/{id}',            [EmployeeController::class, 'get']);
 
-    Route::get('/time-slots',                [TimeSlotController::class,            'index']);
-    Route::get('/service-definitions',       [ServiceDefinitionController::class,   'index']);
+    Route::get('/time-slots',                [TimeSlotController::class, 'index']);
+    Route::get('/service-definitions',       [ServiceDefinitionController::class, 'index']);
 
-    Route::put('/clients/{id}',              [ClientController::class,              'update']);
-    Route::get('/clients/{id}',              [ClientController::class,              'get']);
-    Route::get('/authed/client',             [ClientController::class,              'authed']);
+    Route::put('/clients/{id}',              [ClientController::class, 'update']);
+    Route::get('/clients/{id}',              [ClientController::class, 'get']);
+    Route::get('/authed/client',             [ClientController::class, 'authed']);
 
-    Route::post('/bookings',                 [BookingController::class,             'store']);
-    Route::put('/bookings/{id}',             [BookingController::class,             'update']);
-    Route::patch('/bookings/{id}/cancelled', [BookingController::class,             'cancel']);
+    Route::post('/bookings',                 [BookingController::class, 'store']);
+    Route::put('/bookings/{id}',             [BookingController::class, 'update']);
+    Route::delete('/bookings/{id}',          [BookingController::class, 'cancel']);
 // });
