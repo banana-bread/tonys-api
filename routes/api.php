@@ -8,6 +8,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\ServiceDefinitionController;
 use App\Http\Controllers\TimeSlotController;
+use App\Jobs\SendClientBookingConfirmation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -24,6 +25,14 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function(Request $r) {
     return response()->json('tony\'s api');
 });
+
+Route::get('/test-redis', function(Request $request) {
+    SendClientBookingConfirmation::dispatch();
+ 
+    logger('pee pee');
+});
+
+
 
 Route::post('/login',                        [LoginController::class, 'login'])->name('login');
 Route::post('/register/employee',            [RegisterController::class, 'employee']);
