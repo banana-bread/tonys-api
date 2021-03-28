@@ -29,7 +29,7 @@ class BookingController extends ApiController
         return $this->success(['booking' => $booking], 'Booking found.');
     }
 
-    public function cancel(string $id): JsonResponse
+    public function destroy(string $id): JsonResponse
     {
         $service = new BookingService();
         $service->cancel($id);

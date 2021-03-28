@@ -44,6 +44,11 @@ class BookingService
         });
     }
 
+    public function get(string $id): ?Booking
+    {
+        return Booking::findOrFail($id);
+    }
+
     protected function _verifySlotsAreAvailable($allTimeSlots, Client $client)
     {
         $isReserved = $allTimeSlots instanceof TimeSlot

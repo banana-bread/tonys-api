@@ -33,9 +33,4 @@ class ClientService
     {
         return Client::findOrFail($id);
     }
-
-    public function authed(): Client
-    {
-        return auth()->user()->client;
-    }
 }

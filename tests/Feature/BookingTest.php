@@ -40,6 +40,17 @@ class BookingTest extends TestCase
     }
 
     /** @test */
+    public function a_booking_can_be_retrieved(): void
+    {
+        $booking = Booking::factory()->create();
+        $this->actingAs($booking->client->user, 'api');
+
+        $response = $this->get("/bookings/$booking->id");
+
+        $response->assertOk();
+    }
+
+    /** @test */
     public function a_booking_can_be_cancelled(): void
     {
         $booking = Booking::factory()->create();
@@ -50,3 +61,4 @@ class BookingTest extends TestCase
         $response->assertStatus(204);
     }
 }
+
