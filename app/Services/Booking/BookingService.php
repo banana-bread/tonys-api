@@ -34,14 +34,11 @@ class BookingService
 
             $this->_verifySlotsAreAvailable($allTimeSlots, $client);
             $booking = $this->_createBooking($allTimeSlots, $client, $bookingDuration, $serviceDefinitions);
-
-            /* TODO:
-                Once booking is created successfully we need to send the client a confirmation email.
-                We should do this in parallel with responding with 201 to the client.  Need to fire a job
-                here to send an email.
-
-                SendBookingConfirmationEmail::dipatch($booking);
-            */
+            
+            if ($client->subscribes_to_emails)
+            {
+                $booking->notify($client);
+            }
 
             return $booking;
         });

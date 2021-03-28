@@ -2,6 +2,9 @@
 
 namespace App\Mail;
 
+use App\Models\Booking;
+use App\Models\Interfaces\ReceivesBookingNotifications;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -11,19 +14,21 @@ class BookingCreated extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public Booking $booking;
+    public ReceivesBookingNotifications $model;
+
+
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(Booking $booking, ReceivesBookingNotifications $model)
     {
-        //
+        $this->booking = $booking;
+        $this->model = $model;
     }
-
-    /*
-        TODO: Figure out how to create templates with the fluent api.
-    */
+    
     /**
      * Build the message.
      *
@@ -31,7 +36,7 @@ class BookingCreated extends Mailable
      */
     public function build()
     {
-        return $this->from('test@email.com')
-            ->view('emails.bookings.created');
+        return $this->from('adriano@example.com')
+            ->markdown($model->wasSentBookingConfirmation());
     }
 }

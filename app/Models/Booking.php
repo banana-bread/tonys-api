@@ -2,6 +2,10 @@
 
 namespace App\Models;
 
+use App\Mail\BookingCreated;
+use App\Models\Interfaces\ReceivesBookingNotifications;
+use Illuminate\Support\Facades\Mail;
+
 class Booking extends BaseModel
 {
     protected $fillable = [
@@ -48,6 +52,11 @@ class Booking extends BaseModel
     public function services()
     {
         return $this->hasMany(Service::class);
+    }
+
+    public function notify(ReceivesBookingNotifications $model)
+    {
+        Mail::to($model->user)->queue(new BookingCreated($this, $model));
     }
 
     public function cancel(User $user)

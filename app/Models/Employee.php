@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
+use App\Models\Interfaces\ReceivesBookingNotifications;
 use App\Traits\HasUuid;
 
-class Employee extends BaseModel
+class Employee extends BaseModel implements ReceivesBookingNotifications
 {
     use HasUuid;
 
@@ -85,6 +86,11 @@ class Employee extends BaseModel
     {
         return $this->hasMany(Booking::class)
             ->where('started_at', '>', now());
+    }
+
+    public function wasSentBookingConfirmation(): string
+    {
+        return '';
     }
 
 }

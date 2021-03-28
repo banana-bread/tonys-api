@@ -18,6 +18,7 @@ class CreateUsersTables extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('phone')->nullable();
+            $table->boolean('suscribed_to_emails')->default(true);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->string('provider')->nullable();
