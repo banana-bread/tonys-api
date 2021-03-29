@@ -18,7 +18,7 @@ class BookingController extends ApiController
         $service = new BookingService();
         $booking = $service->create($request->all());
 
-        return $this->success(['booking' => $booking], 'Booking created.', 201);
+        return $this->created(['booking' => $booking], 'Booking created.');
     }
 
     public function show(string $id): JsonResponse
@@ -26,7 +26,7 @@ class BookingController extends ApiController
         $service = new BookingService();
         $booking = $service->get($id);
 
-        return $this->success(['booking' => $booking], 'Booking found.');
+        return $this->ok(['booking' => $booking], 'Booking found.');
     }
 
     public function destroy(string $id): JsonResponse
@@ -34,6 +34,6 @@ class BookingController extends ApiController
         $service = new BookingService();
         $service->cancel($id);
 
-        return $this->success([], 'Booking cancelled.', 204);
+        return $this->deleted('Booking cancelled.');
     }
 }

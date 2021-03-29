@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\EmployeeRequest;
+use App\Http\Requests\CreateEmployeeRequest;
+use App\Models\Employee;
+use App\Services\Auth\RegisterService;
 use App\Services\EmployeeService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class EmployeeController extends ApiController
@@ -14,20 +15,22 @@ class EmployeeController extends ApiController
         $service = new EmployeeService();
         $employees = $service->getEmployees();
 
-        return $this->success(['employees' => $employees], 'Employees retrieved.');
+        return $this->ok(['employees' => $employees], 'Employees retrieved.');
     }
 
-    // public function store(EmployeeRequest $request): JsonResponse
-    // {
-    //     $service = new EmployeeService();
-    //     $client = $service->create($request->all());
-
-    //     return $this->success($client, 'Employee created.', 201);
-    // }
-
-    public function get($id)
+    public function store(CreateEmployeeRequest $request): JsonResponse
     {
-        //
+        $service = new RegisterService();
+        $employee = $service->employee($request->all());
+            
+        return $this->created(['employee' => $employee], 'Employee created.');
+    }
+
+    public function show(string $id)
+    {
+        $employee = Employee::findOrFail($id);
+
+        return $this->ok(['employee' => $employee], 'Employee account retrieved.');
     }
 
     public function update(EmployeeRequest $request, $id): JsonResponse
@@ -35,7 +38,7 @@ class EmployeeController extends ApiController
         $service = new EmployeeService();
         $employee = $service->update($request->all(), $id);
     
-        return $this->success($employee, 'Employee profile updated.');
+        return $this->ok($employee, 'Employee profile updated.');
     }
 
     public function destroy($id)

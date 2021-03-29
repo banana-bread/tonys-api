@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\CreateClientRequest;
+use App\Services\Auth\RegisterService;
 use App\Services\ClientService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -14,12 +16,20 @@ class ClientController extends ApiController
         //
     }
 
-    public function get(string $id): JsonResponse
+    public function store(CreateClientRequest $request): JsonResponse
+    {
+        $service = new RegisterService();
+        $client = $service->client($request->all());
+
+        return $this->created(['client' => $client], 'Client account created.');
+    }
+
+    public function show(string $id): JsonResponse
     {
         $service = new ClientService();
         $client = $service->get($id);
 
-        return $this->success(['client' => $client], 'Client retreived.');
+        return $this->ok(['client' => $client], 'Client retrieved.');
     }
 
     public function update(ClientRequest $request, string $id)

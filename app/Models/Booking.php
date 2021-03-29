@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Mail\BookingCreated;
 use App\Models\Interfaces\ReceivesBookingNotifications;
 use Illuminate\Support\Facades\Mail;
+use phpDocumentor\Reflection\Types\Boolean;
 
 class Booking extends BaseModel
 {
@@ -59,11 +60,48 @@ class Booking extends BaseModel
         Mail::to($model->user)->queue(new BookingCreated($this, $model));
     }
 
-    public function cancel(User $user)
+    public function getPassedCancellationDeadlineAttribute(): bool
+    {
+        /*
+            TODO:
+                - Implement company_settings table
+                - implement row 'cancellation_window', specifies cancellation deadline;
+
+            return $this->company->cancellation_window < (now() - $this->started_at);
+          
+         */
+        return false;
+    }
+
+    public function getCancelledAttribute(): bool
+    {
+        return !!$this->cancelled_at;
+    }
+
+    public function cancel()
     {
         return $this->update([
             'cancelled_at' => now(),
-            'cancelled_by' => $user->id
+            'cancelled_by' => auth()->user()->id,
         ]);
+    }
+
+    public function canBeCancelled(): bool
+    {        
+        /* TODO: implement rules
+
+            Why it cannot be cancelled:
+                - passed cancellation deadline
+                - already cancelled
+                - ** Policy will not be implemented here, but would be:
+                     if ($booking->belongsTo($client) || 
+                         $booking->belongsTo($employee) ||
+                         $auth()->user()->isAdmin())
+        */
+
+        // return $booking->past_cancellation_deadline || $booking->cancelled;
+
+        // NOTE: returning false here so tests fail and feature is implemented properly.
+        return false;
     }
 }

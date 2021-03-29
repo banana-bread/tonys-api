@@ -6,17 +6,16 @@ use App\Models\Employee;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Arr;
 
 class EmployeeTest extends TestCase
 {
     use WithFaker, RefreshDatabase;
 
-    // /** @test */
-    public function an_employee_can_create_an_account(): void
+    /** @test */
+    public function an_employee_can_create_an_account()
     {
         $response = $this->post('/employees', [ 
-            'name' => $this->name,
+            'name' => $this->faker->name,
             'email' => $this->faker->unique()->safeEmail,
             'phone' => '+18195551234',
             'password' => 'password',
@@ -26,17 +25,29 @@ class EmployeeTest extends TestCase
         $response->assertCreated();
     }
 
-    //    /** @test */
-       public function an_employee_can_create_an_admin_account(): void
-       {
-           $response = $this->post('/employees', [
-                'name' => $this->faker->name,
-                'email' => $this->faker->unique()->safeEmail,
-                'phone' => '+18195551234',
-                'password' => 'password',
-                'admin' => true
-            ]);
-   
-           $response->assertCreated();
-       }
+    /** @test */
+    public function an_employee_can_create_an_admin_account()
+    {
+        $response = $this->post('/employees', [
+            'name' => $this->faker->name,
+            'email' => $this->faker->unique()->safeEmail,
+            'phone' => '+18195551234',
+            'password' => 'password',
+            'admin' => true
+        ]);
+
+        $response->assertCreated();
+    }
+
+    /** @test */
+    public function an_employee_account_can_be_retrieved()
+    {
+        $employee = Employee::factory()->create(); 
+        $this->actingAs($employee->user, 'api');
+
+        $response = $this->get("employees/$employee->id");
+
+        $response->assertOk();
+        $this->assertEquals($employee->id, $response->json('data.employee.id'));
+    }
 }

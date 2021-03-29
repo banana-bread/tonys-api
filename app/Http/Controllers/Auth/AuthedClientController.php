@@ -7,9 +7,9 @@ use Illuminate\Http\JsonResponse;
 
 class AuthedClientController extends ApiController
 {
-    public function get(): JsonResponse
+    public function show(): JsonResponse
     {
-       return $this->success(
+       return $this->ok(
            ['authed-client' => auth()->user()->client],
            'Authed client retreived'
        );

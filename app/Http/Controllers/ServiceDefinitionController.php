@@ -12,6 +12,6 @@ class ServiceDefinitionController extends ApiController
     {
         $serviceDefinitions = ServiceDefinition::all(); 
 
-        return $this->success(['service_definitions' => $serviceDefinitions], 'Service definitions retrieved.');
+        return $this->ok(['service_definitions' => $serviceDefinitions], 'Service definitions retrieved.');
     }
 }

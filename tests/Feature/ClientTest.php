@@ -11,11 +11,18 @@ class ClientTest extends TestCase
 {
     use WithFaker, RefreshDatabase;
 
-    // /** @test */
-    // public function a_client_can_be_created()
-    // {
-    
-    // }
+    /** @test */
+    public function a_client_can_create_an_account()
+    {
+        $response = $this->post('/clients', [ 
+            'name' => $this->faker->name,
+            'email' => $this->faker->unique()->safeEmail,
+            'phone' => '+18195551234',
+            'password' => 'password',
+        ]);
+
+        $response->assertCreated();
+    }
 
     /** @test */
     public function a_client_account_can_be_retrieved()
@@ -26,5 +33,6 @@ class ClientTest extends TestCase
         $response = $this->get("/clients/$client->id");
 
         $response->assertOk();
+        $this->assertEquals($client->id, $response->json('data.client.id'));
     }
 }

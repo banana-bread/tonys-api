@@ -12,6 +12,6 @@ class TimeSlotController extends ApiController
         $service = new TimeSlotService();
         $slots = $service->getAvailableSlots($request);
 
-        return $this->success(['time_slots' => $slots], 'Available time slots retrieved.');
+        return $this->ok(['time_slots' => $slots], 'Available time slots retrieved.');
     }
 }

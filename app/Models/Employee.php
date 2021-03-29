@@ -93,4 +93,16 @@ class Employee extends BaseModel implements ReceivesBookingNotifications
         return '';
     }
 
+    public function upgrade()
+    {
+        $this->admin = true;
+        return $this->save();
+    }
+
+    public function downgrade()
+    {
+        $this->admin = false;
+        return $this->save();
+    }
+
 }
