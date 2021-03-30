@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Client;
 use App\Models\Booking;
+use App\Models\Company;
 use App\Models\Employee;
 use App\Models\EmployeeSchedule;
 use App\Models\Service;
@@ -32,6 +33,7 @@ class DatabaseSeeder extends Seeder
         $this->createEmployeeTimeslots($allEmployeeSchedules);
         $this->createServiceDefinitions();        
         $this->createBookings();     
+        $this->createCompany();
     }
 
     private function init(): void
@@ -50,6 +52,7 @@ class DatabaseSeeder extends Seeder
             'service_definitions',
             'time_slots',
             'users',
+            'company',
         ];
 
         Schema::disableForeignKeyConstraints();
@@ -207,5 +210,10 @@ class DatabaseSeeder extends Seeder
                         }
                     });
                 });
+    }
+
+    private function createCompany()
+    {
+        Company::factory()->create();
     }
 }

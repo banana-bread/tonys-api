@@ -60,18 +60,18 @@ class Booking extends BaseModel
         Mail::to($model->user)->queue(new BookingCreated($this, $model));
     }
 
-    public function getPassedCancellationDeadlineAttribute(): bool
-    {
-        /*
-            TODO:
-                - Implement company_settings table
-                - implement row 'cancellation_window', specifies cancellation deadline;
+    // public function getPassedCancellationDeadlineAttribute(): bool
+    // {
+    //     /*
+    //         TODO:
+    //             - Implement company_settings table
+    //             - implement row 'cancellation_window', specifies cancellation deadline;
 
-            return $this->company->cancellation_window < (now() - $this->started_at);
+    //         return $this->company->cancellation_window < (now() - $this->started_at);
           
-         */
-        return false;
-    }
+    //      */
+    //     return false;
+    // }
 
     public function getCancelledAttribute(): bool
     {
@@ -84,6 +84,11 @@ class Booking extends BaseModel
             'cancelled_at' => now(),
             'cancelled_by' => auth()->user()->id,
         ]);
+    }
+
+    public function isPassedCancellationDeadline(): bool
+    {
+        return Company::booking_cancellation_period() < ( now() - $this->started_at );
     }
 
     public function canBeCancelled(): bool
@@ -99,7 +104,7 @@ class Booking extends BaseModel
                          $auth()->user()->isAdmin())
         */
 
-        // return $booking->past_cancellation_deadline || $booking->cancelled;
+        // return !$booking->isPassedCancellationDeadline() || $booking->cancelled;
 
         // NOTE: returning false here so tests fail and feature is implemented properly.
         return false;
