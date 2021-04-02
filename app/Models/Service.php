@@ -4,11 +4,6 @@ namespace App\Models;
 
 class Service extends BaseModel
 {
-    protected $fillable = [
-        'service_definition_id',
-        'booking_id'
-    ];
-
     protected $visible = [
         'id',
         'service_definition_id',

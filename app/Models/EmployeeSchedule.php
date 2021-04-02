@@ -4,15 +4,6 @@ namespace App\Models;
 
 class EmployeeSchedule extends BaseModel
 {
-    protected $fillable = [
-        'employee_id',
-        'work_date',
-        'start_time',
-        'end_time',
-        'weekend',
-        'holiday'
-    ];
-
     protected $visible = [
         'id',
         'employee_id',

@@ -6,13 +6,6 @@ use Illuminate\Support\Collection;
 
 class TimeSlot extends BaseModel
 {
-    protected $fillable = [
-        'employee_id', 
-        'start_time',
-        'end_time',
-        'overridden',
-    ];
-
     protected $visible = [
         'id',
         'employee_id',

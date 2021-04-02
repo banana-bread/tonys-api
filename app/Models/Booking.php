@@ -9,15 +9,6 @@ use phpDocumentor\Reflection\Types\Boolean;
 
 class Booking extends BaseModel
 {
-    protected $fillable = [
-        'client_id',
-        'employee_id', 
-        'cancelled_at',
-        'cancelled_by',
-        'started_at',
-        'ended_at',
-    ];
-
     protected $visible = [
         'id',
         'client_id',

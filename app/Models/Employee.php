@@ -18,12 +18,6 @@ class Employee extends BaseModel implements ReceivesBookingNotifications
         'email'
     ];
 
-    protected $fillable = [
-        'id',
-        'user_id',
-        'admin'
-    ];
-
     protected $visible = [
         'id',
         'name',

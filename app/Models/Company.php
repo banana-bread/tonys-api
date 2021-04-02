@@ -10,15 +10,8 @@ class Company extends BaseModel
 
     public $incrementing = false;
     protected $keyType = 'string';
-    protected $table = 'company';
 
     protected $appends = [];
-
-    protected $fillable = [
-        'name',
-        'address',
-        'phone',
-    ];
 
     protected $visible = [
         'name',
@@ -28,8 +21,13 @@ class Company extends BaseModel
         'booking_cancellation_period',
     ];
 
-    public static function booking_cancellation_period(): int
-    {
-        return DB::table('company')->first()->booking_cancellation_period;
-    }
+    // public function booking_cancellation_period()
+    // {
+
+    // }
+
+    // public static function booking_cancellation_period(): int
+    // {
+    //     return DB::table('company')->first()->booking_cancellation_period;
+    // }
 }

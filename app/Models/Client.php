@@ -21,11 +21,6 @@ class Client extends BaseModel implements ReceivesBookingNotifications
         'email'
     ];
 
-    protected $fillable = [
-        'id',
-        'user_id'
-    ];
-
     protected $visible = [
         'id',
         'name',
