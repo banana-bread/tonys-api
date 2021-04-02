@@ -27,13 +27,16 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         $this->init();
-        $employees = $this->createEmployees();
+
+        // TODO: create option here to run this throught a loop, and accept a number via an artisan command.
+        //       will be useful for testing multiple companies, although id rather do that with unit tests
+        $company = $this->createCompany();
+        $employees = $this->createEmployees($company);
         $this->createClients();
         $allEmployeeSchedules = $this->createEmployeeSchedules($employees);
-        $this->createEmployeeTimeslots($allEmployeeSchedules);
+        $this->createEmployeeTimeslots($allEmployeeSchedules, $company);
         $this->createServiceDefinitions();        
         $this->createBookings();     
-        $this->createCompany();
     }
 
     private function init(): void
@@ -52,7 +55,7 @@ class DatabaseSeeder extends Seeder
             'service_definitions',
             'time_slots',
             'users',
-            'company',
+            'companies',
         ];
 
         Schema::disableForeignKeyConstraints();
@@ -65,10 +68,15 @@ class DatabaseSeeder extends Seeder
         Schema::enableForeignKeyConstraints();
     }
 
-    private function createEmployees(): Collection
+    private function createCompany(): Company
     {
-        $employees = Employee::factory()->count(6)->create();
-        $managers = Employee::factory()->count(2)->admin()->create();
+        return Company::factory()->create();
+    }
+
+    private function createEmployees(Company $company): Collection
+    {
+        $employees = Employee::factory()->count(6)->for($company)->create();
+        $managers = Employee::factory()->count(2)->admin()->for($company)->create();
 
         return $employees->concat($managers);
     }
@@ -142,7 +150,7 @@ class DatabaseSeeder extends Seeder
         return $allEmployeeSchedules;
     }
 
-    private function createEmployeeTimeSlots(Collection $allEmployeeSchedules): void
+    private function createEmployeeTimeSlots(Collection $allEmployeeSchedules, Company $company): void
     {
         foreach($allEmployeeSchedules as $employeeSchedules)
         {
@@ -163,6 +171,7 @@ class DatabaseSeeder extends Seeder
 
                     TimeSlot::create([
                         'employee_id' => $schedule->employee_id,
+                        'company_id' => $company->id,
                         'reserved' => $reserved,
                         'start_time' => $startTime,
                         'end_time' => $endTime,
@@ -210,10 +219,5 @@ class DatabaseSeeder extends Seeder
                         }
                     });
                 });
-    }
-
-    private function createCompany()
-    {
-        Company::factory()->create();
     }
 }
