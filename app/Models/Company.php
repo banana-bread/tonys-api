@@ -11,6 +11,7 @@ class Company extends BaseModel
     protected $appends = [];
 
     protected $visible = [
+        'id',
         'name',
         'address',
         'phone',

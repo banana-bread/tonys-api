@@ -11,6 +11,13 @@ class RegisterService
 {
     public function employee(array $attributes): Employee
     {
+        /* TODO: 
+
+            - Create employee schedules (queued job)
+            - Validation on schedule creating, validate against the employees companies schedule
+            - should do validation first, if it fails, dont queue the job.  else, do queue it and respond with success 
+
+        */
         $user = User::create(
             Arr::except($attributes, ['admin', 'company_id'])
         );

@@ -5,6 +5,7 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\Auth\AuthedClientController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeAdminController;
 use App\Http\Controllers\ServiceDefinitionController;
@@ -38,6 +39,9 @@ Route::get('/', function(Request $r) {
 // Registration
 Route::post('/clients',                      [ClientController::class, 'store']);
 Route::post('/employees',                    [EmployeeController::class, 'store']);
+
+Route::post('/companies',                    [CompanyController::class, 'store']);
+Route::get('/companies/{id}',                [CompanyController::class, 'show']);
 
 Route::post('/login',                        [LoginController::class, 'login'])->name('login');
 Route::get('/login/{provider}',              [LoginController::class, 'redirectToProvider']);
