@@ -8,9 +8,6 @@ class Company extends BaseModel
 {
     use HasUuid;
 
-    public $incrementing = false;
-    protected $keyType = 'string';
-
     protected $appends = [];
 
     protected $visible = [
@@ -19,15 +16,21 @@ class Company extends BaseModel
         'phone',
         'time_slot_duration',
         'booking_cancellation_period',
+        'clients',
     ];
 
-    // public function booking_cancellation_period()
-    // {
+    public function clients() 
+    {
+        return $this->belongsToMany(Client::class, 'companies_clients');
+    }
 
-    // }
+    public function employees()
+    {
+        return $this->hasMany(Employee::class);
+    }
 
-    // public static function booking_cancellation_period(): int
-    // {
-    //     return DB::table('company')->first()->booking_cancellation_period;
-    // }
+    public function service_definitions()
+    {
+        return $this->hasMany(ServiceDefinition::class);
+    }
 }

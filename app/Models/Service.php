@@ -2,8 +2,12 @@
 
 namespace App\Models;
 
+use App\Traits\HasUuid;
+
 class Service extends BaseModel
 {
+    use HasUuid;
+    
     protected $visible = [
         'id',
         'service_definition_id',

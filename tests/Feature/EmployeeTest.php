@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Company;
 use App\Models\Employee;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -15,6 +16,7 @@ class EmployeeTest extends TestCase
     public function an_employee_can_create_an_account()
     {
         $response = $this->post('/employees', [ 
+            'company_id' => Company::factory()->create()->id,
             'name' => $this->faker->name,
             'email' => $this->faker->unique()->safeEmail,
             'phone' => '+18195551234',
@@ -29,6 +31,7 @@ class EmployeeTest extends TestCase
     public function an_employee_can_create_an_admin_account()
     {
         $response = $this->post('/employees', [
+            'company_id' => Company::factory()->create()->id,
             'name' => $this->faker->name,
             'email' => $this->faker->unique()->safeEmail,
             'phone' => '+18195551234',

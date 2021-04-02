@@ -4,14 +4,10 @@ namespace App\Models;
 
 use App\Models\Interfaces\ReceivesBookingNotifications;
 use App\Traits\HasUuid;
-
 class Employee extends BaseModel implements ReceivesBookingNotifications
 {
     use HasUuid;
-
-    public $incrementing = false;
-    protected $keyType = 'string';
-
+    
     protected $appends = [
         'name',
         'phone',
@@ -20,6 +16,7 @@ class Employee extends BaseModel implements ReceivesBookingNotifications
 
     protected $visible = [
         'id',
+        'company_id',
         'name',
         'phone',
         'email',
@@ -35,6 +32,11 @@ class Employee extends BaseModel implements ReceivesBookingNotifications
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
     }
 
     public function schedules()

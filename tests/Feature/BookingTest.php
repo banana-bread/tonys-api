@@ -21,15 +21,14 @@ class BookingTest extends TestCase
     use WithFaker, RefreshDatabase;
 
     /** @test */
-    public function a_booking_can_be_created(): void
+    public function a_booking_can_be_created()
     {
-        $timeSlot = TimeSlot::factory()->create();
         $client = Client::factory()->create();
         $this->actingAs($client->user, 'api');
         $serviceDefinition = ServiceDefinition::factory()->create(['duration' => 1800]);
 
         $response = $this->post('/bookings',[
-            'time_slot_id' => $timeSlot->id,
+            'time_slot_id' => TimeSlot::factory()->create()->id,
             'client_id' => $client->id,
             'service_definition_ids' => [
                 $serviceDefinition->id
@@ -40,7 +39,7 @@ class BookingTest extends TestCase
     }
 
     /** @test */
-    public function a_booking_can_be_retrieved(): void
+    public function a_booking_can_be_retrieved()
     {
         $booking = Booking::factory()->create();
         $this->actingAs($booking->client->user, 'api');
@@ -51,7 +50,7 @@ class BookingTest extends TestCase
     }
 
     /** @test */
-    public function a_booking_can_be_cancelled(): void
+    public function a_booking_can_be_cancelled()
     {
         $booking = Booking::factory()->create();
         $this->actingAs($booking->client->user, 'api');

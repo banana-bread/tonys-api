@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Company;
 use App\Models\ServiceDefinition;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -22,9 +23,12 @@ class ServiceDefinitionFactory extends Factory
     public function definition()
     {
         return [
+            'company_id' => function() {
+                return Company::factory()->create()->id;
+            },
             'name' => $this->faker->word(),
             'price' => collect([1500, 2000, 3000])->random(), // $15, $20, or $30
-            'duration' => collect([900, 1800, 2700])->random() // 15, 30, or 45 minutes
+            'duration' => collect([900, 1800, 2700])->random(), // 15, 30, or 45 minutes
         ];
     }
 }

@@ -6,6 +6,9 @@ use Illuminate\Support\Collection;
 
 class TimeSlot extends BaseModel
 {
+    public $incrementing = true;
+    protected $keyType = 'int';
+
     protected $visible = [
         'id',
         'employee_id',

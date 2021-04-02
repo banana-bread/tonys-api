@@ -4,16 +4,13 @@ namespace App\Models;
 
 use App\Exceptions\InvalidParameterException;
 use App\Models\Interfaces\ReceivesBookingNotifications;
-use App\Traits\HasUuid;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use App\Traits\HasUuid;
 
 class Client extends BaseModel implements ReceivesBookingNotifications
 {
     use HasUuid;
-
-    public $incrementing = false;
-    protected $keyType = 'string';
 
     protected $appends = [
         'name',
@@ -25,7 +22,8 @@ class Client extends BaseModel implements ReceivesBookingNotifications
         'id',
         'name',
         'phone',
-        'email'
+        'email',
+        'companies',
     ];
 
     // Relations
@@ -38,6 +36,11 @@ class Client extends BaseModel implements ReceivesBookingNotifications
     public function bookings()
     {
         return $this->hasMany(Booking::class);
+    }
+
+    public function companies()
+    {
+        return $this->hasMany(Company::class, 'companies_clients');
     }
 
     public function getNameAttribute(): string

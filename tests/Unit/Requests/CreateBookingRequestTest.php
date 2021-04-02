@@ -24,8 +24,8 @@ class CreateBookingRequestTest extends BaseRequestTest
                 'data' => [
                     'time_slot_id' => $faker->numberBetween(1, 100),
                     'service_definition_ids' => [
-                        $faker->numberBetween(1, 100),
-                        $faker->numberBetween(1, 100)
+                        $faker->uuid(),
+                        $faker->uuid()
                     ]
                 ]
             ],
@@ -34,8 +34,8 @@ class CreateBookingRequestTest extends BaseRequestTest
                 'data' => [
                     'client_id' => $faker->uuid(),
                     'service_definition_ids' => [
-                        $faker->numberBetween(1, 100),
-                        $faker->numberBetween(1, 100)
+                        $faker->uuid(),
+                        $faker->uuid()
                     ]
                 ]
             ],
@@ -54,7 +54,7 @@ class CreateBookingRequestTest extends BaseRequestTest
                     'service_definition_ids' => []
                 ]
             ],
-            'create_booking_request_should_fail_when_service_definition_ids_are_not_integers' => [
+            'create_booking_request_should_fail_when_service_definition_ids_are_not_uuids' => [
                 'passed' => false,
                 'data' => [
                     'time_slot_id' => $faker->numberBetween(1, 100),
@@ -67,7 +67,7 @@ class CreateBookingRequestTest extends BaseRequestTest
                 'data' => [
                     'time_slot_id' => $faker->numberBetween(1, 100),
                     'client_id' => $faker->uuid(),
-                    'service_definition_ids' => [$faker->numberBetween(1, 100)]
+                    'service_definition_ids' => [$faker->uuid()]
                 ]
             ],
         ];

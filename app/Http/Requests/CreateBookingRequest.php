@@ -27,7 +27,7 @@ class CreateBookingRequest extends FormRequest
             'client_id'                 => 'required|uuid',
             'time_slot_id'              => 'required|integer',
             'service_definition_ids'    => 'required|array|min:1',
-            'service_definition_ids.*'  => 'required|integer',
+            'service_definition_ids.*'  => 'required|uuid',
         ];
     }
 }

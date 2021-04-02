@@ -4,6 +4,9 @@ namespace App\Models;
 
 class EmployeeSchedule extends BaseModel
 {
+    public $incrementing = true;
+    protected $keyType = 'int';
+
     protected $visible = [
         'id',
         'employee_id',
@@ -22,9 +25,7 @@ class EmployeeSchedule extends BaseModel
         'holiday' => 'boolean',
     ];
 
-    protected $rules = [];
-
-    // Relations
+    // RELATIONS
 
     public function employee()
     {

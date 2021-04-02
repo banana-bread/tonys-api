@@ -11,10 +11,13 @@ class RegisterService
 {
     public function employee(array $attributes): Employee
     {
-        $user = User::create(Arr::except($attributes, ['admin']));
+        $user = User::create(
+            Arr::except($attributes, ['admin', 'company_id'])
+        );
 
         return $user->employee()->create([
-            'admin' => Arr::get($attributes, 'admin')
+            'admin' => Arr::get($attributes, 'admin'),
+            'company_id' => Arr::get($attributes, 'company_id')
         ]);
     }
 

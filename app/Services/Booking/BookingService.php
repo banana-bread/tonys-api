@@ -5,13 +5,10 @@ namespace App\Services\Booking;
 use App\Exceptions\BookingException;
 use App\Models\Booking;
 use App\Models\Client;
-use App\Models\Employee;
 use App\Models\Service;
 use App\Models\ServiceDefinition;
 use App\Models\TimeSlot;
-use Carbon\Carbon;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class BookingService
@@ -97,13 +94,13 @@ class BookingService
 
         // TODO: implement canBeCancelled() and all its rules
         //       should come up with the different rules with tdd and unit tests
-        if (! $booking->canBeCancelled())
-        {
-            // TODO: implement as custom attribute.  Can be an object with props 
-            //         - status: string
-            //         - cannot_cancel_reason: string
-            throw new BookingException($booking, $booking->cancellation_status->cannot_cancel_reason);  
-        }
+        // if (! $booking->canBeCancelled())
+        // {
+        //     // TODO: implement as custom attribute.  Can be an object with props 
+        //     //         - status: string
+        //     //         - cannot_cancel_reason: string
+        //     throw new BookingException($booking, $booking->cancellation_status->cannot_cancel_reason);  
+        // }
 
         $booking->cancel();
     }

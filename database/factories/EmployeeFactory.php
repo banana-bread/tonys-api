@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Models\Company;
 use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -25,6 +26,9 @@ class EmployeeFactory extends Factory
         return [
             'user_id' => function() {
                 return User::factory()->create()->id;
+            },
+            'company_id' => function() {
+                return Company::factory()->create()->id;
             },
             'admin' => false
         ];

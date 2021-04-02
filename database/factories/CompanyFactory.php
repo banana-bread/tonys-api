@@ -22,9 +22,9 @@ class CompanyFactory extends Factory
     public function definition()
     {
         return [
-            'name' => 'Tony\'s Barber Shop',
-            'address' => '180 Front st',
-            'phone' => '613-555-1234',
+            'name' => $this->faker->firstName . '\'s Barber Shop',
+            'address' => $this->faker->address,
+            'phone' => $this->faker->phoneNumber,
             'time_slot_duration' => 1800,  // 30 minutes
             'booking_cancellation_period' => 86400 // 24 hours 
         ];
