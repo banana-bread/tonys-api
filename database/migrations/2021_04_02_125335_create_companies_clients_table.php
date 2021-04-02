@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateBookingsTable extends Migration
+class CreateCompaniesClientsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,19 +13,15 @@ class CreateBookingsTable extends Migration
      */
     public function up()
     {
-        Schema::create('bookings', function (Blueprint $table) {
+        Schema::create('companies_clients', function (Blueprint $table) {
             $table->uuid('id');
-            $table->uuid('employee_id');
             $table->uuid('client_id');
-            $table->dateTime('started_at');
-            $table->dateTime('ended_at');
-            $table->dateTime('cancelled_at')->nullable();
-            $table->uuid('cancelled_by')->nullable();
+            $table->uuid('company_id');
             $table->timestamps();
 
             $table->primary('id');
-            $table->foreign('employee_id')->references('id')->on('employees');
             $table->foreign('client_id')->references('id')->on('clients');
+            $table->foreign('company_id')->references('id')->on('companies');
         });
     }
 
@@ -35,9 +31,8 @@ class CreateBookingsTable extends Migration
      * @return void
      */
     public function down()
-    {
-        Schema::disableForeignKeyConstraints();
-        Schema::dropIfExists('bookings');
+    {   Schema::disableForeignKeyConstraints();
+        Schema::dropIfExists('companies_clients');
         Schema::enableForeignKeyConstraints();
     }
 }
