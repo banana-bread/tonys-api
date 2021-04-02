@@ -6,22 +6,18 @@ use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use TimeSlotException;
-
-/* TODO: 
-    - [ ] I think we need to filter out any time slots that overlap with an existing client booking. IE
-          If the client has a booking on that same time and day, we shouldn't show any results of time slots
-          that are available, but would conflict with the existing appointment.
-*/
 class TimeSlotPdo
 {
     protected Carbon $dateFrom;
     protected Carbon $dateTo;
+    protected $companyId;
     protected $employeeId;
 
-    public function __construct(Carbon $dateFrom, Carbon $dateTo, $employeeId = null)
+    public function __construct(Carbon $dateFrom, Carbon $dateTo, string $companyId, $employeeId = null)
     {
         $this->dateFrom = $dateFrom;
         $this->dateTo = $dateTo;
+        $this->companyId = $companyId;
         $this->employeeId = $employeeId;
     }
 
@@ -56,10 +52,11 @@ class TimeSlotPdo
         : "";
     
         return    
-            "SELECT id, employee_id, start_time, end_time, reserved
+            "SELECT id, company_id, employee_id, start_time, end_time, reserved
             FROM time_slots
             WHERE date(start_time) >= date(:date_from)
-            AND date(end_time) <= date(:date_to) " .
+            AND date(end_time) <= date(:date_to)
+            AND company_id = :company_id " .
             $andEmployeeIdPart .
             " AND reserved = 0
              ORDER BY start_time";
@@ -92,12 +89,13 @@ class TimeSlotPdo
             : "";
 
         return
-            "WITH s AS (SELECT id, employee_id, start_time, end_time, reserved, $leadColumnsPart
+            "WITH s AS (SELECT id, company_id, employee_id, start_time, end_time, reserved, $leadColumnsPart
                         FROM time_slots
                         WHERE date(start_time) >= date(:date_from)
-                        AND date(start_time) <= date(:date_to)                      
+                        AND date(start_time) <= date(:date_to) 
+                        AND company_id = :company_id                  
                         $andEmployeeIdPart)
-                        SELECT id, employee_id, start_time, end_time
+                        SELECT id, company_id, employee_id, start_time, end_time
                         FROM s
                         WHERE reserved = 0
                         $andLeadColumnsPart                        
@@ -110,6 +108,7 @@ class TimeSlotPdo
         $params = [
             ':date_from' => $this->dateFrom->copy()->startOfDay()->toDateString(),
             ':date_to' => $this->dateTo->copy()->endOfDay()->toDateString(),
+            ':company_id' => $this->companyId,
         ];
 
         if (!! $this->employeeId)
@@ -132,6 +131,7 @@ class TimeSlotPdo
         return $availableSlots->map(function ($slot) {
             return [
                 'id' => $slot['id'],
+                'company_id' => $slot['company_id'],
                 'employee_id' => $slot['employee_id'],
                 'start_time' => $slot['start_time'],
                 'end_time' => $slot['end_time'],

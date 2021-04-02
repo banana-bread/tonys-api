@@ -12,6 +12,7 @@ class TimeSlot extends BaseModel
     protected $visible = [
         'id',
         'employee_id',
+        'company_id',
         'reserved',
         'start_time',
         'end_time',
@@ -30,6 +31,11 @@ class TimeSlot extends BaseModel
     public function employee()
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
     }
 
     public function getNextSlots(int $totalSlotsRequired): Collection

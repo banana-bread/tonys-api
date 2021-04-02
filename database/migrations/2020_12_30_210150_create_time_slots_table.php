@@ -16,12 +16,14 @@ class CreateTimeSlotsTable extends Migration
         Schema::create('time_slots', function (Blueprint $table) {
             $table->id();
             $table->uuid('employee_id');
+            $table->uuid('company_id');
             $table->boolean('reserved')->default(false);
             $table->dateTime('start_time');
             $table->dateTime('end_time');
             $table->timestamps();
 
             $table->foreign('employee_id')->references('id')->on('employees');
+            $table->foreign('company_id')->references('id')->on('companies');
         });
     }
 

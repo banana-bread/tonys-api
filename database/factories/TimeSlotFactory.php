@@ -33,11 +33,11 @@ class TimeSlotFactory extends Factory
 
 
         $endedAt = $startedAt->copy()->addMinutes(30);
+        $employee = Employee::factory()->create();
 
         return [
-            'employee_id' => function() {
-                return Employee::factory()->create()->id;
-            },
+            'employee_id' => $employee->id,
+            'company_id' => $employee->company_id,
             'reserved' => false,
             'start_time' => $startedAt,
             'end_time' => $endedAt

@@ -41,7 +41,7 @@ class CreateUsersTables extends Migration
         Schema::create('employees', function (Blueprint $table) {
             $table->uuid('id');
             $table->uuid('user_id')->unique();
-            $table->uuid('company_id')->unique();
+            $table->uuid('company_id');
             $table->boolean('admin');
             $table->timestamps();
 

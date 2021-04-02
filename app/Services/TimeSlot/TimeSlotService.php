@@ -23,11 +23,12 @@ class TimeSlotService
 
         $singleSlotDuration = 1800; // 30 minutes... this should be a company setting
         $serviceDefinitions = ServiceDefinition::find($serviceDefinitionIds);
+        $companyId = $serviceDefinitions->first()->company->id;
 
         $summedServiceDuration = $serviceDefinitions->sum('duration');
         $slotsRequired = ceil($summedServiceDuration / $singleSlotDuration);
 
-        $tsPdo = new TimeSlotPdo($dateFrom, $dateTo, $employeeId);
+        $tsPdo = new TimeSlotPdo($dateFrom, $dateTo, $companyId, $employeeId);
 
         $slots = $slotsRequired > 1
             ? $tsPdo->fetchConsecutiveAvailableSlots($slotsRequired)
