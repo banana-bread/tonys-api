@@ -14,19 +14,24 @@ class CreateServicesTables extends Migration
     public function up()
     {
         Schema::create('service_definitions', function (Blueprint $table) {
-            $table->id();
+            $table->uuid('id');
+            $table->uuid('company_id');
             $table->string('name');
             $table->integer('price');
             $table->integer('duration');
             $table->timestamps();
+
+            $table->primary('id');
+            $table->foreign('company_id')->references('id')->on('companies');
         });
 
         Schema::create('services', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('service_definition_id');
-            $table->unsignedBigInteger('booking_id');
+            $table->uuid('id');
+            $table->uuid('service_definition_id');
+            $table->uuid('booking_id');
             $table->timestamps();
 
+            $table->primary('id');
             $table->foreign('service_definition_id')->references('id')->on('service_definitions');
             $table->foreign('booking_id')->references('id')->on('bookings');
         });

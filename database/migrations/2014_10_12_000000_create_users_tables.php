@@ -41,11 +41,13 @@ class CreateUsersTables extends Migration
         Schema::create('employees', function (Blueprint $table) {
             $table->uuid('id');
             $table->uuid('user_id')->unique();
+            $table->uuid('company_id')->unique();
             $table->boolean('admin');
             $table->timestamps();
 
             $table->primary('id');
             $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('company_id')->references('id')->on('companies');
         });
     }
 
