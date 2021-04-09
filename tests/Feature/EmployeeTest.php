@@ -2,11 +2,19 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\CreateEmployeeSchedules;
+use App\Mail\EmployeeRegistered;
 use App\Models\Company;
 use App\Models\Employee;
+use Illuminate\Contracts\Queue\Queue;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Mail;
+use Tests\TestMock;
+
+use function PHPUnit\Framework\assertTrue;
 
 class EmployeeTest extends TestCase
 {
@@ -21,8 +29,9 @@ class EmployeeTest extends TestCase
             'email' => $this->faker->unique()->safeEmail,
             'phone' => '+18195551234',
             'password' => 'password',
-            'admin' => false
-        ]);
+            'admin' => false,
+            'settings' => TestMock::employee_settings(),
+        ]); 
 
         $response->assertCreated();
     }
@@ -36,11 +45,53 @@ class EmployeeTest extends TestCase
             'email' => $this->faker->unique()->safeEmail,
             'phone' => '+18195551234',
             'password' => 'password',
-            'admin' => true
+            'admin' => true,
+            'settings' => TestMock::employee_settings(),
         ]);
 
         $response->assertCreated();
     }
+
+    /** @test */
+    public function creating_an_employee_account_queues_a_job_to_create_schedules()
+    {
+        Bus::fake();
+
+        $response = $this->post('/employees', [ 
+            'company_id' => Company::factory()->create()->id,
+            'name' => $this->faker->name,
+            'email' => $this->faker->unique()->safeEmail,
+            'phone' => '+18195551234',
+            'password' => 'password',
+            'admin' => false,
+            'settings' => TestMock::employee_settings(),
+        ]); 
+
+        Bus::assertDispatched(function (CreateEmployeeSchedules $job) use ($response) {
+            return $response->json('data.employee.id') === $job->employee->id;
+        });
+    }
+
+    /** @test */
+    public function creating_an_employee_account_queues_a_job_to_send_an_email_confirmation()
+    {
+        Mail::fake();
+
+        $response = $this->post('/employees', [ 
+            'company_id' => Company::factory()->create()->id,
+            'name' => $this->faker->name,
+            'email' => $this->faker->unique()->safeEmail,
+            'phone' => '+18195551234',
+            'password' => 'password',
+            'admin' => false,
+            'settings' => TestMock::employee_settings(),
+        ]); 
+
+        Mail::assertQueued(EmployeeRegistered::class, function ($job) use ($response) {
+            return $job->to[0]['address'] == $response->json('data.employee.email');
+        });
+    }
+
 
     /** @test */
     public function an_employee_account_can_be_retrieved()

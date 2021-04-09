@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Collection;
+
 class EmployeeSchedule extends BaseModel
 {
     public $incrementing = true;
@@ -10,15 +12,15 @@ class EmployeeSchedule extends BaseModel
     protected $visible = [
         'id',
         'employee_id',
-        'work_date',
         'start_time',
         'end_time',
         'weekend',
-        'holiday'
+        'holiday',
+
+        'employee',
     ];
 
     protected $casts = [
-        'work_date' => 'datetime',
         'start_time' => 'datetime',
         'end_time' => 'datetime',
         'weekend' => 'boolean',
@@ -29,6 +31,41 @@ class EmployeeSchedule extends BaseModel
 
     public function employee()
     {
-        $this->belongsTo(Employee::class);
+        return $this->belongsTo(Employee::class);
+    }
+
+    // HELPERS
+    public function isWorkingDay(): bool
+    {
+        return !$this->weekend && !$this->holiday;
+    }
+
+    public function createTimeSlots(): Collection
+    {
+        if (! $this->isWorkingDay()) return null;
+
+        $singleSlotDuration = $this->employee->company->time_slot_duration;
+        $totalSecondsInWorkDay = $this->end_time->diffInSeconds($this->start_time);
+        $totalSlotsInWorkDay = floor($totalSecondsInWorkDay / $singleSlotDuration); 
+
+        $timeSlots = new Collection();
+
+        for ($i = 0; $i < $totalSlotsInWorkDay; $i++)
+        {
+            $startTime = $this->start_time->copy()->addSeconds($i * $singleSlotDuration);
+            $endTime = $startTime->copy()->addSeconds($singleSlotDuration);
+
+            $timeSlots->push(
+                TimeSlot::create([
+                    'employee_id' => $this->employee_id,
+                    'company_id' => $this->employee->company_id,
+                    'reserved' => false,
+                    'start_time' => $startTime,
+                    'end_time' => $endTime,
+                ])
+            ); 
+        }
+
+        return $timeSlots;
     }
 }

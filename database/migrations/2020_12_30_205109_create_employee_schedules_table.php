@@ -16,9 +16,8 @@ class CreateEmployeeSchedulesTable extends Migration
         Schema::create('employee_schedules', function (Blueprint $table) {
             $table->id();
             $table->uuid('employee_id');
-            $table->dateTime('work_date');
-            $table->dateTime('start_time');
-            $table->dateTime('end_time');
+            $table->dateTime('start_time')->nullable();
+            $table->dateTime('end_time')->nullable();
             $table->boolean('weekend');
             $table->boolean('holiday')->default(false);
             $table->timestamps();

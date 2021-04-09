@@ -54,8 +54,8 @@ Route::group(['middleware' => ['auth:api']], function() {
     Route::get('/employees',                 [EmployeeController::class, 'index']);
     Route::get('/employees/{id}',            [EmployeeController::class, 'show']);
 
-    Route::post('/employee-admins/{id}',     [EmployeeAdminController::class, 'store']);
-    Route::delete('/employee-admins/{id}',   [EmployeeAdminController::class, 'destroy']);
+    Route::post('/employees/{id}/admin',     [EmployeeAdminController::class, 'store']);
+    Route::delete('/employees/{id}/admin',   [EmployeeAdminController::class, 'destroy']);
 
     Route::get('/time-slots',                [TimeSlotController::class, 'index']);
 

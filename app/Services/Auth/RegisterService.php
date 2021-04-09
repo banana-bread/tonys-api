@@ -2,30 +2,34 @@
 
 namespace App\Services\Auth;
 
+use App\Helpers\Days;
+use App\Jobs\CreateEmployeeSchedules;
 use App\Models\Client;
 use App\Models\Employee;
 use App\Models\User;
+use App\Mail\EmployeeRegistered;
 use Illuminate\Support\Arr;
 
 class RegisterService
 {
     public function employee(array $attributes): Employee
     {
-        /* TODO: 
-
-            - Create employee schedules (queued job)
-            - Validation on schedule creating, validate against the employees companies schedule
-            - should do validation first, if it fails, dont queue the job.  else, do queue it and respond with success 
-
-        */
         $user = User::create(
-            Arr::except($attributes, ['admin', 'company_id'])
+            Arr::except($attributes, ['admin', 'company_id', 'settings'])
         );
 
-        return $user->employee()->create([
+        $employee = $user->employee()->create([
             'admin' => Arr::get($attributes, 'admin'),
-            'company_id' => Arr::get($attributes, 'company_id')
+            'company_id' => Arr::get($attributes, 'company_id'),
+            'settings' => Arr::get($attributes, 'settings'),
         ]);
+
+        // TODO: implement this 
+        $employee->send(new EmployeeRegistered());
+
+        CreateEmployeeSchedules::dispatch($employee, Days::YEAR);
+
+        return $employee;
     }
 
     public function client(array $attributes): Client

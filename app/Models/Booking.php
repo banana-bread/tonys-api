@@ -2,9 +2,6 @@
 
 namespace App\Models;
 
-use App\Mail\BookingCreated;
-use App\Models\Interfaces\ReceivesBookingNotifications;
-use Illuminate\Support\Facades\Mail;
 use App\Traits\HasUuid;
 
 class Booking extends BaseModel
@@ -96,12 +93,5 @@ class Booking extends BaseModel
 
         // NOTE: returning false here so tests fail and feature is implemented properly.
         return false;
-    }
-
-    // ACTIONS
-    
-    public function notify(ReceivesBookingNotifications $model)
-    {
-        Mail::to($model->user)->queue(new BookingCreated($this, $model));
     }
 }

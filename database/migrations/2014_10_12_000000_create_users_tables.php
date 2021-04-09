@@ -18,7 +18,7 @@ class CreateUsersTables extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->string('phone')->nullable();
-            $table->boolean('suscribed_to_emails')->default(true);
+            $table->boolean('subscribed_to_emails')->default(true);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->string('provider')->nullable();
@@ -43,6 +43,7 @@ class CreateUsersTables extends Migration
             $table->uuid('user_id')->unique();
             $table->uuid('company_id');
             $table->boolean('admin');
+            $table->json('settings');
             $table->timestamps();
 
             $table->primary('id');

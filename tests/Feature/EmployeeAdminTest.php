@@ -17,7 +17,7 @@ class EmployeeAdminTest extends TestCase
         $employee = Employee::factory()->create(); 
         $this->actingAs($employee->user, 'api');
 
-        $response = $this->post("employee-admins/$employee->id");
+        $response = $this->post("employees/$employee->id/admin");
 
         $response->assertCreated();
         $this->assertFalse($employee->admin);
@@ -30,7 +30,7 @@ class EmployeeAdminTest extends TestCase
         $employee = Employee::factory()->admin()->create(); 
         $this->actingAs($employee->user, 'api');
 
-        $response = $this->delete("employee-admins/$employee->id");
+        $response = $this->delete("employees/$employee->id/admin");
 
         $response->assertStatus(204);
     }

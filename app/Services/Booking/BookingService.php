@@ -3,6 +3,7 @@
 namespace App\Services\Booking;
 
 use App\Exceptions\BookingException;
+use App\Mail\BookingCreated;
 use App\Models\Booking;
 use App\Models\Client;
 use App\Models\Service;
@@ -22,7 +23,7 @@ class BookingService
             $serviceDefinitions = ServiceDefinition::findOrFail(Arr::get($attributes, 'service_definition_ids'));
             $bookingDuration = $serviceDefinitions->sum('duration');
 
-            $singleSlotDuration = 1800;  // this really needs to be a company setting
+            $singleSlotDuration = $serviceDefinitions->first()->company->time_slot_duration;
             $numberOfSlotsRequired = ceil($bookingDuration / $singleSlotDuration);
 
             $allTimeSlots = $numberOfSlotsRequired > 1
@@ -34,7 +35,7 @@ class BookingService
             
             if ($client->subscribes_to_emails)
             {
-                $booking->notify($client);
+                $client->send(new BookingCreated($booking));
             }
 
             return $booking;

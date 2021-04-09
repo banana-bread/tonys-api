@@ -2,25 +2,18 @@
 
 namespace App\Mail;
 
-use App\Models\Booking;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class BookingCreated extends Mailable
+class EmployeeRegistered extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public Booking $booking;
-
-    public function __construct(Booking $booking)
-    {
-        $this->booking = $booking;
-    }
-    
     public function build()
     {
         return $this->from('adriano@example.com')
+            // TODO: create template
             ->markdown('email.client-booking-confirmation');
     }
 }

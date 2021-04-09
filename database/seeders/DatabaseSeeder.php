@@ -133,7 +133,6 @@ class DatabaseSeeder extends Seeder
                 $schedule = new EmployeeSchedule();
 
                 $schedule->employee_id = $employee->id;
-                $schedule->work_date = $date;
                 $schedule->start_time = $startTime;    
                 $schedule->end_time = $endTime;
                 $schedule->weekend = !$employeeWeekMap->get($dayOfWeek);

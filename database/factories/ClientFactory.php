@@ -28,4 +28,15 @@ class ClientFactory extends Factory
             }
         ];
     }
+
+    public function unsubscribed()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'user_id' => function () {
+                    return User::factory()->unsubscribed()->create()->id;
+                }
+            ];
+        });
+    }
 }

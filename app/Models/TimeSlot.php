@@ -26,7 +26,7 @@ class TimeSlot extends BaseModel
         'reserved'   => 'boolean'
     ];
 
-    // Relations
+    // RELATIONS
 
     public function employee()
     {
@@ -37,6 +37,8 @@ class TimeSlot extends BaseModel
     {
         return $this->belongsTo(Company::class);
     }
+
+    // HELPERS
 
     public function getNextSlots(int $totalSlotsRequired): Collection
     {

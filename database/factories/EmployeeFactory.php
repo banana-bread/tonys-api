@@ -6,6 +6,7 @@ use App\Models\Company;
 use App\Models\Employee;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Tests\TestMock;
 
 class EmployeeFactory extends Factory
 {
@@ -30,7 +31,8 @@ class EmployeeFactory extends Factory
             'company_id' => function() {
                 return Company::factory()->create()->id;
             },
-            'admin' => false
+            'admin' => false,
+            'settings' => TestMock::employee_settings(),
         ];
     }
 

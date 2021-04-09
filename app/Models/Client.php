@@ -3,19 +3,19 @@
 namespace App\Models;
 
 use App\Exceptions\InvalidParameterException;
-use App\Models\Interfaces\ReceivesBookingNotifications;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Traits\HasUuid;
-
-class Client extends BaseModel implements ReceivesBookingNotifications
+use App\Traits\ReceivesEmails;
+class Client extends BaseModel
 {
-    use HasUuid;
+    use HasUuid, ReceivesEmails;
 
     protected $appends = [
         'name',
         'phone',
-        'email'
+        'email',
+        'subscribes_to_emails',
     ];
 
     protected $visible = [
@@ -23,6 +23,8 @@ class Client extends BaseModel implements ReceivesBookingNotifications
         'name',
         'phone',
         'email',
+        'subscribes_to_emails',
+
         'companies',
     ];
 
@@ -58,9 +60,10 @@ class Client extends BaseModel implements ReceivesBookingNotifications
         return $this->user->email;
     }
 
-    public function getSubscribesToEmailsAttributes(): bool
+    public function getSubscribesToEmailsAttribute(): bool
     {
-        return $this->user->suscribed_to_emails;
+
+        return $this->user->subscribed_to_emails;
     }
 
     public function isAvailableDuring($timeSlots): bool
@@ -90,10 +93,5 @@ class Client extends BaseModel implements ReceivesBookingNotifications
                 ->count();
         
         return !$hasAnOverlappingBooking;
-    }
-
-    public function wasSentBookingConfirmation(): string
-    {
-        return 'email.client-booking-confirmation';        
     }
 }
