@@ -9,9 +9,6 @@ class AuthedClientController extends ApiController
 {
     public function show(): JsonResponse
     {
-       return $this->ok(
-           ['authed-client' => auth()->user()->client],
-           'Authed client retreived'
-       );
+       return $this->ok(['client' => auth()->user()->client], 'Authed client retreived');
     }
 }

@@ -29,6 +29,8 @@ Route::get('/', function(Request $r) {
 
 // Registration
 Route::post('/clients',                      [ClientController::class, 'store']);
+
+// TODO: this needs to be a protected signed url route
 Route::post('/employees',                    [EmployeeController::class, 'store']);
 
 Route::post('/companies',                    [CompanyController::class, 'store']);
@@ -55,7 +57,7 @@ Route::group(['middleware' => ['auth:api']], function() {
     Route::put('/clients/{id}',              [ClientController::class, 'update']);
     Route::get('/clients/{id}',              [ClientController::class, 'show']);
 
-    Route::get('/authed-client',             [AuthedClientController::class, 'show']);
+    Route::get('/client/authed',             [AuthedClientController::class, 'show']);
 
     Route::post('/bookings',                 [BookingController::class, 'store']);
     Route::get('/bookings/{id}',             [BookingController::class, 'show']);

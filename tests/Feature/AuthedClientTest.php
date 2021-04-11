@@ -2,21 +2,13 @@
 
 namespace Tests\Feature;
 
-use App\Models\Booking;
 use App\Models\Client;
-use App\Models\Employee;
-use App\Models\ServiceDefinition;
-use App\Models\TimeSlot;
-use App\Models\User;
-use Carbon\Carbon;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Str;
 
 
-class AuthedClientsTest extends TestCase
+class AuthedClientTest extends TestCase
 {
     use WithFaker, RefreshDatabase;
 
@@ -26,10 +18,9 @@ class AuthedClientsTest extends TestCase
         $client = Client::factory()->create();
         $this->actingAs($client->user, 'api');
 
-        $response = $this->get("authed-client");
-        $authedClientId = $response->json('data.authed-client.id');
-
+        $response = $this->get("client/authed");
+        logger($response->json());
         $response->assertOk();
-        $this->assertEquals($client->id, $authedClientId);
+        $this->assertEquals($client->id, $response->json('data.client.id'));
     }
 }
