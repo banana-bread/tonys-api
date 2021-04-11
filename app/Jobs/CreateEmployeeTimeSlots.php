@@ -9,7 +9,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class CreateEmployeeSchedules implements ShouldQueue
+class CreateEmployeeTimeSlots implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -34,10 +34,6 @@ class CreateEmployeeSchedules implements ShouldQueue
      */
     public function handle()
     {
-        $schedules = $employee->createSchedulesForNext($this->days);
-
-        $schedules->each(function ($schedule) {
-            $schedule->createTimeSlots();
-        });
+        $employee->createTimeSlotsForNext($this->days);
     }
 }

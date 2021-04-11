@@ -4,9 +4,11 @@ namespace App\Models;
 
 use App\Helpers\DayCollection;
 use App\Traits\HasUuid;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+
 use Illuminate\Support\Str;
 use App\Traits\ReceivesEmails;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Support\Collection;
 
 class Employee extends BaseModel
 {
@@ -26,7 +28,6 @@ class Employee extends BaseModel
 
         'user',
         'company', 
-        'schedules',
         'time_slots',
         'bookings',
 
@@ -52,11 +53,6 @@ class Employee extends BaseModel
     public function company()
     {
         return $this->belongsTo(Company::class);
-    }
-
-    public function schedules()
-    {
-        return $this->hasMany(EmployeeSchedule::class);
     }
 
     public function time_slots()
@@ -93,9 +89,9 @@ class Employee extends BaseModel
 
     // TODO: probably add in setBaseScheduleAttribute eventually
 
-    public function getLatestScheduleAttribute()
+    public function getLatestTimeSlotAttribute()
     {
-        return $this->schedules()->latest('start_time')->first();
+        return $this->time_slots()->latest('start_time')->first();
     }
 
     // ACTIONS
@@ -118,13 +114,18 @@ class Employee extends BaseModel
     {
         return !!$this->schedules()->count();
     }
-
-    public function createSchedulesForNext(int $numberOfDays): EloquentCollection
+    
+    public function hasTimeSlots(): bool
     {
-        if ($this->hasSchedules())
+        return !!$this->time_slots()->count();
+    }
+
+    public function createTimeSlotsForNext(int $numberOfDays): Collection
+    {
+        if ($this->hasTimeSlots())
         {
-            $start = $this->latest_schedule->start_time->copy()->addDay();
-            $end = $start->copy()->addDays($numberOfDays);
+            $start = $this->latest_time_slot->start_time->copy()->startOfDay()->addDay();
+            $end = $start->copy()->addDays($numberOfDays);    
         }
         else
         {
@@ -134,23 +135,39 @@ class Employee extends BaseModel
 
         $days = DayCollection::fromRange($start, $end);
 
-        $schedules = $days->map(function ($day) {
+        $timeSlots = new EloquentCollection();
+
+        $days->each(function ($day) use ($timeSlots) {
+
             $baseStart = $this->base_schedule[Str::lower($day->englishDayOfWeek)]['start'];
             $baseEnd = $this->base_schedule[Str::lower($day->englishDayOfWeek)]['end'];
+            $singleSlotDuration = $this->company->time_slot_duration;
 
-            $start = $baseStart ? $day->copy()->addSeconds($baseStart) : $day;
-            $end = $baseEnd ? $day->copy()->addSeconds($baseEnd) : $day;
+            if ($baseStart && $baseEnd)
+            {
+                $totalSecondsInWorkDay = $baseEnd - $baseStart;
+                $totalSlotsInWorkDay = floor($totalSecondsInWorkDay / $singleSlotDuration); 
 
-            return new EmployeeSchedule([
-                'start_time' => $start,
-                'end_time' => $end,
-                'weekend' => (!$baseStart && !$baseEnd),
-                'holiday' => false,
-            ]);
+                for ($i = 0; $i < $totalSlotsInWorkDay; $i++)
+                {
+                    $start = $day->copy()->addSeconds($baseStart + ($i * $singleSlotDuration));
+                    $end = $start->copy()->addSeconds($singleSlotDuration);
+                    
+                    $timeSlots->push(
+                        new TimeSlot([
+                            'employee_id' => $this->id,
+                            'company_id' => $this->company_id,
+                            'reserved' => false,
+                            'start_time' => $start,
+                            'end_time' => $end,
+                        ])
+                    );
+                }
+            }
         });
 
-        $this->schedules()->saveMany($schedules);
+        $this->time_slots()->saveMany($timeSlots);
 
-        return $this->schedules;
+        return $timeSlots;
     }
 }

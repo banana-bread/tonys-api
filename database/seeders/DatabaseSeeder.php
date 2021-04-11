@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Helpers\DayCollection;
 use App\Models\Client;
 use App\Models\Booking;
 use App\Models\Company;
@@ -10,11 +11,12 @@ use App\Models\EmployeeSchedule;
 use App\Models\Service;
 use App\Models\ServiceDefinition;
 use App\Models\TimeSlot;
-use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
+
 
 // TODO: this whole class is a mess.... should clean this up one day.... maybe
 class DatabaseSeeder extends Seeder
@@ -33,9 +35,8 @@ class DatabaseSeeder extends Seeder
         $company = $this->createCompany();
         $employees = $this->createEmployees($company);
         $this->createClients();
-        $allEmployeeSchedules = $this->createEmployeeSchedules($employees);
-        $this->createEmployeeTimeslots($allEmployeeSchedules, $company);
-        $this->createServiceDefinitions();        
+        $this->createEmployeeTimeslots($employees);
+        $this->createServiceDefinitions($company);        
         $this->createBookings();     
     }
 
@@ -50,7 +51,6 @@ class DatabaseSeeder extends Seeder
             'bookings',
             'clients',
             'employees',
-            'employee_schedules',
             'services',
             'service_definitions',
             'time_slots',
@@ -86,105 +86,44 @@ class DatabaseSeeder extends Seeder
         Client::factory()->count(500)->create();
     }
 
-    private function createEmployeeSchedules(Collection $employees): Collection
+    private function createEmployeeTimeSlots(Collection $employees): void
     {
-        $startDate = Carbon::today()->subMonths(1); 
-        $endDate = Carbon::today()->addMonths(1);   
-        $numberOfDays = $startDate->diffInDays($endDate);
+        $days = DayCollection::fromRange(today()->subMonth(), today()->addMonths(3));
 
-        $scheduleDates = new Collection();
+        $employees->each( function ($employee) use ($days) {
+            $days->each(function ($day) use ($employee) {
+                $baseStart = $employee->base_schedule[Str::lower($day->englishDayOfWeek)]['start'];
+                $baseEnd = $employee->base_schedule[Str::lower($day->englishDayOfWeek)]['end'];
+                $singleSlotDuration = $employee->company->time_slot_duration;
     
-        for ($i = 0; $i < $numberOfDays; $i++)
-        {
-            $scheduleDates->push($startDate->copy()->addDays($i));
-        }
- 
-        $allEmployeeSchedules = $employees->keyBy('id')->map( function($employee) use ($scheduleDates) {
-
-            $employeeSchedules = new Collection();
-
-            // 1. Each employee definitley works mon, tues, wed, and thurs
-            // 2. Employees may or may not work fri and sat
-            // 3. Nobody works sunday
-            $employeeWeekMap = collect([
-                0 => true,
-                1 => true,
-                2 => true,
-                3 => true,
-                4 => (bool) rand(0, 1),
-                5 => (bool) rand(0, 1),
-                6 => false
-            ]);
-
-            foreach ($scheduleDates as $date)
-            {
-                $dayOfWeek = $date->dayOfWeek;
-
-                $isWeekend = $dayOfWeek === 4 || $dayOfWeek === 5;
-
-                $startTime = $isWeekend
-                    ? $date->copy()->addHours(10)  // start at 10am
-                    : $date->copy()->addHours(9);  // start at 9am 
-
-                $endTime = $isWeekend
-                    ? $date->copy()->addHours(16)  // end at 4pm
-                    : $date->copy()->addHours(18); // end at 6pm
-
-                $schedule = new EmployeeSchedule();
-
-                $schedule->employee_id = $employee->id;
-                $schedule->start_time = $startTime;    
-                $schedule->end_time = $endTime;
-                $schedule->weekend = !$employeeWeekMap->get($dayOfWeek);
-                $schedule->holiday = false;
-
-                $employeeSchedules->push($schedule);
-            }
-
-            $employee->schedules()->saveMany($employeeSchedules);
-
-            return $employeeSchedules;
-        });
-
-        return $allEmployeeSchedules;
-    }
-
-    private function createEmployeeTimeSlots(Collection $allEmployeeSchedules, Company $company): void
-    {
-        foreach($allEmployeeSchedules as $employeeSchedules)
-        {
-            foreach($employeeSchedules as $schedule)
-            {
-                if ($schedule->hoilday || $schedule->weekend) {continue;}
-
-                $totalMinutesInDay = $schedule->end_time->diffInMinutes($schedule->start_time);
-                $totalHalfHourSlots = $totalMinutesInDay / 30; // time slots are 30 minutes long
-
-                for ($i = 0; $i < $totalHalfHourSlots; $i++)
+                if ($baseStart && $baseEnd)
                 {
-                    // 10% chance the slot gets reserved
-                    $reserved = rand(1, 10) < 2 ? true : false;
-                    
-                    $startTime = $schedule->start_time->copy()->addMinutes($i * 30);
-                    $endTime = $startTime->copy()->addMinutes(30);
-
-                    TimeSlot::create([
-                        'employee_id' => $schedule->employee_id,
-                        'company_id' => $company->id,
-                        'reserved' => $reserved,
-                        'start_time' => $startTime,
-                        'end_time' => $endTime,
-                    ]);
+                    $totalSecondsInWorkDay = $baseEnd - $baseStart;
+                    $totalSlotsInWorkDay = floor($totalSecondsInWorkDay / $singleSlotDuration); 
+    
+                    for ($i = 0; $i < $totalSlotsInWorkDay; $i++)
+                    {
+                        $start = $day->copy()->addSeconds($baseStart + ($i * $singleSlotDuration));
+                        $end = $start->copy()->addSeconds($singleSlotDuration);
+                        
+                        TimeSlot::create([
+                            'employee_id' => $employee->id,
+                            'company_id' => $employee->company_id,
+                            'reserved' => false,
+                            'start_time' => $start,
+                            'end_time' => $end,
+                        ]);
+                    }
                 }
-            }
-        }
+            });
+        });
     }
 
-    private function createServiceDefinitions(): void
+    private function createServiceDefinitions(Company $company): void
     {
-        ServiceDefinition::factory()->create(['name' => 'Child Cut']);
-        ServiceDefinition::factory()->create(['name' => 'Beard Trim']);
-        ServiceDefinition::factory()->create(['name' => 'Hair Cut']);
+        ServiceDefinition::factory()->for($company)->create(['name' => 'Child Cut']);
+        ServiceDefinition::factory()->for($company)->create(['name' => 'Beard Trim']);
+        ServiceDefinition::factory()->for($company)->create(['name' => 'Hair Cut']);
     }
 
     private function createBookings(): void

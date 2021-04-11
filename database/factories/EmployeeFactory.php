@@ -44,4 +44,31 @@ class EmployeeFactory extends Factory
             ];
         });
     }
+
+    public function no_days_off()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'settings' => TestMock::employee_settings_no_days_off()
+            ];
+        });
+    }
+
+    public function no_working_days()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'settings' => TestMock::employee_settings_no_working_days()
+            ];
+        });
+    }
+
+    public function days_end_on_quarter_hour()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'settings' => TestMock::employee_settings_base_schedule_ends_on_quarter_hour()
+            ];
+        });
+    }
 }

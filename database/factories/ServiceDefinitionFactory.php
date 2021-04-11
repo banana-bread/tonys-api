@@ -31,4 +31,33 @@ class ServiceDefinitionFactory extends Factory
             'duration' => collect([900, 1800, 2700])->random(), // 15, 30, or 45 minutes
         ];
     }
+
+    public function short()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'duration' => 900
+            ];
+        });
+    }
+
+    public function medium()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'duration' => 1800
+            ];
+        });
+    }
+
+    public function long()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'duration' => 2700
+            ];
+        });
+    }
+
+
 }

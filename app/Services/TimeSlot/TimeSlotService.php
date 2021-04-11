@@ -15,15 +15,15 @@ class TimeSlotService
 {
     public function getAvailableSlots(TimeSlotRequest $request): Collection
     {   
-        $serviceDefinitionIds = Str::of( request('service-definition-ids') )->explode(',');
         $employeeId = request('employee-id');
+        $serviceDefinitions = ServiceDefinition::find(
+            Str::of(request('service-definition-ids'))->explode(',')
+        );
         
         $dateFrom = Carbon::createFromTimestamp( request('date-from') );
         $dateTo = Carbon::createFromTimestamp( request('date-to') );
-
-        $singleSlotDuration = 1800; // 30 minutes... this should be a company setting
-        $serviceDefinitions = ServiceDefinition::find($serviceDefinitionIds);
         $companyId = $serviceDefinitions->first()->company->id;
+        $singleSlotDuration = $serviceDefinitions->first()->company->time_slot_duration;
 
         $summedServiceDuration = $serviceDefinitions->sum('duration');
         $slotsRequired = ceil($summedServiceDuration / $singleSlotDuration);

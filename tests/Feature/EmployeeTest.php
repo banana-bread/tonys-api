@@ -2,11 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Jobs\CreateEmployeeSchedules;
+use App\Jobs\CreateEmployeeTimeSlots;
 use App\Mail\EmployeeRegistered;
 use App\Models\Company;
 use App\Models\Employee;
-use Illuminate\Contracts\Queue\Queue;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -53,7 +52,7 @@ class EmployeeTest extends TestCase
     }
 
     /** @test */
-    public function creating_an_employee_account_queues_a_job_to_create_schedules()
+    public function creating_an_employee_account_queues_a_job_to_create_time_slots()
     {
         Bus::fake();
 
@@ -67,7 +66,7 @@ class EmployeeTest extends TestCase
             'settings' => TestMock::employee_settings(),
         ]); 
 
-        Bus::assertDispatched(function (CreateEmployeeSchedules $job) use ($response) {
+        Bus::assertDispatched(function (CreateEmployeeTimeSlots $job) use ($response) {
             return $response->json('data.employee.id') === $job->employee->id;
         });
     }

@@ -29,13 +29,6 @@ Route::get('/', function(Request $r) {
     return response()->json('tony\'s api');
 });
 
-// Route::get('/test-redis', function(Request $request) {
-//     SendClientBookingConfirmation::dispatch();
- 
-//     logger('pee pee');
-// });
-
-
 // Registration
 Route::post('/clients',                      [ClientController::class, 'store']);
 Route::post('/employees',                    [EmployeeController::class, 'store']);
@@ -47,6 +40,8 @@ Route::post('/login',                        [LoginController::class, 'login'])-
 Route::get('/login/{provider}',              [LoginController::class, 'redirectToProvider']);
 Route::get('/login/{provider}/callback',     [LoginController::class, 'handleProviderCallback']);
 
+Route::get('/time-slots',                [TimeSlotController::class, 'index']);
+
 Route::group(['middleware' => ['auth:api']], function() {
     Route::post('/logout',                   [LogoutController::class, 'logout']);
 
@@ -56,8 +51,6 @@ Route::group(['middleware' => ['auth:api']], function() {
 
     Route::post('/employees/{id}/admin',     [EmployeeAdminController::class, 'store']);
     Route::delete('/employees/{id}/admin',   [EmployeeAdminController::class, 'destroy']);
-
-    Route::get('/time-slots',                [TimeSlotController::class, 'index']);
 
     Route::get('/service-definitions',       [ServiceDefinitionController::class, 'index']);
 

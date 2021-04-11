@@ -3,7 +3,7 @@
 namespace App\Services\Auth;
 
 use App\Helpers\Days;
-use App\Jobs\CreateEmployeeSchedules;
+use App\Jobs\CreateEmployeeTimeSlots;
 use App\Models\Client;
 use App\Models\Employee;
 use App\Models\User;
@@ -24,10 +24,9 @@ class RegisterService
             'settings' => Arr::get($attributes, 'settings'),
         ]);
 
-        // TODO: implement this 
         $employee->send(new EmployeeRegistered());
 
-        CreateEmployeeSchedules::dispatch($employee, Days::YEAR);
+        CreateEmployeeTimeSlots::dispatch($employee, Days::YEAR);
 
         return $employee;
     }
