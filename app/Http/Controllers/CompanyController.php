@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateCompanyRequest;
 use App\Models\Company;
+use App\Services\Auth\RegisterService;
 use Illuminate\Http\JsonResponse;
 
 class CompanyController extends ApiController
@@ -13,36 +14,10 @@ class CompanyController extends ApiController
         // TODO: figure out pagination
     }
 
-    /*
-     TODO: 
-        - (done) create CreateCompanyRequest form request class
-        - (done) tests for creating and getting company
-        - updates on companies and resulting actions *Some of these actions may be in different controllers.  
-    */
     public function store(CreateCompanyRequest $request): JsonResponse
     {
-        $company = Company::create($request->all());
-
-        /* TODO: were going to need to create a company_schedules table which gets created from
-                 operating hours that get passed in when creating company.
-
-                 - create schedules based on operating hours
-                 - create a field on employee and company tables called other_settings. make it a json and store 
-                        'base_schedule': {
-                            'monday': {
-                                'start_time': time,
-                                'end_time': time,
-                            },
-                            'tuesday': {
-                                'start_time': time,
-                                'end_time': time,
-                            }
-                            etc
-                        },
-                        'exceptions': 
-                 - then on employees and companies tables add foreign base_schedule_id
-        */
-
+        $regster = new RegisterService();
+        $company = $regster->company($request->all());
 
         return $this->created(['company' => $company], 'Company created.');
     }

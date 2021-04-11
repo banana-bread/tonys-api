@@ -8,6 +8,8 @@ class Company extends BaseModel
 {
     use HasUuid;
 
+    protected $with = ['owner'];
+    
     protected $appends = [];
 
     protected $visible = [
@@ -17,7 +19,15 @@ class Company extends BaseModel
         'phone',
         'time_slot_duration',
         'booking_cancellation_period',
+        'settings',
+
         'clients',
+        'employees',
+        'owner',
+    ];
+
+    protected $casts = [
+        'settings' => 'collection'
     ];
 
     public function clients() 
@@ -28,6 +38,11 @@ class Company extends BaseModel
     public function employees()
     {
         return $this->hasMany(Employee::class);
+    }
+
+    public function owner()
+    {
+        return $this->hasOne(Employee::class)->where('owner', true);
     }
 
     public function service_definitions()

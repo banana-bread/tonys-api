@@ -43,6 +43,7 @@ class CreateUsersTables extends Migration
             $table->uuid('user_id')->unique();
             $table->uuid('company_id');
             $table->boolean('admin');
+            $table->boolean('owner');
             $table->json('settings');
             $table->timestamps();
 

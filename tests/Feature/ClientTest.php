@@ -25,6 +25,21 @@ class ClientTest extends TestCase
     }
 
     /** @test */
+    public function a_created_client_account_is_subscribed_to_emails_by_default()
+    {
+        $response = $this->post('/clients', [ 
+            'name' => $this->faker->name,
+            'email' => $this->faker->unique()->safeEmail,
+            'phone' => '+18195551234',
+            'password' => 'password',
+        ]);
+
+        $client = Client::findOrFail($response->json('data.client.id'));
+        
+        $this->assertTrue($client->subscribes_to_emails);
+    }
+
+    /** @test */
     public function a_client_account_can_be_retrieved()
     {
         $client = Client::factory()->create();

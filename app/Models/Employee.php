@@ -24,6 +24,7 @@ class Employee extends BaseModel
         'id',
         'company_id',
         'admin',
+        'owner',
         'settings',
 
         'user',
@@ -40,6 +41,7 @@ class Employee extends BaseModel
 
     protected $casts = [
         'admin'    => 'boolean',
+        'owner'    => 'boolean',
         'settings' => 'collection',
     ];
 
@@ -118,6 +120,16 @@ class Employee extends BaseModel
     public function hasTimeSlots(): bool
     {
         return !!$this->time_slots()->count();
+    }
+
+    public function isAdmin(): bool
+    {
+        return !!$this->admin;
+    }
+
+    public function isOwner(): bool
+    {
+        return !!$this->admin;
     }
 
     public function createTimeSlotsForNext(int $numberOfDays): Collection

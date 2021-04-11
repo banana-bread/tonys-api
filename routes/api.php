@@ -10,8 +10,6 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeAdminController;
 use App\Http\Controllers\ServiceDefinitionController;
 use App\Http\Controllers\TimeSlotController;
-use App\Jobs\SendClientBookingConfirmation;
-use App\Models\Employee;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 

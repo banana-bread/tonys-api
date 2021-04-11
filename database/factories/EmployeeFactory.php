@@ -32,6 +32,7 @@ class EmployeeFactory extends Factory
                 return Company::factory()->create()->id;
             },
             'admin' => false,
+            'owner' => false,
             'settings' => TestMock::employee_settings(),
         ];
     }
@@ -41,6 +42,16 @@ class EmployeeFactory extends Factory
         return $this->state(function (array $attributes) {
             return [
                 'admin' => true
+            ];
+        });
+    }
+
+    public function owner()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'admin' => true,
+                'owner' => true,
             ];
         });
     }

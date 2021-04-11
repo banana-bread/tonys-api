@@ -29,6 +29,7 @@ class EmployeeTest extends TestCase
             'phone' => '+18195551234',
             'password' => 'password',
             'admin' => false,
+            'owner' => false,
             'settings' => TestMock::employee_settings(),
         ]); 
 
@@ -45,30 +46,11 @@ class EmployeeTest extends TestCase
             'phone' => '+18195551234',
             'password' => 'password',
             'admin' => true,
+            'owner' => false,
             'settings' => TestMock::employee_settings(),
         ]);
 
         $response->assertCreated();
-    }
-
-    /** @test */
-    public function creating_an_employee_account_queues_a_job_to_create_time_slots()
-    {
-        Bus::fake();
-
-        $response = $this->post('/employees', [ 
-            'company_id' => Company::factory()->create()->id,
-            'name' => $this->faker->name,
-            'email' => $this->faker->unique()->safeEmail,
-            'phone' => '+18195551234',
-            'password' => 'password',
-            'admin' => false,
-            'settings' => TestMock::employee_settings(),
-        ]); 
-
-        Bus::assertDispatched(function (CreateEmployeeTimeSlots $job) use ($response) {
-            return $response->json('data.employee.id') === $job->employee->id;
-        });
     }
 
     /** @test */
@@ -83,6 +65,7 @@ class EmployeeTest extends TestCase
             'phone' => '+18195551234',
             'password' => 'password',
             'admin' => false,
+            'owner' => false,
             'settings' => TestMock::employee_settings(),
         ]); 
 
@@ -91,6 +74,26 @@ class EmployeeTest extends TestCase
         });
     }
 
+    /** @test */
+    public function creating_an_employee_account_queues_a_job_to_create_time_slots()
+    {
+        Bus::fake();
+
+        $response = $this->post('/employees', [ 
+            'company_id' => Company::factory()->create()->id,
+            'name' => $this->faker->name,
+            'email' => $this->faker->unique()->safeEmail,
+            'phone' => '+18195551234',
+            'password' => 'password',
+            'admin' => false,
+            'owner' => false,
+            'settings' => TestMock::employee_settings(),
+        ]); 
+
+        Bus::assertDispatched(function (CreateEmployeeTimeSlots $job) use ($response) {
+            return $response->json('data.employee.id') === $job->employee->id;
+        });
+    }
 
     /** @test */
     public function an_employee_account_can_be_retrieved()
