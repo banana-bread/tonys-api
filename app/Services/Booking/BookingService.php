@@ -80,7 +80,7 @@ class BookingService
             $service = new Service();
             $service->service_definition_id = $definition->id;
             $service->booking_id = $booking->id;
-            
+
             return $service;
         });
 

@@ -34,6 +34,6 @@ class CreateEmployeeTimeSlots implements ShouldQueue
      */
     public function handle()
     {
-        $employee->createTimeSlotsForNext($this->days);
+        $this->employee->createTimeSlotsForNext($this->days);
     }
 }

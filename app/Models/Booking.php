@@ -3,11 +3,18 @@
 namespace App\Models;
 
 use App\Traits\HasUuid;
+use Carbon\Carbon;
+use Carbon\CarbonInterval;
 
 class Booking extends BaseModel
 {
     use HasUuid;
-    
+
+    protected $appends = [
+        'formatted_duration',
+        'formatted_total',
+    ];
+
     protected $visible = [
         'id',
         'client_id',
@@ -20,6 +27,11 @@ class Booking extends BaseModel
         'client',
         'employee',
         'services',
+
+        'duration',
+        'formatted_duration',
+        'total',
+        'formatted_total',
     ];
 
     protected $casts = [
@@ -28,7 +40,7 @@ class Booking extends BaseModel
         'cancelled_at' => 'datetime'
     ];
 
-    // Relations
+    // RELATIONS
 
     public function client()
     {
@@ -58,10 +70,29 @@ class Booking extends BaseModel
     //     return false;
     // }
 
-    public function getCancelledAttribute(): bool
+    // CUSTOM ATTRIBUTES
+
+    public function getDurationAttribute()
     {
-        return !!$this->cancelled_at;
+        return $this->ended_at->timestamp - $this->started_at->timestamp;
     }
+
+    public function getFormattedDurationAttribute()
+    {
+        return CarbonInterval::minutes($this->duration / 60)->forHumans();
+    }
+
+    public function getTotalAttribute()
+    {
+        return $this->services->sum('price');
+    }
+
+    public function getFormattedTotalAttribute()
+    {
+        return '$' . number_format(($this->total/100), 2, '.', ' ');
+    }
+
+   // HELPERS
 
     public function cancel()
     {

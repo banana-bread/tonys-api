@@ -14,6 +14,6 @@ class EmployeeRegistered extends Mailable
     {
         return $this->from('adriano@example.com')
             // TODO: create template
-            ->markdown('email.client-booking-confirmation');
+            ->markdown('email.employee-registered-confirmation');
     }
 }

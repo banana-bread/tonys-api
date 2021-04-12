@@ -10,6 +10,12 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeAdminController;
 use App\Http\Controllers\ServiceDefinitionController;
 use App\Http\Controllers\TimeSlotController;
+use App\Mail\BookingCreated;
+use App\Models\Booking;
+use App\Models\Client;
+use App\Models\Company;
+use App\Models\Service;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +32,18 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function(Request $r) {
     return response()->json('tony\'s api');
 });
+
+// Gonna leave this here till we're done with all the email templates
+// Route::get('/mail', function(Request $r) {
+
+//     $service = Service::factory()->create();
+//     $client = $service->booking->client;
+//     $booking = $service->booking;
+//     $client->send(new BookingCreated($booking));
+
+// });
+
+
 
 // Registration
 Route::post('/clients',                      [ClientController::class, 'store']);

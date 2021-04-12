@@ -19,7 +19,7 @@ class AuthedClientTest extends TestCase
         $this->actingAs($client->user, 'api');
 
         $response = $this->get("client/authed");
-        logger($response->json());
+
         $response->assertOk();
         $this->assertEquals($client->id, $response->json('data.client.id'));
     }
