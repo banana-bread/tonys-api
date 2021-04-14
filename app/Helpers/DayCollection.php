@@ -10,7 +10,7 @@ class DayCollection extends Collection
     // HELPERS
     public static function fromRange(Carbon $start, Carbon $end)
     {
-        return new DayCollection(self::_createDaysFromRange($start, $end));
+        return new static(self::createDaysFromRange($start, $end));
     }
 
     public function toStartOfDay()
@@ -22,7 +22,7 @@ class DayCollection extends Collection
 
     // PRIVATE HELPERS
 
-    private static function _createDaysFromRange(Carbon $start, Carbon $end): array
+    private static function createDaysFromRange(Carbon $start, Carbon $end): array
     {
         $numberOfDays = $start->diffInDays($end);
         $days = [];
