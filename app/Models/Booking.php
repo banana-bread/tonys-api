@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Exceptions\BookingException;
+use App\Models\Contracts\UserModel;
 use App\Traits\HasUuid;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
@@ -92,37 +94,54 @@ class Booking extends BaseModel
         return '$' . number_format(($this->total/100), 2, '.', ' ');
     }
 
-   // HELPERS
+    // ACTIONS
 
     public function cancel()
     {
+        if (! $this->canBeCancelled())
+        {
+            throw new BookingException([$this], 'Booking cannot be cancelled'); 
+        }
+
         return $this->update([
             'cancelled_at' => now(),
             'cancelled_by' => auth()->user()->id,
         ]);
     }
 
-    public function isPassedCancellationDeadline(): bool
+    // HELPERS
+
+    public function isCancelled(): bool
     {
-        return Company::booking_cancellation_period() < ( now() - $this->started_at );
+        return !!$this->cancelled_at;
+    }
+
+    public function isWithinGracePeriod(): bool
+    {
+        return $this->started_at->greaterThan(
+            now()->addSeconds($this->employee->company->booking_grace_period)
+        );
     }
 
     public function canBeCancelled(): bool
-    {        
-        /* TODO: implement rules
+    {
+        // Bookings client is trying to cancel
+        if ($this->client->user_id == auth()->user()->id)
+        {
+            return $this->isWithinGracePeriod() && !$this->isCancelled();
+        }
+        // Bookings employee, or admin is trying to cancel
+        else if ($this->employee->user_id == auth()->user()->id ||
+                 auth()->user()->isAdmin())
+        {
+            return !$this->isCancelled();
+        }
 
-            Why it cannot be cancelled:
-                - passed cancellation deadline
-                - already cancelled
-                - ** Policy will not be implemented here, but would be:
-                     if ($booking->belongsTo($client) || 
-                         $booking->belongsTo($employee) ||
-                         $auth()->user()->isAdmin())
-        */
-
-        // return !$booking->isPassedCancellationDeadline() || $booking->cancelled;
-
-        // NOTE: returning false here so tests fail and feature is implemented properly.
         return false;
+    }
+
+    public function wasCancelledBy(UserModel $model)
+    {
+        return $this->cancelled_by == $model->user->id;
     }
 }

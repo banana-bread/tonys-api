@@ -27,7 +27,7 @@ class CompanyFactory extends Factory
             'address' => $this->faker->address,
             'phone' => $this->faker->phoneNumber,
             'time_slot_duration' => 1800,  // 30 minutes
-            'booking_cancellation_period' => 86400, // 24 hours
+            'booking_grace_period' => 86400, // 24 hours
             'settings' => TestMock::company_settings(),
         ];
     }

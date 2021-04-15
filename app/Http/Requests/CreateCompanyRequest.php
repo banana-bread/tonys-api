@@ -28,7 +28,7 @@ class CreateCompanyRequest extends FormRequest
             'address'                                 => 'required|string',
             'phone'                                   => 'required|phone:CA',
             'time_slot_duration'                      => 'required|numeric',
-            'booking_cancellation_period'             => 'required|numeric',
+            'booking_grace_period'                    => 'required|numeric',
 
             'user'                                    => 'required|array',
             'user.name'                               => 'required|string',

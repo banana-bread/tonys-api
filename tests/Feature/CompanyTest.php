@@ -76,7 +76,7 @@ class CompanyTest extends TestCase
             'address' => $this->faker->address,
             'phone' => '+18195551234',
             'time_slot_duration' => $this->faker->numberBetween(1000, 2000),
-            'booking_cancellation_period' => $this->faker->numberBetween(1000, 2000),
+            'booking_grace_period' => $this->faker->numberBetween(1000, 2000),
             'settings' => TestMock::company_settings(),
             'user' => [
                 'name' => $this->faker->name,

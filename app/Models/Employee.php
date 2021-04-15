@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Helpers\DayCollection;
+use App\Models\Contracts\UserModel;
 use App\Traits\HasUuid;
 
 use Illuminate\Support\Str;
@@ -10,7 +11,7 @@ use App\Traits\ReceivesEmails;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 
-class Employee extends BaseModel
+class Employee extends BaseModel implements UserModel
 {
     use HasUuid, ReceivesEmails;
     
@@ -124,12 +125,12 @@ class Employee extends BaseModel
 
     public function isAdmin(): bool
     {
-        return !!$this->admin;
+        return $this->admin;
     }
 
     public function isOwner(): bool
     {
-        return !!$this->admin;
+        return $this->owner;
     }
 
     public function createTimeSlotsForNext(int $numberOfDays): Collection

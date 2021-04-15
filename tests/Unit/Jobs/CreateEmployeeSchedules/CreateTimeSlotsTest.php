@@ -74,7 +74,7 @@ class CreateTimeSlotsTest extends TestCase
     {
         $employee = Employee::factory()->create();
         $slotsInSingleDay = 16;
-        $days = $this->faker->numberBetween(1, 20);
+        $days = $this->faker->numberBetween(7, 20);
 
         $timeSlots = $employee->createTimeSlotsForNext($days);
 

@@ -42,7 +42,7 @@ class IsAvailableDuringTest extends TestCase
     public function it_throws_an_exception_if_param_is_not_a_collection_or_time_slot_model()
     {
         $client = Client::factory()->create();
-        $notACollectionOrTimeSlot  = 'timeslot';
+        $notACollectionOrTimeSlot = 'timeslot';
 
         $this->expectException(InvalidParameterException::class);
         $client->isAvailableDuring($notACollectionOrTimeSlot);

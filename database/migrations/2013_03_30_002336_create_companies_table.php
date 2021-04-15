@@ -19,7 +19,7 @@ class CreateCompaniesTable extends Migration
             $table->string('address');
             $table->string('phone');
             $table->integer('time_slot_duration');
-            $table->integer('booking_cancellation_period');
+            $table->integer('booking_grace_period');
             $table->json('settings');
             $table->timestamps();
 

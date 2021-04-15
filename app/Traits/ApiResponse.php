@@ -18,7 +18,7 @@ trait ApiResponse
 
     protected function deleted($message = null): JsonResponse
     {
-        return $this->_response('Created', null, $message, 204);
+        return $this->_response('Deleted', null, $message, 204);
     }
 
     protected function error(string $message = null, int $code = 500): JsonResponse

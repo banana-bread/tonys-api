@@ -18,7 +18,7 @@ class Company extends BaseModel
         'address',
         'phone',
         'time_slot_duration',
-        'booking_cancellation_period',
+        'booking_grace_period',
         'settings',
 
         'clients',

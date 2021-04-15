@@ -46,7 +46,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    // Relations
+    // RELATIONS
     
     public function employee()
     {
@@ -56,5 +56,16 @@ class User extends Authenticatable
     public function client()
     {
         return $this->hasOne(Client::class);
+    }
+
+    // HELPERS
+    public function isAdmin(): bool
+    {
+        return !!$this->employee && $this->employee->isAdmin();
+    }
+
+    public function isOwner(): bool
+    {
+        return !!$this->employee && $this->employee->isOwner();
     }
 }

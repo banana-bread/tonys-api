@@ -3,11 +3,12 @@
 namespace App\Models;
 
 use App\Exceptions\InvalidParameterException;
+use App\Models\Contracts\UserModel;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Traits\HasUuid;
 use App\Traits\ReceivesEmails;
-class Client extends BaseModel
+class Client extends BaseModel implements UserModel
 {
     use HasUuid, ReceivesEmails;
 
