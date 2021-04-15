@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateClientRequest;
+use App\Models\Client;
 use App\Services\Auth\RegisterService;
 use App\Services\ClientService;
 use Illuminate\Http\Request;
@@ -26,8 +27,7 @@ class ClientController extends ApiController
 
     public function show(string $id): JsonResponse
     {
-        $service = new ClientService();
-        $client = $service->get($id);
+        $client = Client::findOrFail($id);
 
         return $this->ok(['client' => $client], 'Client retrieved.');
     }
