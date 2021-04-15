@@ -30,6 +30,8 @@ class Company extends BaseModel
         'settings' => 'collection'
     ];
 
+    // RELATIONS
+
     public function clients() 
     {
         return $this->belongsToMany(Client::class, 'companies_clients');
@@ -48,5 +50,12 @@ class Company extends BaseModel
     public function service_definitions()
     {
         return $this->hasMany(ServiceDefinition::class);
+    }
+
+    // HELPERS
+    
+    public function slotsRequiredFor(int $duration)
+    {
+        return ceil($duration / $this->time_slot_duration);
     }
 }

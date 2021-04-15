@@ -8,6 +8,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Traits\HasUuid;
 use App\Traits\ReceivesEmails;
+
 class Client extends BaseModel implements UserModel
 {
     use HasUuid, ReceivesEmails;
@@ -29,7 +30,7 @@ class Client extends BaseModel implements UserModel
         'companies',
     ];
 
-    // Relations
+    // RELATIONS
 
     public function user()
     {
@@ -45,6 +46,8 @@ class Client extends BaseModel implements UserModel
     {
         return $this->hasMany(Company::class, 'companies_clients');
     }
+
+    // CUSTOM ATTRIBUTES
 
     public function getNameAttribute(): string
     {
@@ -66,6 +69,46 @@ class Client extends BaseModel implements UserModel
 
         return $this->user->subscribed_to_emails;
     }
+
+    // ACTIONS
+
+    public function createBooking(TimeSlot $startingSlot, $serviceDefinitions): Booking
+    {     
+        $duration = $serviceDefinitions->sum('duration');
+        $slotsRequired = $startingSlot->company->slotsRequiredFor($duration);
+        
+        $allSlots = $slotsRequired > 1
+            ? $startingSlot->getNextSlots($slotsRequired)->prepend($startingSlot)
+            : $startingSlot;
+
+        if (! $this->isAvailableDuring($allSlots) || TimeSlot::isReserved($allSlots))
+        {
+            throw new BookingException([], 'The requested booking is not available for this client.');
+        }
+
+        TimeSlot::lock($allSlots);
+
+        $booking = Booking::create([
+            'client_id' => $this->id,
+            'employee_id' => $allSlots->first()->employee_id,
+            'started_at' => $allSlots->first()->start_time,
+            'ended_at' => $allSlots->first()->start_time->copy()->addSeconds($duration)
+        ]);
+
+        $services = $serviceDefinitions->map(function ($definition) use ($booking) {
+            $service = new Service();
+            $service->service_definition_id = $definition->id;
+            $service->booking_id = $booking->id;
+
+            return $service;
+        });
+
+        $booking->services()->saveMany($services);
+
+        return $booking;
+    }
+
+    // HELPERS
 
     public function isAvailableDuring($timeSlots): bool
     {

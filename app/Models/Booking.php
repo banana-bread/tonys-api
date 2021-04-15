@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Exceptions\BookingException;
 use App\Models\Contracts\UserModel;
 use App\Traits\HasUuid;
-use Carbon\Carbon;
 use Carbon\CarbonInterval;
 
 class Booking extends BaseModel
@@ -58,19 +57,6 @@ class Booking extends BaseModel
     {
         return $this->hasMany(Service::class);
     }
-
-    // public function getPassedCancellationDeadlineAttribute(): bool
-    // {
-    //     /*
-    //         TODO:
-    //             - Implement company_settings table
-    //             - implement row 'cancellation_window', specifies cancellation deadline;
-
-    //         return $this->company->cancellation_window < (now() - $this->started_at);
-          
-    //      */
-    //     return false;
-    // }
 
     // CUSTOM ATTRIBUTES
 

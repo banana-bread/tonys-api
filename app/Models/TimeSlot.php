@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 
 class TimeSlot extends BaseModel
@@ -48,5 +49,19 @@ class TimeSlot extends BaseModel
             ->orderBy('start_time')
             ->take($totalSlotsRequired - 1)
             ->get();
+    }
+
+    public static function lock($slots)
+    {
+        static::whereIn('id', Arr::pluck($slots, 'id'))
+            ->lockForUpdate()
+            ->update(['reserved' => true]);
+    }
+
+    public static function isReserved($slots): bool
+    {
+        return $slots instanceof TimeSlot
+            ? $slots->reserved
+            : $slots->contains(function ($slot) { return $slot->reserved; });
     }
 }
