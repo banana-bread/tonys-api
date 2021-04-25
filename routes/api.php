@@ -54,13 +54,13 @@ Route::post('/employees',                    [EmployeeController::class, 'store'
 Route::post('/companies',                    [CompanyController::class, 'store']);
 Route::get('/companies/{id}',                [CompanyController::class, 'show']);
 
-Route::post('/login',                        [LoginController::class, 'login'])->name('login');
+Route::get('/login',                        [LoginController::class, 'login'])->name('login');
 Route::get('/login/{provider}',              [LoginController::class, 'redirectToProvider']);
 Route::get('/login/{provider}/callback',     [LoginController::class, 'handleProviderCallback']);
 
 Route::get('/time-slots',                [TimeSlotController::class, 'index']);
 
-Route::group(['middleware' => ['auth:api']], function() {
+// Route::group(['middleware' => ['auth:api']], function() {
     Route::post('/logout',                   [LogoutController::class, 'logout']);
 
     Route::put('/employees/{id}',            [EmployeeController::class, 'update']);
@@ -80,4 +80,4 @@ Route::group(['middleware' => ['auth:api']], function() {
     Route::post('/bookings',                 [BookingController::class, 'store']);
     Route::get('/bookings/{id}',             [BookingController::class, 'show']);
     Route::delete('/bookings/{id}',          [BookingController::class, 'destroy']);
-});
+// });
