@@ -16,12 +16,17 @@ class LoginController extends ApiController
         $service = new LoginService();
         $token = $service->loginWithPassport($request);
 
-        return $this->success($token, 'User logged in.');
+        return $this->ok(['token' => $token], 'User logged in.');
     }
 
     public function redirectToProvider(string $provider)
     {
-        return Socialite::driver($provider)->stateless()->redirect();
+        $url = Socialite::driver($provider)
+            ->stateless()
+            ->redirect()
+            ->getTargetUrl();
+        
+        return $this->ok(['auth_url' => $url]);
     }
 
     public function handleProviderCallback(Request $request, string $provider): ?JsonResponse
@@ -29,6 +34,6 @@ class LoginController extends ApiController
         $service = new LoginService();
         $token = $service->loginWithProvider($request, $provider);
 
-        return $this->success($token, 'User logged in.');
+        return $this->ok(['token' => $token], 'User logged in.');
     }
 }
