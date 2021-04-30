@@ -54,11 +54,11 @@ Route::post('/employees',                    [EmployeeController::class, 'store'
 Route::post('/companies',                    [CompanyController::class, 'store']);
 Route::get('/companies/{id}',                [CompanyController::class, 'show']);
 
-Route::get('/login',                        [LoginController::class, 'login'])->name('login');
-Route::get('/login/{provider}',              [LoginController::class, 'redirectToProvider']);
-Route::get('/login/{provider}/callback',     [LoginController::class, 'handleProviderCallback']);
+Route::post('/login',                        [LoginController::class, 'login']);
+Route::post('/login/{provider}',             [LoginController::class, 'redirectToProvider']);
+Route::post('/login/{provider}/callback',    [LoginController::class, 'handleProviderCallback']);
 
-Route::get('/time-slots',                [TimeSlotController::class, 'index']);
+Route::get('/time-slots',                    [TimeSlotController::class, 'index']);
 
 // Route::group(['middleware' => ['auth:api']], function() {
     Route::post('/logout',                   [LogoutController::class, 'logout']);

@@ -54,7 +54,7 @@ class Client extends BaseModel implements UserModel
         return $this->user->name;
     }
 
-    public function getPhoneAttribute(): string
+    public function getPhoneAttribute(): ?string
     {
         return $this->user->phone;
     }
