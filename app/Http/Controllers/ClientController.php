@@ -6,7 +6,6 @@ use App\Http\Requests\CreateClientRequest;
 use App\Models\Client;
 use App\Services\Auth\RegisterService;
 use App\Services\ClientService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 

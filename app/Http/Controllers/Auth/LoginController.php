@@ -16,7 +16,7 @@ class LoginController extends ApiController
         $service = new LoginService();
         $token = $service->loginWithPassport($request);
 
-        return $this->ok(['token' => $token], 'User logged in.');
+        return $this->ok($token, 'User logged in.');
     }
 
     public function redirectToProvider(string $provider)

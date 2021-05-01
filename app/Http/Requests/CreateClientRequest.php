@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests;
 
-class CreateClientRequest extends CreateUserRequest
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Hash;
+
+class CreateClientRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -21,10 +24,26 @@ class CreateClientRequest extends CreateUserRequest
      */
     public function rules()
     {
-        return $this->userRules();
+        logger(request());
+        return [
+            'name'     => 'required|string',
+            'email'    => 'required|email|unique:users',
+            'phone'    => 'phone:CA|nullable',
+            'password' => 'required|string', 
+        ];
+    }
 
-        // return array_merge([
-        //     // nothing for now, think there will be extra stuff eventually
-        // ], $this->userRules());
+    /**
+     * Handle a passed validation attempt.
+     *
+     * @return void
+     */
+    protected function passedValidation()
+    {
+        if (! $this->password) { return; }
+
+        $this->merge([
+            'password' => Hash::make($this->password)
+        ]);
     }
 }
