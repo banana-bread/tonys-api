@@ -12,8 +12,8 @@ class EmployeeController extends ApiController
 {
     public function index(): JsonResponse
     {
-        $service = new EmployeeService();
-        $employees = $service->getEmployees();
+        // TODO: scope this to company and write test!
+        $employees = Employee::all();
 
         return $this->ok(['employees' => $employees], 'Employees retrieved.');
     }

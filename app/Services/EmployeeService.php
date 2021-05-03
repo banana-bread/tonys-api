@@ -11,11 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class EmployeeService
 {
-    public function getEmployees(): Collection
-    {
-        return Employee::all();
-    }
-
     public function update(array $attributes, string $id): Employee
     {
         return DB::transaction(function () use ($attributes, $id) {

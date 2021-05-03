@@ -22,6 +22,7 @@ class BookingService
 
             $booking = $client->createBooking($startingTimeSlot, $serviceDefinitions);
             
+            // TODO move this check into the trait
             if ($client->subscribes_to_emails)
             {
                 $client->send(new BookingCreated($booking));

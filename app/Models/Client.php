@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Exceptions\BookingException;
 use App\Exceptions\InvalidParameterException;
 use App\Models\Contracts\UserModel;
 use Illuminate\Support\Collection;
@@ -81,6 +82,8 @@ class Client extends BaseModel implements UserModel
             ? $startingSlot->getNextSlots($slotsRequired)->prepend($startingSlot)
             : $startingSlot;
 
+
+        // TODO: TimeSlot::isReserved() not working?
         if (! $this->isAvailableDuring($allSlots) || TimeSlot::isReserved($allSlots))
         {
             throw new BookingException([], 'The requested booking is not available for this client.');

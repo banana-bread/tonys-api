@@ -24,7 +24,6 @@ class CreateClientRequest extends FormRequest
      */
     public function rules()
     {
-        logger(request());
         return [
             'name'     => 'required|string',
             'email'    => 'required|email|unique:users',

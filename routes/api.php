@@ -59,8 +59,9 @@ Route::post('/login/{provider}',             [LoginController::class, 'redirectT
 Route::post('/login/{provider}/callback',    [LoginController::class, 'handleProviderCallback']);
 
 Route::get('/time-slots',                    [TimeSlotController::class, 'index']);
+Route::get('/service-definitions',           [ServiceDefinitionController::class, 'index']);
 
-// Route::group(['middleware' => ['auth:api']], function() {
+Route::group(['middleware' => ['auth:api']], function() {
     Route::post('/logout',                   [LogoutController::class, 'logout']);
 
     Route::put('/employees/{id}',            [EmployeeController::class, 'update']);
@@ -70,8 +71,6 @@ Route::get('/time-slots',                    [TimeSlotController::class, 'index'
     Route::post('/employees/{id}/admin',     [EmployeeAdminController::class, 'store']);
     Route::delete('/employees/{id}/admin',   [EmployeeAdminController::class, 'destroy']);
 
-    Route::get('/service-definitions',       [ServiceDefinitionController::class, 'index']);
-
     Route::put('/clients/{id}',              [ClientController::class, 'update']);
     Route::get('/clients/{id}',              [ClientController::class, 'show']);
 
@@ -80,4 +79,4 @@ Route::get('/time-slots',                    [TimeSlotController::class, 'index'
     Route::post('/bookings',                 [BookingController::class, 'store']);
     Route::get('/bookings/{id}',             [BookingController::class, 'show']);
     Route::delete('/bookings/{id}',          [BookingController::class, 'destroy']);
-// });
+});
