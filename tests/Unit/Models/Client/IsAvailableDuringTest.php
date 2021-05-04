@@ -49,9 +49,31 @@ class IsAvailableDuringTest extends TestCase
 
     }
 
-    /** @test */
+    /** @test  */
+    public function it_only_counts_bookings_belonging_to_the_current_client()
+    {
+        $client = Client::factory()->create();
+   
+        $timeSlot = TimeSlot::factory()->create([
+            'start_time' => today()->addHours(10),
+            'end_time' => today()->addHours(12),
+        ]);
+
+        // Does not belong to $client
+        Booking::factory()->create([
+            'started_at' => today()->addHours(10)->addMinutes(30),
+            'ended_at' => today()->addHours(11),
+        ]);
+
+        $isAvailable = $client->isAvailableDuring($timeSlot);
+
+        $this->assertTrue($isAvailable);
+    }
+
+    /** @test */ 
     public function it_returns_false_if_a_booking_exists_starting_after_and_ending_before()
     {
+        // [||]
         $employee = Employee::factory()->create();
         $booking = Booking::factory()->create([
             'employee_id' => $employee->id,
@@ -72,6 +94,7 @@ class IsAvailableDuringTest extends TestCase
     /** @test */
     public function it_returns_false_if_a_booking_exists_starting_after_and_ending_after()
     {
+        // [|]|
         $employee = Employee::factory()->create();
         $booking = Booking::factory()->create([
             'employee_id' => $employee->id,
@@ -92,6 +115,7 @@ class IsAvailableDuringTest extends TestCase
     /** @test */
     public function it_returns_false_if_a_booking_exists_starting_before_and_ending_after()
     {
+        // |[]|
         $employee = Employee::factory()->create();
         $booking = Booking::factory()->create([
             'employee_id' => $employee->id,
@@ -112,6 +136,7 @@ class IsAvailableDuringTest extends TestCase
     /** @test */
     public function it_returns_false_if_a_booking_exists_starting_before_and_ending_before()
     {
+        // |[|]
         $employee = Employee::factory()->create();
         $booking = Booking::factory()->create([
             'employee_id' => $employee->id,
@@ -163,6 +188,4 @@ class IsAvailableDuringTest extends TestCase
 
         $this->assertFalse($isAvailable);
     }
-
-
 }

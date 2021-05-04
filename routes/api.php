@@ -58,14 +58,15 @@ Route::post('/login',                        [LoginController::class, 'login']);
 Route::post('/login/{provider}',             [LoginController::class, 'redirectToProvider']);
 Route::post('/login/{provider}/callback',    [LoginController::class, 'handleProviderCallback']);
 
+// TODO: take a look at these... probably need to be scoped by company id
 Route::get('/time-slots',                    [TimeSlotController::class, 'index']);
 Route::get('/service-definitions',           [ServiceDefinitionController::class, 'index']);
+Route::get('/employees',                     [EmployeeController::class, 'index']);
 
 Route::group(['middleware' => ['auth:api']], function() {
     Route::post('/logout',                   [LogoutController::class, 'logout']);
 
     Route::put('/employees/{id}',            [EmployeeController::class, 'update']);
-    Route::get('/employees',                 [EmployeeController::class, 'index']);
     Route::get('/employees/{id}',            [EmployeeController::class, 'show']);
 
     Route::post('/employees/{id}/admin',     [EmployeeAdminController::class, 'store']);

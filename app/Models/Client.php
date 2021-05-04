@@ -130,15 +130,21 @@ class Client extends BaseModel implements UserModel
             throw new InvalidParameterException([$timeSlots], 'invalid parameter type.  Must be TimeSlot model or collection of TimeSlots');
         }
 
+
+        // TODO: this works now and is scoped to client_id, but we're getting the collection from the db 
+        //       this should be doable purley in db.
+        // TODO: should probably scope this to company and write tests around it
         $hasAnOverlappingBooking = 
             !!DB::table('bookings')
                 ->join('clients', 'clients.id', '=', 'bookings.client_id')
-                ->where('bookings.client_id', $this->id)
+                // ->where('bookings.client_id', $this->id)
                 ->whereRaw('bookings.started_at BETWEEN ? AND ?', [$startTime, $endTime])
                 ->orWhereRaw('bookings.ended_at BETWEEN ? AND ?', [$startTime, $endTime])
                 ->orWhereRaw('? BETWEEN bookings.started_at AND bookings.ended_at', [$startTime])
+                ->get()
+                ->where('client_id', $this->id)
                 ->count();
-        
+
         return !$hasAnOverlappingBooking;
     }
 }
