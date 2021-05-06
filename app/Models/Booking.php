@@ -12,8 +12,8 @@ class Booking extends BaseModel
     use HasUuid;
 
     protected $appends = [
-        'formatted_duration',
-        'formatted_total',
+        // 'formatted_duration',
+        // 'formatted_total',
     ];
 
     protected $visible = [
