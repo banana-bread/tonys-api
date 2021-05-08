@@ -23,12 +23,14 @@ class Client extends BaseModel implements UserModel
 
     protected $visible = [
         'id',
+
+        'companies',
+        'bookings',
+
         'name',
         'phone',
         'email',
         'subscribes_to_emails',
-
-        'companies',
     ];
 
     // RELATIONS
@@ -70,7 +72,7 @@ class Client extends BaseModel implements UserModel
 
         return $this->user->subscribed_to_emails;
     }
-
+    
     // ACTIONS
 
     public function createBooking(TimeSlot $startingSlot, $serviceDefinitions): Booking
@@ -82,8 +84,6 @@ class Client extends BaseModel implements UserModel
             ? $startingSlot->getNextSlots($slotsRequired)->prepend($startingSlot)
             : $startingSlot;
 
-
-        // TODO: TimeSlot::isReserved() not working?
         if (! $this->isAvailableDuring($allSlots) || TimeSlot::isReserved($allSlots))
         {
             throw new BookingException([], 'The requested booking is not available for this client.');
@@ -130,14 +130,12 @@ class Client extends BaseModel implements UserModel
             throw new InvalidParameterException([$timeSlots], 'invalid parameter type.  Must be TimeSlot model or collection of TimeSlots');
         }
 
-
         // TODO: this works now and is scoped to client_id, but we're getting the collection from the db 
         //       this should be doable purley in db.
-        // TODO: should probably scope this to company and write tests around it
+   
         $hasAnOverlappingBooking = 
-            !!DB::table('bookings')
-                ->join('clients', 'clients.id', '=', 'bookings.client_id')
-                // ->where('bookings.client_id', $this->id)
+            $this->bookings()
+                ->where('started_at', '>=', now())
                 ->whereRaw('bookings.started_at BETWEEN ? AND ?', [$startTime, $endTime])
                 ->orWhereRaw('bookings.ended_at BETWEEN ? AND ?', [$startTime, $endTime])
                 ->orWhereRaw('? BETWEEN bookings.started_at AND bookings.ended_at', [$startTime])
