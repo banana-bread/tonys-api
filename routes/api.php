@@ -80,4 +80,9 @@ Route::group(['middleware' => ['auth:api']], function() {
     Route::post('/bookings',                 [BookingController::class, 'store']);
     Route::get('/bookings/{id}',             [BookingController::class, 'show']);
     Route::delete('/bookings/{id}',          [BookingController::class, 'destroy']);
+
 });
+
+// TODO: these should be protected routes
+Route::get('service-definitions/{id}',   [ServiceDefinitionController::class, 'show']);
+
