@@ -84,5 +84,9 @@ Route::group(['middleware' => ['auth:api']], function() {
 });
 
 // TODO: these should be protected routes
-Route::get('service-definitions/{id}',   [ServiceDefinitionController::class, 'show']);
+Route::post('service-definitions',         [ServiceDefinitionController::class, 'store']);
+Route::get('service-definitions/{id}',         [ServiceDefinitionController::class, 'show']);
+Route::put('service-definitions/{id}',           [ServiceDefinitionController::class, 'update']);
+Route::delete('service-definitions/{id}',        [ServiceDefinitionController::class, 'destroy']);
+
 

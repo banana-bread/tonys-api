@@ -3,10 +3,11 @@
 namespace App\Models;
 
 use App\Traits\HasUuid;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ServiceDefinition extends BaseModel
 {
-    use HasUuid;
+    use HasUuid, SoftDeletes;
     
     protected $visible = [
         'id',

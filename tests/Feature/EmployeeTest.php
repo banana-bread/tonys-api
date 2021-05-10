@@ -13,8 +13,6 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestMock;
 
-use function PHPUnit\Framework\assertTrue;
-
 class EmployeeTest extends TestCase
 {
     use WithFaker, RefreshDatabase;
