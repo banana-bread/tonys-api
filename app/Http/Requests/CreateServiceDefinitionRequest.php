@@ -2,18 +2,22 @@
 
 namespace App\Http\Requests;
 
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CreateServiceDefinitionRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
+
     public function authorize()
     {
-        return auth()->user()->isOwner() || auth()->user()->isAdmin();
+        return true;
+    }
+
+    public function prepareForValidation()
+    {
+        if (auth()->user()->isClient()) throw new AuthorizationException();
+
+        $this->merge(['company_id' => auth()->user()->employee->company_id]);
     }
 
     /**
@@ -24,6 +28,7 @@ class CreateServiceDefinitionRequest extends FormRequest
     public function rules()
     {
         return [
+            'company_id' => 'required|uuid',
             'name' =>  'required|string',
             'price' => 'required|numeric',
             'duration' => 'required|numeric'

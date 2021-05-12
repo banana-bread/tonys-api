@@ -56,6 +56,11 @@ class Handler extends ExceptionHandler
         {   
             return $this->error(collect($t->errors())->first()[0], 422);
         }
+
+        if ($t instanceof \Illuminate\Auth\Access\AuthorizationException)
+        {
+            return $this->error('User is not authorized to perform this request', 403);
+        }
         \Log::info($t);
         return $this->error('Unknown server error.');
     }

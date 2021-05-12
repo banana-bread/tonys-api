@@ -59,13 +59,24 @@ class User extends Authenticatable
     }
 
     // HELPERS
+
+    public function isEmployee(): bool
+    {
+        return !!$this->employee;
+    }
+
+    public function isClient(): bool
+    {
+        return !!$this->client;
+    }
+
     public function isAdmin(): bool
     {
-        return !!$this->employee && $this->employee->isAdmin();
+        return $this->isEmployee() && $this->employee->isAdmin();
     }
 
     public function isOwner(): bool
     {
-        return !!$this->employee && $this->employee->isOwner();
+        return $this->isEmployee() && $this->employee->isOwner();
     }
 }

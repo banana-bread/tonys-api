@@ -58,34 +58,33 @@ Route::post('/login',                        [LoginController::class, 'login']);
 Route::post('/login/{provider}',             [LoginController::class, 'redirectToProvider']);
 Route::post('/login/{provider}/callback',    [LoginController::class, 'handleProviderCallback']);
 
-// TODO: take a look at these... probably need to be scoped by company id
-Route::get('/time-slots',                    [TimeSlotController::class, 'index']);
-Route::get('/service-definitions',           [ServiceDefinitionController::class, 'index']);
-Route::get('/employees',                     [EmployeeController::class, 'index']);
+Route::get('/time-slots',                    [TimeSlotController::class, 'index']); // TODO: scope to company_id
+Route::get('/service-definitions',           [ServiceDefinitionController::class, 'index']); // TODO: scope to company_id
+Route::get('/employees',                     [EmployeeController::class, 'index']); // TODO: scope to company_id
 
 Route::group(['middleware' => ['auth:api']], function() {
     Route::post('/logout',                   [LogoutController::class, 'logout']);
 
-    Route::put('/employees/{id}',            [EmployeeController::class, 'update']);
-    Route::get('/employees/{id}',            [EmployeeController::class, 'show']);
+    Route::put('/employees/{id}',            [EmployeeController::class, 'update']);  // TODO: authed if is current employee or is admin/owner and belongs to company 
+    Route::get('/employees/{id}',            [EmployeeController::class, 'show']); // TODO: authed if is current employee or is admin/owner and belongs to company 
 
-    Route::post('/employees/{id}/admin',     [EmployeeAdminController::class, 'store']);
-    Route::delete('/employees/{id}/admin',   [EmployeeAdminController::class, 'destroy']);
+    Route::post('/employees/{id}/admin',     [EmployeeAdminController::class, 'store']); // TODO: authed if is owner and belongs to company 
+    Route::delete('/employees/{id}/admin',   [EmployeeAdminController::class, 'destroy']); // TODO: authed if it owner and belongs to company 
 
-    Route::put('/clients/{id}',              [ClientController::class, 'update']);
-    Route::get('/clients/{id}',              [ClientController::class, 'show']);
+    Route::put('/clients/{id}',              [ClientController::class, 'update']);// TODO: authed if is current client 
+    Route::get('/clients/{id}',              [ClientController::class, 'show']); // TODO: authed if is current client 
 
     Route::get('/client/authed',             [AuthedClientController::class, 'show']);
 
-    Route::post('/bookings',                 [BookingController::class, 'store']);
+    Route::post('/bookings',                 [BookingController::class, 'store']);                
     Route::get('/bookings/{id}',             [BookingController::class, 'show']);
     Route::delete('/bookings/{id}',          [BookingController::class, 'destroy']);
 
 });
 
 // TODO: these should be protected routes
-Route::post('service-definitions',         [ServiceDefinitionController::class, 'store']);
-Route::get('service-definitions/{id}',         [ServiceDefinitionController::class, 'show']);
+Route::post('service-definitions',         [ServiceDefinitionController::class, 'store']); 
+Route::get('service-definitions/{id}',         [ServiceDefinitionController::class, 'show']);     
 Route::put('service-definitions/{id}',           [ServiceDefinitionController::class, 'update']);
 Route::delete('service-definitions/{id}',        [ServiceDefinitionController::class, 'destroy']);
 

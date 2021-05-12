@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateServiceDefinitionRequest;
-use App\Http\Requests\DeleteServiceDefinitionRequest;
 use App\Models\ServiceDefinition;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -12,9 +11,11 @@ class ServiceDefinitionController extends ApiController
 {
     // TODO: reimplemet the form requests once management app auth is done.
     
-    // public function store(CreateServiceDefinitionRequest $request)
-    public function store(Request $request)
+    public function store(CreateServiceDefinitionRequest $request)
+    // public function store(Request $request)
     {
+        $this->authorize('create', ServiceDefinition::class);
+
         return $this->created(
             ['service_definition' => ServiceDefinition::create($request->all()), 'Service definition created']
         );
@@ -27,11 +28,14 @@ class ServiceDefinitionController extends ApiController
         );
     }
 
-    // public function update(CreateServiceDefinitionRequest $request, string $id): JsonResponse
-    public function update(Request $request, string $id): JsonResponse
+    // public function update(Request $request, string $id): JsonResponse
+    public function update(CreateServiceDefinitionRequest $request, string $id): JsonResponse
     {
+        $service = ServiceDefinition::findOrFail($id);
+        $this->authorize('update', $service);
+
         return $this->ok(
-            ['service_definition' => ServiceDefinition::findOrFail($id)->update($request->all()), 'Service definition updated.']
+            ['service_definition' => $service->update($request->all()), 'Service definition updated.']
         );
     }
 
@@ -42,10 +46,12 @@ class ServiceDefinitionController extends ApiController
         );
     }
 
-    // public function destroy(DeleteServiceDefinitionRequest $request, string $id): JsonResponse
     public function destroy(Request $request, string $id): JsonResponse
     {
-        ServiceDefinition::findOrFail($id)->delete();
+        $service = ServiceDefinition::findOrFail($id);
+        $this->authorize('delete', $service);
+
+        $service->delete();
         return $this->deleted('Service definition deleted');
     }
 }

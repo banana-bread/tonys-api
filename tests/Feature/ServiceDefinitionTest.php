@@ -21,7 +21,6 @@ class ServiceDefinitionTest extends TestCase
         $this->actingAs($owner->user, 'api');
 
         $response = $this->post("service-definitions", [
-            'company_id' => Company::factory()->create()->id,
             'name' => $this->faker->word,
             'price' => $this->faker->numberBetween(1000, 5000),
             'duration' => $this->faker->numberBetween(1000, 5000)
@@ -37,13 +36,12 @@ class ServiceDefinitionTest extends TestCase
         $this->actingAs($employee->user, 'api');
 
         $response = $this->post("service-definitions", [
-            'company_id' => Company::factory()->create()->id,
             'name' => $this->faker->word,
             'price' => $this->faker->numberBetween(1000, 5000),
             'duration' => $this->faker->numberBetween(1000, 5000)
         ]);
 
-        $response->assertStatus(500);
+        $response->assertStatus(403);
     }
 
     /** @test */
@@ -53,13 +51,12 @@ class ServiceDefinitionTest extends TestCase
         $this->actingAs($client->user, 'api');
 
         $response = $this->post("service-definitions", [
-            'company_id' => Company::factory()->create()->id,
             'name' => $this->faker->word,
             'price' => $this->faker->numberBetween(1000, 5000),
             'duration' => $this->faker->numberBetween(1000, 5000)
         ]);
 
-        $response->assertStatus(500);
+        $response->assertStatus(403);
     }
 
     /** @test */
@@ -88,7 +85,9 @@ class ServiceDefinitionTest extends TestCase
     public function a_service_definition_can_be_updated()
     {
         $owner = Employee::factory()->owner()->create();
-        $service = ServiceDefinition::factory()->create();
+        $service = ServiceDefinition::factory()->create([
+            'company_id' => $owner->company_id
+        ]);
         $this->actingAs($owner->user, 'api');
 
         $response = $this->put("service-definitions/$service->id", $service->toArray());
@@ -100,12 +99,26 @@ class ServiceDefinitionTest extends TestCase
     public function a_service_definition_cannot_be_updated_by_a_non_admin_employee()
     {
         $employee = Employee::factory()->create();
+        $service = ServiceDefinition::factory()->create([
+            'company_id' => $employee->company_id
+        ]);
+        $this->actingAs($employee->user, 'api');
+
+        $response = $this->put("service-definitions/$service->id", $service->toArray());
+
+        $response->assertStatus(403);
+    }
+
+    /** @test */
+    public function a_service_definition_cannot_be_updated_by_an_owner_of_a_different_company()
+    {
+        $employee = Employee::factory()->owner()->create();
         $service = ServiceDefinition::factory()->create();
         $this->actingAs($employee->user, 'api');
 
         $response = $this->put("service-definitions/$service->id", $service->toArray());
 
-        $response->assertStatus(500);
+        $response->assertStatus(403);
     }
 
     /** @test */
@@ -117,14 +130,16 @@ class ServiceDefinitionTest extends TestCase
 
         $response = $this->put("service-definitions/$service->id", $service->toArray());
 
-        $response->assertStatus(500);
+        $response->assertStatus(403);
     }
 
     /** @test */
     public function a_service_definition_can_be_deleted()
     {
         $owner = Employee::factory()->owner()->create();
-        $service = ServiceDefinition::factory()->create();
+        $service = ServiceDefinition::factory()->create([
+            'company_id' => $owner->company_id
+        ]);
         $this->actingAs($owner->user, 'api');
 
         $response = $this->delete("service-definitions/$service->id");
@@ -137,12 +152,26 @@ class ServiceDefinitionTest extends TestCase
     public function a_service_definition_cannot_be_deleted_by_a_non_admin_employee()
     {
         $employee = Employee::factory()->create();
-        $service = ServiceDefinition::factory()->create();
+        $service = ServiceDefinition::factory()->create([
+            'company_id' => $employee->company_id
+        ]);
         $this->actingAs($employee->user, 'api');
 
         $response = $this->delete("service-definitions/$service->id");
 
-        $response->assertStatus(500);
+        $response->assertStatus(403);
+    }
+
+    /** @test */
+    public function a_service_definition_cannot_be_deleted_by_an_owner_of_a_different_company()
+    {
+        $employee = Employee::factory()->owner()->create();
+        $service = ServiceDefinition::factory()->create();
+        $this->actingAs($employee->user, 'api');
+
+        $response = $this->put("service-definitions/$service->id", $service->toArray());
+
+        $response->assertStatus(403);
     }
 
     /** @test */
@@ -154,6 +183,6 @@ class ServiceDefinitionTest extends TestCase
 
         $response = $this->delete("service-definitions/$service->id");
 
-        $response->assertStatus(500);
+        $response->assertStatus(403);
     }
 }
