@@ -20,7 +20,7 @@ class ServiceDefinitionTest extends TestCase
         $owner = Employee::factory()->owner()->create();
         $this->actingAs($owner->user, 'api');
 
-        $response = $this->post("service-definitions", [
+        $response = $this->post("/locations/$owner->company_id/service-definitions", [
             'name' => $this->faker->word,
             'price' => $this->faker->numberBetween(1000, 5000),
             'duration' => $this->faker->numberBetween(1000, 5000)
@@ -35,7 +35,7 @@ class ServiceDefinitionTest extends TestCase
         $employee = Employee::factory()->create();
         $this->actingAs($employee->user, 'api');
 
-        $response = $this->post("service-definitions", [
+        $response = $this->post("/locations/$employee->company_id/service-definitions", [
             'name' => $this->faker->word,
             'price' => $this->faker->numberBetween(1000, 5000),
             'duration' => $this->faker->numberBetween(1000, 5000)
@@ -48,9 +48,10 @@ class ServiceDefinitionTest extends TestCase
     public function a_service_definition_cannot_be_created_by_a_client()
     {
         $client = Client::factory()->create();
+        $company = Company::factory()->create();
         $this->actingAs($client->user, 'api');
 
-        $response = $this->post("service-definitions", [
+        $response = $this->post("/locations/$company->id/service-definitions", [
             'name' => $this->faker->word,
             'price' => $this->faker->numberBetween(1000, 5000),
             'duration' => $this->faker->numberBetween(1000, 5000)
@@ -64,7 +65,7 @@ class ServiceDefinitionTest extends TestCase
     {
         $service = ServiceDefinition::factory()->create();
 
-        $response = $this->get("service-definitions/$service->id");
+        $response = $this->get("/locations/$service->company_id/service-definitions/$service->id");
 
         $response->assertOk();
         $this->assertEquals($service->id, $response->json('data.service_definition.id'));
@@ -73,9 +74,24 @@ class ServiceDefinitionTest extends TestCase
     /** @test */
     public function all_service_definitions_can_be_retrieved()
     {
-        $service = ServiceDefinition::factory()->count(5)->create();
+        $company = Company::factory()->create();
+        $services = ServiceDefinition::factory()->count(5)->for($company)->create();
 
-        $response = $this->get("service-definitions");
+        $response = $this->get("/locations/$company->id/service-definitions");
+
+        $response->assertOk();
+        $this->assertCount(5, $response->json('data.service_definitions'));
+    }
+
+    /** @test */
+    public function all_service_definitions_retrieved_will_be_scoped_to_one_company()
+    {
+        $company = Company::factory()->create();
+        $services = ServiceDefinition::factory()->count(5)->for($company)->create();
+        $serviceForOtherCompany = ServiceDefinition::factory()->create();
+
+        $companyId = $services->first()->company_id;
+        $response = $this->get("/locations/$company->id/service-definitions");
 
         $response->assertOk();
         $this->assertCount(5, $response->json('data.service_definitions'));
@@ -90,7 +106,7 @@ class ServiceDefinitionTest extends TestCase
         ]);
         $this->actingAs($owner->user, 'api');
 
-        $response = $this->put("service-definitions/$service->id", $service->toArray());
+        $response = $this->put("/locations/$service->company_id/service-definitions/$service->id", $service->toArray());
 
         $response->assertOk();
     }
@@ -104,7 +120,7 @@ class ServiceDefinitionTest extends TestCase
         ]);
         $this->actingAs($employee->user, 'api');
 
-        $response = $this->put("service-definitions/$service->id", $service->toArray());
+        $response = $this->put("locations/$service->company_id/service-definitions/$service->id", $service->toArray());
 
         $response->assertStatus(403);
     }
@@ -116,7 +132,7 @@ class ServiceDefinitionTest extends TestCase
         $service = ServiceDefinition::factory()->create();
         $this->actingAs($employee->user, 'api');
 
-        $response = $this->put("service-definitions/$service->id", $service->toArray());
+        $response = $this->put("locations/$service->company_id/service-definitions/$service->id", $service->toArray());
 
         $response->assertStatus(403);
     }
@@ -128,7 +144,7 @@ class ServiceDefinitionTest extends TestCase
         $service = ServiceDefinition::factory()->create();
         $this->actingAs($client->user, 'api');
 
-        $response = $this->put("service-definitions/$service->id", $service->toArray());
+        $response = $this->put("locations/$service->company_id/service-definitions/$service->id", $service->toArray());
 
         $response->assertStatus(403);
     }
@@ -142,7 +158,7 @@ class ServiceDefinitionTest extends TestCase
         ]);
         $this->actingAs($owner->user, 'api');
 
-        $response = $this->delete("service-definitions/$service->id");
+        $response = $this->delete("locations/$service->company_id/service-definitions/$service->id");
 
         $response->assertStatus(204);
         $this->assertSoftDeleted('service_definitions', $service->toArray());
@@ -157,7 +173,7 @@ class ServiceDefinitionTest extends TestCase
         ]);
         $this->actingAs($employee->user, 'api');
 
-        $response = $this->delete("service-definitions/$service->id");
+        $response = $this->delete("locations/$service->company_id/service-definitions/$service->id");
 
         $response->assertStatus(403);
     }
@@ -169,7 +185,7 @@ class ServiceDefinitionTest extends TestCase
         $service = ServiceDefinition::factory()->create();
         $this->actingAs($employee->user, 'api');
 
-        $response = $this->put("service-definitions/$service->id", $service->toArray());
+        $response = $this->put("locations/$service->company_id/service-definitions/$service->id", $service->toArray());
 
         $response->assertStatus(403);
     }
@@ -181,7 +197,7 @@ class ServiceDefinitionTest extends TestCase
         $service = ServiceDefinition::factory()->create();
         $this->actingAs($client->user, 'api');
 
-        $response = $this->delete("service-definitions/$service->id");
+        $response = $this->delete("locations/$service->company_id/service-definitions/$service->id");
 
         $response->assertStatus(403);
     }

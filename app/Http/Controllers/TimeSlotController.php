@@ -7,10 +7,10 @@ use App\Http\Requests\TimeSlotRequest;
 
 class TimeSlotController extends ApiController
 {
-    public function index(TimeSlotRequest $request)
+    public function index(TimeSlotRequest $request, string $companyId)
     {
         $service = new TimeSlotService();
-        $slots = $service->getAvailableSlots($request);
+        $slots = $service->getAvailableSlots($companyId);
 
         return $this->ok(['time_slots' => $slots], 'Available time slots retrieved.');
     }

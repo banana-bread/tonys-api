@@ -18,23 +18,22 @@ class BookingController extends ApiController
     public function store(CreateBookingRequest $request): JsonResponse
     {
         $service = new BookingService();
-        $booking = $service->create($request->all());
+        $booking = $service->create();
 
         return $this->created(['booking' => $booking], 'Booking created.');
     }
 
-    public function show(string $id): JsonResponse
+    public function show(string $companyId, string $id): JsonResponse
     {
-        $service = new BookingService();
-        $booking = $service->get($id);
-
-        return $this->ok(['booking' => $booking], 'Booking found.');
+        return $this->ok(
+            ['booking' => Booking::forCompany($companyId)->findOrFail($id)], 'Booking retreived.'
+        );
     }
 
-    public function destroy(string $id): JsonResponse
+    public function destroy(string $companyId, string $id): JsonResponse
     {
-        $booking = Booking::findOrFail($id);
-        $booking->cancel($id);
+        $booking = Booking::forCompany($companyId)->findOrFail($id);
+        $booking->cancel();
 
         $booking->client->send(new BookingCancelled($booking));
 

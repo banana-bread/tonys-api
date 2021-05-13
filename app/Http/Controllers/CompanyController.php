@@ -16,8 +16,8 @@ class CompanyController extends ApiController
 
     public function store(CreateCompanyRequest $request): JsonResponse
     {
-        $regster = new RegisterService();
-        $company = $regster->company($request->all());
+        $register = new RegisterService();
+        $company = $register->company();
 
         return $this->created(['company' => $company], 'Company created.');
     }

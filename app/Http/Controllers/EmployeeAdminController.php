@@ -10,17 +10,17 @@ use Illuminate\Http\JsonResponse;
 
 class EmployeeAdminController extends ApiController
 {
-    public function store(string $id): JsonResponse
+    public function store(string $companyId, string $id): JsonResponse
     {
-        $employee = Employee::findOrFail($id);
+        $employee = Employee::forCompany($companyId)->findOrFail($id);
         $employee->upgrade();
 
         return $this->created(['employee' => $employee], 'Employee status upgraded.');
     }
 
-    public function destroy(string $id): JsonResponse
+    public function destroy(string $companyId, string $id): JsonResponse
     {
-        $employee = Employee::findOrFail($id);
+        $employee = Employee::forCompany($companyId)->findOrFail($id);
         $employee->downgrade();
 
         return $this->deleted('Employee status downgraded.');

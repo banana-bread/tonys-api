@@ -12,13 +12,13 @@ use Illuminate\Support\Facades\DB;
 
 class BookingService
 {
-    public function create(array $attributes): ?Booking
+    public function create(): ?Booking
     {
-        return DB::transaction(function () use ($attributes) {
+        return DB::transaction(function () {
             // getting query data
-            $client = Client::findOrFail(Arr::get($attributes, 'client_id'));
-            $startingTimeSlot = TimeSlot::findOrFail(Arr::get($attributes, 'time_slot_id'));
-            $serviceDefinitions = ServiceDefinition::findOrFail(Arr::get($attributes, 'service_definition_ids'));
+            $client = Client::findOrFail(request('client_id'));
+            $startingTimeSlot = TimeSlot::findOrFail(request('time_slot_id'));
+            $serviceDefinitions = ServiceDefinition::findOrFail(request('service_definition_ids'));
 
             $booking = $client->createBooking($startingTimeSlot, $serviceDefinitions);
             
@@ -31,10 +31,4 @@ class BookingService
             return $booking;
         });
     }
-
-    public function get(string $id): ?Booking
-    {
-        return Booking::findOrFail($id);
-    }
-
 }

@@ -10,37 +10,38 @@ use Illuminate\Http\JsonResponse;
 
 class EmployeeController extends ApiController
 {
-    public function index(): JsonResponse
+    public function index(string $companyId): JsonResponse
     {
-        // TODO: scope this to company and write test!
-        $employees = Employee::all();
-
-        return $this->ok(['employees' => $employees], 'Employees retrieved.');
+        return $this->ok(
+            ['employees' => Employee::forCompany($companyId)->get()], 'Employees retrieved.'
+        );
     }
 
-    public function store(CreateEmployeeRequest $request): JsonResponse
+    public function store(CreateEmployeeRequest $request, string $companyId): JsonResponse
     {
         $service = new RegisterService();
-        $employee = $service->employee($request->all());
+        $employee = $service->employee($companyId);
             
         return $this->created(['employee' => $employee], 'Employee created.');
     }
 
-    public function show(string $id)
+    public function show(string $companyId, string $id)
     {
-        $employee = Employee::findOrFail($id);
-
-        return $this->ok(['employee' => $employee], 'Employee account retrieved.');
+        return $this->ok(
+            ['employee' => Employee::forCompany($companyId)->findOrFail($id)], 'Employee account retrieved.'
+        );
     }
 
-    public function update(EmployeeRequest $request, $id): JsonResponse
+    // TODO: need to set up model mutators in order for this to work I think.
+    public function update(EmployeeRequest $request, string $companyId, string $id): JsonResponse
     {
-        $service = new EmployeeService();
-        $employee = $service->update($request->all(), $id);
-    
+        $employee = Employee::forCompany($companyId)->findOrFail($id);
+        $employee->update(request());
+
         return $this->ok($employee, 'Employee profile updated.');
     }
 
+    // TODO: should make this a soft delete probably
     public function destroy($id)
     {
         //

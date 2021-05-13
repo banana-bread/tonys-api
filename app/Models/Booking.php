@@ -80,6 +80,15 @@ class Booking extends BaseModel
         return '$' . number_format(($this->total/100), 2, '.', ' ');
     }
 
+    // SCOPES
+
+    public function scopeForCompany($query, string $companyId)
+    {
+        return $query->whereHas('employee', function($query) use ($companyId) {
+            $query->where('company_id', $companyId);
+        });
+    }
+
     // ACTIONS
 
     public function cancel()

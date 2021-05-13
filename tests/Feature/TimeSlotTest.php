@@ -6,8 +6,6 @@ use App\Models\Company;
 use App\Models\Employee;
 use App\Models\ServiceDefinition;
 use App\Models\TimeSlot;
-use App\Services\TimeSlot\TimeSlotPdo;
-use Carbon\Carbon;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -33,7 +31,8 @@ class TimeSlotTest extends TestCase
         $from = today()->timestamp;
         $to = today()->addMonth()->timestamp;
         
-        $response = $this->get("/time-slots?"
+        $response = $this->get("/locations/$e->company_id"
+            ."/time-slots?"
             ."service-definition-ids=$s1->id&"
             ."employee-id=$e->id&"
             ."date-from=$from&"
@@ -65,7 +64,8 @@ class TimeSlotTest extends TestCase
         $from = today()->timestamp;
         $to = today()->addMonth()->timestamp;
         
-        $response = $this->get("/time-slots?"
+        $response = $this->get("/locations/$e->company_id"
+            ."/time-slots?"
             ."service-definition-ids=$s1->id,$s2->id&"
             ."employee-id=$e->id&"
             ."date-from=$from&"
@@ -86,7 +86,8 @@ class TimeSlotTest extends TestCase
         $from = today()->timestamp;
         $to = today()->addMonth()->timestamp;
 
-        $response = $this->get("/time-slots?"
+        $response = $this->get("/locations/$s->company_id"
+            ."/time-slots?"
             ."service-definition-ids=$s->id&"
             ."employee-id=&"
             ."date-from=$from&"

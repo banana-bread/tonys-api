@@ -19,7 +19,7 @@ class ClientController extends ApiController
     public function store(CreateClientRequest $request): JsonResponse
     {
         $service = new RegisterService();
-        $client = $service->client($request->all());
+        $client = $service->client();
 
         return $this->created(['client' => $client], 'Client account created.');
     }

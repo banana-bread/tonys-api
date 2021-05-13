@@ -21,4 +21,9 @@ class ServiceDefinition extends BaseModel
     {
         return $this->belongsTo(Company::class);
     }
+
+    public function scopeForCompany($query, string $companyId)
+    {
+        return $query->where('company_id', $companyId);
+    }
 }

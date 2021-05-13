@@ -43,24 +43,26 @@ Route::get('/', function(Request $r) {
 
 // });
 
-
-
-// Registration
-Route::post('/clients',                      [ClientController::class, 'store']);
-
-// TODO: this needs to be a protected signed url route
-Route::post('/employees',                    [EmployeeController::class, 'store']);
-
 Route::post('/companies',                    [CompanyController::class, 'store']);
 Route::get('/companies/{id}',                [CompanyController::class, 'show']);
+
+Route::post('/clients',      [ClientController::class, 'store']);
+Route::get('/client/authed', [AuthedClientController::class, 'show'])->middleware('auth:api');
+Route::put('/clients/{id}',  [ClientController::class, 'update'])->middleware('auth:api'); // TODO: authed if is current client 
+Route::get('/clients/{id}',  [ClientController::class, 'show'])->middleware('auth:api');;  // TODO: authed if is current client (or many to many exists with company)
+
+Route::prefix('/locations/{companyId}')->group(function() {
+    
+    // TODO: this needs to be a protected signed url route
+Route::post('/employees',                    [EmployeeController::class, 'store']);
 
 Route::post('/login',                        [LoginController::class, 'login']);
 Route::post('/login/{provider}',             [LoginController::class, 'redirectToProvider']);
 Route::post('/login/{provider}/callback',    [LoginController::class, 'handleProviderCallback']);
 
-Route::get('/time-slots',                    [TimeSlotController::class, 'index']); // TODO: scope to company_id
-Route::get('/service-definitions',           [ServiceDefinitionController::class, 'index']); // TODO: scope to company_id
-Route::get('/employees',                     [EmployeeController::class, 'index']); // TODO: scope to company_id
+Route::get('/time-slots',                    [TimeSlotController::class, 'index']); 
+Route::get('/service-definitions',           [ServiceDefinitionController::class, 'index']); 
+Route::get('/employees',                     [EmployeeController::class, 'index']); 
 
 Route::group(['middleware' => ['auth:api']], function() {
     Route::post('/logout',                   [LogoutController::class, 'logout']);
@@ -71,11 +73,6 @@ Route::group(['middleware' => ['auth:api']], function() {
     Route::post('/employees/{id}/admin',     [EmployeeAdminController::class, 'store']); // TODO: authed if is owner and belongs to company 
     Route::delete('/employees/{id}/admin',   [EmployeeAdminController::class, 'destroy']); // TODO: authed if it owner and belongs to company 
 
-    Route::put('/clients/{id}',              [ClientController::class, 'update']);// TODO: authed if is current client 
-    Route::get('/clients/{id}',              [ClientController::class, 'show']); // TODO: authed if is current client 
-
-    Route::get('/client/authed',             [AuthedClientController::class, 'show']);
-
     Route::post('/bookings',                 [BookingController::class, 'store']);                
     Route::get('/bookings/{id}',             [BookingController::class, 'show']);
     Route::delete('/bookings/{id}',          [BookingController::class, 'destroy']);
@@ -83,9 +80,8 @@ Route::group(['middleware' => ['auth:api']], function() {
 });
 
 // TODO: these should be protected routes
-Route::post('service-definitions',         [ServiceDefinitionController::class, 'store']); 
-Route::get('service-definitions/{id}',         [ServiceDefinitionController::class, 'show']);     
-Route::put('service-definitions/{id}',           [ServiceDefinitionController::class, 'update']);
-Route::delete('service-definitions/{id}',        [ServiceDefinitionController::class, 'destroy']);
-
-
+Route::post('/service-definitions',               [ServiceDefinitionController::class, 'store']); 
+Route::get('/service-definitions/{id}',           [ServiceDefinitionController::class, 'show']);     
+Route::put('/service-definitions/{id}',           [ServiceDefinitionController::class, 'update']);
+    Route::delete('/service-definitions/{id}',        [ServiceDefinitionController::class, 'destroy']);
+});

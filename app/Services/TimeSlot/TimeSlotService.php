@@ -13,7 +13,7 @@ use App\Http\Requests\TimeSlotRequest;
 
 class TimeSlotService
 {
-    public function getAvailableSlots(TimeSlotRequest $request): Collection
+    public function getAvailableSlots(string $companyId): Collection
     {   
         $employeeId = request('employee-id');
         $serviceDefinitions = ServiceDefinition::find(
@@ -22,7 +22,6 @@ class TimeSlotService
         
         $dateFrom = Carbon::createFromTimestamp( request('date-from') );
         $dateTo = Carbon::createFromTimestamp( request('date-to') );
-        $companyId = $serviceDefinitions->first()->company->id;
         $singleSlotDuration = $serviceDefinitions->first()->company->time_slot_duration;
 
         $summedServiceDuration = $serviceDefinitions->sum('duration');

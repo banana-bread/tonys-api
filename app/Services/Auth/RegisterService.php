@@ -14,17 +14,17 @@ use Illuminate\Support\Arr;
 
 class RegisterService
 {
-    public function employee(array $attributes): Employee
+    public function employee(string $companyId): Employee
     {
         $user = User::create(
-            Arr::except($attributes, ['admin', 'owner', 'company_id', 'settings'])
+            request()->except(['admin', 'owner', 'settings'])
         );
 
         $employee = $user->employee()->create([
-            'admin' => Arr::get($attributes, 'admin'),
-            'owner' => Arr::get($attributes, 'owner'),
-            'company_id' => Arr::get($attributes, 'company_id'),
-            'settings' => Arr::get($attributes, 'settings'),
+            'admin' => request('admin'),
+            'owner' => request('owner'),
+            'company_id' => $companyId,
+            'settings' => request('settings'),
         ]);
 
         $employee->send(new EmployeeRegistered());
@@ -34,10 +34,10 @@ class RegisterService
         return $employee;
     }
 
-    public function company(array $attributes): Company
+    public function company(): Company
     {
-        $company = Company::create(Arr::except($attributes, 'user'));
-        $user = User::create(Arr::get($attributes, 'user'));
+        $company = Company::create(request()->except('user'));
+        $user = User::create(request('user'));
 
         $employee = $user->employee()->create([
             'admin' => true,
@@ -53,9 +53,9 @@ class RegisterService
         return $company->load('owner');
     }
 
-    public function client(array $attributes): Client
+    public function client(): Client
     {
-        $user = User::create($attributes);
+        $user = User::create(request()->toArray());
 
         return $user->client()->create();
     }

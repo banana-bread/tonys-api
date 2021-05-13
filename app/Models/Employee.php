@@ -97,6 +97,12 @@ class Employee extends BaseModel implements UserModel
         return $this->time_slots()->latest('start_time')->first();
     }
 
+    // SCOPES
+    public function scopeForCompany($query, string $companyId)
+    {
+        return $query->where('company_id', $companyId);
+    }
+
     // ACTIONS
 
     public function upgrade()

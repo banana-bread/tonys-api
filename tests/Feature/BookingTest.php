@@ -26,7 +26,7 @@ class BookingTest extends TestCase
         $this->actingAs($client->user, 'api');
         $serviceDefinition = ServiceDefinition::factory()->create(['duration' => 1800]);
 
-        $response = $this->post('/bookings',[
+        $response = $this->post("locations/$serviceDefinition->company_id/bookings",[
             'time_slot_id' => TimeSlot::factory()->create()->id,
             'client_id' => $client->id,
             'service_definition_ids' => [
@@ -42,8 +42,9 @@ class BookingTest extends TestCase
     {
         $booking = Booking::factory()->create();
         $this->actingAs($booking->client->user, 'api');
+        $companyId = $booking->employee->company_id;
 
-        $response = $this->get("/bookings/$booking->id");
+        $response = $this->get("locations/$companyId/bookings/$booking->id");
 
         $response->assertOk();
     }
@@ -52,12 +53,12 @@ class BookingTest extends TestCase
     public function a_booking_can_be_cancelled_by_an_owner_even_if_they_are_not_the_assigned_employee()
     {
         $owner = Employee::factory()->owner()->create();
-        $employee = Employee::factory()->create();
+        $employee = Employee::factory()->for($owner->company)->create();
         $booking = Booking::factory()->for($employee)->create();
 
         $this->actingAs($owner->user, 'api');
 
-        $response = $this->delete("/bookings/$booking->id");
+        $response = $this->delete("/locations/$employee->company_id/bookings/$booking->id");
 
         $response->assertStatus(204);
     }
@@ -67,12 +68,12 @@ class BookingTest extends TestCase
     {
 
         $admin = Employee::factory()->admin()->create();
-        $employee = Employee::factory()->create();
+        $employee = Employee::factory()->for($admin->company)->create();
         $booking = Booking::factory()->for($employee)->create();
 
         $this->actingAs($admin->user, 'api');
 
-        $response = $this->delete("/bookings/$booking->id");
+        $response = $this->delete("/locations/$employee->company_id/bookings/$booking->id");
 
         $response->assertStatus(204);
     }
@@ -85,7 +86,7 @@ class BookingTest extends TestCase
 
         $this->actingAs($employee->user, 'api');
 
-        $response = $this->delete("/bookings/$booking->id");
+        $response = $this->delete("/locations/$employee->company_id/bookings/$booking->id");
 
         $response->assertStatus(204);
     }
@@ -100,7 +101,7 @@ class BookingTest extends TestCase
 
         $this->actingAs($booking->client->user, 'api');
 
-        $response = $this->delete("/bookings/$booking->id");
+        $response = $this->delete("/locations/$employee->company_id/bookings/$booking->id");
 
         $response->assertStatus(204);
     }
@@ -115,7 +116,7 @@ class BookingTest extends TestCase
 
         $this->actingAs($booking->client->user, 'api');
 
-        $response = $this->delete("/bookings/$booking->id");
+        $response = $this->delete("/locations/$employee->company_id/bookings/$booking->id");
         $response->assertStatus(400);
     }
 
@@ -123,11 +124,12 @@ class BookingTest extends TestCase
     public function a_booking_cannot_be_cancelled_by_a_non_assigned_employee()
     {
         $employee = Employee::factory()->create();
-        $booking = Booking::factory()->create();
+        $employee2 = Employee::factory()->for($employee->company)->create();
+        $booking = Booking::factory()->for($employee2)->create();
 
         $this->actingAs($employee->user, 'api');
 
-        $response = $this->delete("/bookings/$booking->id");
+        $response = $this->delete("/locations/$employee->company_id/bookings/$booking->id");
         $response->assertStatus(400);
     }
 
@@ -136,10 +138,11 @@ class BookingTest extends TestCase
     {
         $client = Client::factory()->create();
         $booking = Booking::factory()->create();
+        $companyId = $booking->employee->company_id;
 
         $this->actingAs($client->user, 'api');
 
-        $response = $this->delete("/bookings/$booking->id");
+        $response = $this->delete("/locations/$companyId/bookings/$booking->id");
         $response->assertStatus(400);
     }
 
@@ -148,9 +151,10 @@ class BookingTest extends TestCase
     {
         Mail::fake();
         $booking = Booking::factory()->create(['started_at' => today()->addDays(5)]);
+        $companyId = $booking->employee->company_id;
         $this->actingAs($booking->client->user, 'api');
 
-        $this->delete("/bookings/$booking->id");
+        $this->delete("/locations/$companyId/bookings/$booking->id");
 
         Mail::assertQueued(BookingCancelled::class, function ($mail) use ($booking) {
             return $mail->to[0]['address'] == $booking->client->email;
@@ -162,9 +166,10 @@ class BookingTest extends TestCase
     {
         Mail::fake();
         $booking = Booking::factory()->create(['started_at' => today()->addDays(5)]);
+        $companyId = $booking->employee->company_id;
         $this->actingAs($booking->client->user, 'api');
 
-        $this->delete("/bookings/$booking->id");
+        $this->delete("/locations/$companyId/bookings/$booking->id");
 
         Mail::assertQueued(BookingCancelled::class, function ($mail) use ($booking) {
             return $mail->to[0]['address'] == $booking->employee->email;
@@ -176,9 +181,10 @@ class BookingTest extends TestCase
     {
         Mail::fake();
         $booking = Booking::factory()->create(['started_at' => today()->addDays(5)]);
+        $companyId = $booking->employee->company_id;
         $this->actingAs($booking->employee->user, 'api');
 
-        $this->delete("/bookings/$booking->id");
+        $this->delete("/locations/$companyId/bookings/$booking->id");
 
         Mail::assertQueued(BookingCancelled::class, function ($mail) use ($booking) {
             return $mail->to[0]['address'] == $booking->client->email;
@@ -208,7 +214,7 @@ class BookingTest extends TestCase
         $this->actingAs($client->user, 'api');
         $serviceDefinition = ServiceDefinition::factory()->create(['duration' => 1800]);
 
-        $response = $this->post('/bookings',[
+        $response = $this->post("/locations/$serviceDefinition->company_id/bookings",[
             'time_slot_id' => TimeSlot::factory()->create()->id,
             'client_id' => $client->id,
             'service_definition_ids' => [
@@ -230,7 +236,7 @@ class BookingTest extends TestCase
         $this->actingAs($client->user, 'api');
         $serviceDefinition = ServiceDefinition::factory()->create(['duration' => 1800]);
 
-        $response = $this->post('/bookings',[
+        $response = $this->post("/locations/$serviceDefinition->company_id/bookings",[
             'time_slot_id' => TimeSlot::factory()->create()->id,
             'client_id' => $client->id,
             'service_definition_ids' => [
