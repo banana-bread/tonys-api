@@ -19,7 +19,7 @@ class CompanyTest extends TestCase
     /** @test */
     public function a_company_can_be_created()
     {
-        $response = $this->post('/companies', $this->company_data());
+        $response = $this->post('locations', $this->company_data());
 
         $response->assertCreated();
     }
@@ -27,7 +27,7 @@ class CompanyTest extends TestCase
     /** @test */
     public function when_a_company_is_created_an_owner_is_also_created()
     {
-        $response = $this->post('/companies', $this->company_data());
+        $response = $this->post('locations', $this->company_data());
 
         $this->assertTrue($response->json('data.company.owner.owner'));
     }
@@ -37,7 +37,7 @@ class CompanyTest extends TestCase
     {
         Mail::fake();
 
-        $response = $this->post('/companies', $this->company_data()); 
+        $response = $this->post('locations', $this->company_data()); 
 
         Mail::assertQueued(CompanyCreated::class, function ($job) use ($response) {
             return $job->to[0]['address'] == $response->json('data.company.owner.email');
@@ -50,7 +50,7 @@ class CompanyTest extends TestCase
     {
         Bus::fake();
 
-        $response = $this->post('/companies', $this->company_data()); 
+        $response = $this->post('locations', $this->company_data()); 
 
         Bus::assertDispatched(function (CreateEmployeeTimeSlots $job) use ($response) {
             return $response->json('data.company.owner.id') === $job->employee->id;
@@ -62,7 +62,7 @@ class CompanyTest extends TestCase
     {
         $company = Company::factory()->create();
 
-        $response = $this->get("/companies/$company->id");
+        $response = $this->get("locations/$company->id");
         
         $response->assertOk();
         $this->assertEquals($company->id, $response->json('data.company.id'));
