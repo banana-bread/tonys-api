@@ -7,16 +7,6 @@ use Illuminate\Foundation\Http\FormRequest;
 class CreateCompanyRequest extends FormRequest
 {
     /**
-     * Determine if the user is authorized to make this request.
-     *
-     * @return bool
-     */
-    public function authorize()
-    {
-        return true;
-    }
-
-    /**
      * Get the validation rules that apply to the request.
      *
      * @return array
@@ -27,8 +17,8 @@ class CreateCompanyRequest extends FormRequest
             'name'                                    => 'required|string',
             'address'                                 => 'required|string',
             'phone'                                   => 'required|phone:CA',
-            'time_slot_duration'                      => 'required|numeric',
-            'booking_grace_period'                    => 'required|numeric',
+            // 'time_slot_duration'                      => 'required|numeric',
+            // 'booking_grace_period'                    => 'required|numeric',
 
             'user'                                    => 'required|array',
             'user.name'                               => 'required|string',
@@ -68,4 +58,15 @@ class CreateCompanyRequest extends FormRequest
             'settings.base_schedule.sunday.end'         => 'required_with:settings.base_schedule.sunday.start',
         ];
     }
+
+    // TODO: should maybe do this somewhere else
+    protected function passedValidation()
+    {
+        $this->merge([
+            'time_slot_duration' => 1800,    // 30 minutes
+            'booking_grace_period' => 86400, //24 hours
+        ]);
+    }
+
+    public function authorize(){return true;}
 }
