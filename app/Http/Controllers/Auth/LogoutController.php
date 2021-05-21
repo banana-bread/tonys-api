@@ -11,9 +11,10 @@ class LogoutController extends ApiController
 {
     public function logout(): JsonResponse
     {   
-        $service = new LogoutService();
-        $service->logout();
+        auth()->user()->tokens->each(function ($token, $key) {
+            $token->delete();
+        });
 
-        return $this->success(null, 'User logged out.');
+        return $this->deleted('User logged out.');
     }
 }

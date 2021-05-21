@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\Auth\AuthedClientController;
+use App\Http\Controllers\Auth\AuthedEmployeeController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EmployeeController;
@@ -49,9 +50,12 @@ Route::get('/locations/{id}',                [CompanyController::class, 'show'])
 Route::post('/login',                        [LoginController::class, 'login']);
 Route::post('/login/{provider}',             [LoginController::class, 'redirectToProvider']);
 Route::post('/login/{provider}/callback',    [LoginController::class, 'handleProviderCallback']);
+Route::delete('/logout',                       [LogoutController::class, 'logout'])->middleware('auth:api');
 
 Route::post('/clients',      [ClientController::class, 'store']);
 Route::get('/client/authed', [AuthedClientController::class, 'show'])->middleware('auth:api');
+Route::get('/employee/authed', [AuthedEmployeeController::class, 'show'])->middleware('auth:api');
+
 Route::put('/clients/{id}',  [ClientController::class, 'update'])->middleware('auth:api'); // TODO: authed if is current client 
 Route::get('/clients/{id}',  [ClientController::class, 'show'])->middleware('auth:api');;  // TODO: authed if is current client (or many to many exists with company)
 
@@ -63,8 +67,6 @@ Route::prefix('/locations/{companyId}')->group(function() {
     Route::get('/employees',                     [EmployeeController::class, 'index']); 
 
     Route::group(['middleware' => ['auth:api']], function() {
-        Route::post('/logout',                   [LogoutController::class, 'logout']);
-
         Route::put('/employees/{id}',            [EmployeeController::class, 'update']);  // TODO: authed if is current employee or is admin/owner and belongs to company 
         Route::get('/employees/{id}',            [EmployeeController::class, 'show']); // TODO: authed if is current employee or is admin/owner and belongs to company 
 
