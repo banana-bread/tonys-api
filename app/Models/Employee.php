@@ -5,7 +5,7 @@ namespace App\Models;
 use App\Helpers\DayCollection;
 use App\Models\Contracts\UserModel;
 use App\Traits\HasUuid;
-
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use App\Traits\ReceivesEmails;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -13,7 +13,7 @@ use Illuminate\Support\Collection;
 
 class Employee extends BaseModel implements UserModel
 {
-    use HasUuid, ReceivesEmails;
+    use HasUuid, ReceivesEmails, SoftDeletes;
     
     protected $appends = [
         'name',

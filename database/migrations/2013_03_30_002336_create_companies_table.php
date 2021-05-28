@@ -22,6 +22,7 @@ class CreateCompaniesTable extends Migration
             $table->integer('booking_grace_period');
             $table->json('settings');
             $table->timestamps();
+            $table->softDeletes();
 
             $table->primary('id');
         });
