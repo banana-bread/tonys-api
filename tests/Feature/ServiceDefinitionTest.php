@@ -63,9 +63,12 @@ class ServiceDefinitionTest extends TestCase
     /** @test */
     public function a_service_definition_can_be_retrieved()
     {
-        $service = ServiceDefinition::factory()->create();
+        $company = Company::factory()->create();
+        $employee = Employee::factory()->for($company)->create();
+        $service = ServiceDefinition::factory()->for($company)->create();
+        $this->actingAs($employee->user, 'api');
 
-        $response = $this->get("/locations/$service->company_id/service-definitions/$service->id");
+        $response = $this->get("/locations/$company->id/service-definitions/$service->id");
 
         $response->assertOk();
         $this->assertEquals($service->id, $response->json('data.service_definition.id'));

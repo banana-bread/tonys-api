@@ -40,4 +40,10 @@ class EmployeeOwnerTest extends TestCase
     {
         
     }
+
+    /** @test */
+    public function downgrading_an_owner_to_employee_will_cascade_on_admin()
+    {
+        
+    }
 }

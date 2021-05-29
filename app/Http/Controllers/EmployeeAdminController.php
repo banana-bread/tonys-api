@@ -2,26 +2,30 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\CreateEmployeeRequest;
 use App\Models\Employee;
-use App\Services\Auth\RegisterService;
-use App\Services\EmployeeService;
+use App\Models\EmployeeAdmin;;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Gate;
 
 class EmployeeAdminController extends ApiController
 {
     public function store(string $companyId, string $id): JsonResponse
     {
-        $employee = Employee::forCompany($companyId)->findOrFail($id);
-        $employee->upgrade();
+        $this->authorize('create', EmployeeAdmin::class);
+
+        $employee = EmployeeAdmin::forCompany($companyId)->findOrFail($id);
+        $employee->create();
 
         return $this->created(['employee' => $employee], 'Employee status upgraded.');
     }
 
     public function destroy(string $companyId, string $id): JsonResponse
     {
-        $employee = Employee::forCompany($companyId)->findOrFail($id);
-        $employee->downgrade();
+        $this->authorize('delete', EmployeeAdmin::class);
+
+        $employee = EmployeeAdmin::forCompany($companyId)->findOrFail($id);
+        $employee->delete();
 
         return $this->deleted('Employee status downgraded.');
     }

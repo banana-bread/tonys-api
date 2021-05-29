@@ -76,11 +76,11 @@ Route::prefix('/locations/{companyId}')->group(function() {
         Route::post('/bookings',                 [BookingController::class, 'store']);                
         Route::get('/bookings/{id}',             [BookingController::class, 'show']);
         Route::delete('/bookings/{id}',          [BookingController::class, 'destroy']);
+        
+        Route::post('/service-definitions',               [ServiceDefinitionController::class, 'store']); 
+        Route::get('/service-definitions/{id}',           [ServiceDefinitionController::class, 'show']);     
+        Route::put('/service-definitions/{id}',           [ServiceDefinitionController::class, 'update']);
+        Route::delete('/service-definitions/{id}',        [ServiceDefinitionController::class, 'destroy']);
     });
 
-    // TODO: these should be protected routes
-    Route::post('/service-definitions',               [ServiceDefinitionController::class, 'store']); 
-    Route::get('/service-definitions/{id}',           [ServiceDefinitionController::class, 'show']);     
-    Route::put('/service-definitions/{id}',           [ServiceDefinitionController::class, 'update']);
-    Route::delete('/service-definitions/{id}',        [ServiceDefinitionController::class, 'destroy']);
 });

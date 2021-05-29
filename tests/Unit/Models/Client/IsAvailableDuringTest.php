@@ -46,7 +46,6 @@ class IsAvailableDuringTest extends TestCase
 
         $this->expectException(InvalidParameterException::class);
         $client->isAvailableDuring($notACollectionOrTimeSlot);
-
     }
 
     /** @test  */
@@ -55,14 +54,14 @@ class IsAvailableDuringTest extends TestCase
         $client = Client::factory()->create();
    
         $timeSlot = TimeSlot::factory()->create([
-            'start_time' => today()->addHours(10),
-            'end_time' => today()->addHours(12),
+            'start_time' => today()->addDay()->addHours(10),
+            'end_time' => today()->addDay()->addHours(12),
         ]);
 
         // Does not belong to $client
         Booking::factory()->create([
-            'started_at' => today()->addHours(10)->addMinutes(30),
-            'ended_at' => today()->addHours(11),
+            'started_at' => today()->addDay()->addHours(10)->addMinutes(30),
+            'ended_at' => today()->addDay()->addHours(11),
         ]);
 
         $isAvailable = $client->isAvailableDuring($timeSlot);
@@ -77,13 +76,13 @@ class IsAvailableDuringTest extends TestCase
         $employee = Employee::factory()->create();
         $booking = Booking::factory()->create([
             'employee_id' => $employee->id,
-            'started_at' => today()->addHours(10)->addMinutes(30),
-            'ended_at' => today()->addHours(11),
+            'started_at' => today()->addDay()->addHours(10)->addMinutes(30),
+            'ended_at' => today()->addDay()->addHours(11),
         ]);
         $timeSlot = TimeSlot::factory()->create([
             'employee_id' => $employee->id,
-            'start_time' => today()->addHours(10),
-            'end_time' => today()->addHours(12),
+            'start_time' => today()->addDay()->addHours(10),
+            'end_time' => today()->addDay()->addHours(12),
         ]);
 
         $isAvailable = $booking->client->isAvailableDuring($timeSlot);
@@ -98,15 +97,15 @@ class IsAvailableDuringTest extends TestCase
         $employee = Employee::factory()->create();
         $booking = Booking::factory()->create([
             'employee_id' => $employee->id,
-            'started_at' => today()->addHours(9)->addMinutes(30),
-            'ended_at' => today()->addHours(10)->addMinutes(30),
+            'started_at' => today()->addDay()->addHours(9)->addMinutes(30),
+            'ended_at' => today()->addDay()->addHours(10)->addMinutes(30),
         ]);
         $timeSlot = TimeSlot::factory()->create([
             'employee_id' => $employee->id,
-            'start_time' => today()->addHours(9),
-            'end_time' => today()->addHours(10),
+            'start_time' => today()->addDay()->addHours(9),
+            'end_time' => today()->addDay()->addHours(10),
         ]);
-
+        
         $isAvailable = $booking->client->isAvailableDuring($timeSlot);
 
         $this->assertFalse($isAvailable);
@@ -119,13 +118,13 @@ class IsAvailableDuringTest extends TestCase
         $employee = Employee::factory()->create();
         $booking = Booking::factory()->create([
             'employee_id' => $employee->id,
-            'started_at' => today()->addHours(8),
-            'ended_at' => today()->addHours(11),
+            'started_at' => today()->addDay()->addHours(8),
+            'ended_at' => today()->addDay()->addHours(11),
         ]);
         $timeSlot = TimeSlot::factory()->create([
             'employee_id' => $employee->id,
-            'start_time' => today()->addHours(9),
-            'end_time' => today()->addHours(9)->addMinutes(30),
+            'start_time' => today()->addDay()->addHours(9),
+            'end_time' => today()->addDay()->addHours(9)->addMinutes(30),
         ]);
 
         $isAvailable = $booking->client->isAvailableDuring($timeSlot);
@@ -140,13 +139,13 @@ class IsAvailableDuringTest extends TestCase
         $employee = Employee::factory()->create();
         $booking = Booking::factory()->create([
             'employee_id' => $employee->id,
-            'started_at' => today()->addHours(8),
-            'ended_at' => today()->addHours(9),
+            'started_at' => today()->addDay()->addHours(8),
+            'ended_at' => today()->addDay()->addHours(9),
         ]);
         $timeSlot = TimeSlot::factory()->create([
             'employee_id' => $employee->id,
-            'start_time' => today()->addHours(9),
-            'end_time' => today()->addHours(9)->addMinutes(30),
+            'start_time' => today()->addDay()->addHours(9),
+            'end_time' => today()->addDay()->addHours(9)->addMinutes(30),
         ]);
 
         $isAvailable = $booking->client->isAvailableDuring($timeSlot);
@@ -161,23 +160,23 @@ class IsAvailableDuringTest extends TestCase
 
         $booking = Booking::factory()->create([
             'employee_id' => $employee->id,
-            'started_at' => today()->addHours(10),
-            'ended_at' => today()->addHours(10)->addMinutes(30),
+            'started_at' => today()->addDay()->addHours(10),
+            'ended_at' => today()->addDay()->addHours(10)->addMinutes(30),
         ]);
         $timeSlot1 = TimeSlot::factory()->create([
             'employee_id' => $employee->id,
-            'start_time' => today()->addHours(9)->addMinutes(30),
-            'end_time' => today()->addHours(10),
+            'start_time' => today()->addDay()->addHours(9)->addMinutes(30),
+            'end_time' => today()->addDay()->addHours(10),
         ]);
         $timeSlot2 = TimeSlot::factory()->create([
             'employee_id' => $employee->id,
-            'start_time' => today()->addHours(10),
-            'end_time' => today()->addHours(10)->addMinutes(30),
+            'start_time' => today()->addDay()->addHours(10),
+            'end_time' => today()->addDay()->addHours(10)->addMinutes(30),
         ]);
         $timeSlot3 = TimeSlot::factory()->create([
             'employee_id' => $employee->id,
-            'start_time' => today()->addHours(10)->addMinutes(30),
-            'end_time' => today()->addHours(11),
+            'start_time' => today()->addDay()->addHours(10)->addMinutes(30),
+            'end_time' => today()->addDay()->addHours(11),
         ]);
         $timeSlots = new Collection();
         $timeSlots->push($timeSlot1);

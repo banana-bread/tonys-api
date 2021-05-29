@@ -103,20 +103,6 @@ class Employee extends BaseModel implements UserModel
         return $query->where('company_id', $companyId);
     }
 
-    // ACTIONS
-
-    public function upgrade()
-    {
-        $this->admin = true;
-        return $this->save();
-    }
-
-    public function downgrade()
-    {
-        $this->admin = false;
-        return $this->save();
-    }
-
     // HELPERS
 
     public function hasSchedules(): bool
@@ -137,6 +123,11 @@ class Employee extends BaseModel implements UserModel
     public function isOwner(): bool
     {
         return $this->owner;
+    }
+
+    public function isOnlyOwner(): bool
+    {
+        return $this->isOwner() && Employee::forCompany($this->company_id)->where('owner', true)->count() == 1;
     }
 
     public function createTimeSlotsForNext(int $numberOfDays): Collection

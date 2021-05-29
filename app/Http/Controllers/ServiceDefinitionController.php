@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateServiceDefinitionRequest;
 use App\Models\ServiceDefinition;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class ServiceDefinitionController extends ApiController
