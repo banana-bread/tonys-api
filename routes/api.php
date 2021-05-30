@@ -9,6 +9,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeAdminController;
+use App\Http\Controllers\EmployeeOwnerController;
 use App\Http\Controllers\ServiceDefinitionController;
 use App\Http\Controllers\TimeSlotController;
 use App\Mail\BookingCreated;
@@ -70,8 +71,10 @@ Route::prefix('/locations/{companyId}')->group(function() {
         Route::put('/employees/{id}',            [EmployeeController::class, 'update']);  // TODO: authed if is current employee or is admin/owner and belongs to company 
         Route::get('/employees/{id}',            [EmployeeController::class, 'show']); // TODO: authed if is current employee or is admin/owner and belongs to company 
 
-        Route::post('/employees/{id}/admin',     [EmployeeAdminController::class, 'store']); // TODO: authed if is owner and belongs to company 
-        Route::delete('/employees/{id}/admin',   [EmployeeAdminController::class, 'destroy']); // TODO: authed if it owner and belongs to company 
+        Route::post('/employees/{id}/admin',     [EmployeeAdminController::class, 'store']); 
+        Route::delete('/employees/{id}/admin',   [EmployeeAdminController::class, 'destroy']);  
+        Route::post('/employees/{id}/owner',     [EmployeeOwnerController::class, 'store']); 
+        Route::delete('/employees/{id}/owner',   [EmployeeOwnerController::class, 'destroy']);  
 
         Route::post('/bookings',                 [BookingController::class, 'store']);                
         Route::get('/bookings/{id}',             [BookingController::class, 'show']);

@@ -11,7 +11,6 @@ class EmployeeAdminTest extends TestCase
 {
     use WithFaker, RefreshDatabase;
 
-    // TODO: Finish empty tests and create auth policies
     /** @test */
     public function an_employee_account_can_be_upgraded_to_admin()
     {
@@ -113,5 +112,43 @@ class EmployeeAdminTest extends TestCase
         $response = $this->delete("/locations/$owner->company_id/employees/$owner->id/admin");
 
         $response->assertStatus(400);
+    }
+
+    /** @test */
+    public function an_owner_cannot_downgrade_employees_belonging_to_different_companies()
+    {
+        $owner = Employee::factory()->owner()->create();
+        $employee = Employee::factory()->create();
+        $this->actingAs($owner->user, 'api');
+
+        $response = $this->delete("/locations/$owner->company_id/employees/$employee->id/admin");
+
+        $response->assertStatus(500);
+    }
+
+    /** @test */
+    public function an_owner_cannot_upgrade_employees_belonging_to_different_companies()
+    {
+        $owner = Employee::factory()->owner()->create();
+        $employee = Employee::factory()->create();
+        $this->actingAs($owner->user, 'api');
+
+        $response = $this->post("/locations/$owner->company_id/employees/$employee->id/admin");
+
+        $response->assertStatus(500);
+    }
+
+    /** @test */
+    public function downgrading_an_owner_to_employee_will_cascade_on_admin()
+    {
+        $owner1 = Employee::factory()->owner()->create();
+        $owner2 = Employee::factory()->owner()->for($owner1->company)->create();
+        $this->actingAs($owner1->user, 'api');
+
+        $response = $this->delete("/locations/$owner2->company_id/employees/$owner2->id/admin");
+
+        $employee = Employee::find($owner2->id);
+        $this->assertFalse($employee->owner);
+        $this->assertFalse($employee->admin);
     }
 }

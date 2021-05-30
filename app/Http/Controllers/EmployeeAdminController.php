@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Employee;
-use App\Models\EmployeeAdmin;;
-use Illuminate\Auth\Access\AuthorizationException;
+use App\Models\EmployeeAdmin;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Gate;
 
 class EmployeeAdminController extends ApiController
 {
