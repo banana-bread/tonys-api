@@ -130,7 +130,7 @@ class Employee extends BaseModel implements UserModel
         return $this->isOwner() && Employee::forCompany($this->company_id)->where('owner', true)->count() == 1;
     }
 
-    public function createTimeSlotsForNext(int $numberOfDays): Collection
+    public function createTimeSlotsForNext(int $numberOfDays, int $starting): Collection
     {
         if ($this->hasTimeSlots())
         {
@@ -139,7 +139,7 @@ class Employee extends BaseModel implements UserModel
         }
         else
         {
-            $start = today();
+            $start = today()->addDays($starting);
             $end = today()->addDays($numberOfDays);
         }
 

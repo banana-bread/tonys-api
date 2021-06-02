@@ -7,9 +7,7 @@ use App\Models\ServiceDefinition;
 use Illuminate\Http\JsonResponse;
 
 class ServiceDefinitionController extends ApiController
-{
-    // TODO: reimplemet the form requests once management app auth is done.
-    
+{   
     public function store(CreateServiceDefinitionRequest $request, string $companyId)
     {
         $this->authorize('create', ServiceDefinition::class);

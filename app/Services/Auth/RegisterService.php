@@ -10,7 +10,6 @@ use App\Models\Employee;
 use App\Models\User;
 use App\Mail\EmployeeRegistered;
 use App\Models\Company;
-use Illuminate\Support\Arr;
 
 class RegisterService
 {

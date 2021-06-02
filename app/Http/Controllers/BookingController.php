@@ -17,8 +17,7 @@ class BookingController extends ApiController
 
     public function store(CreateBookingRequest $request): JsonResponse
     {
-        $service = new BookingService();
-        $booking = $service->create();
+        $booking = (new BookingService())->create();
 
         return $this->created(['booking' => $booking], 'Booking created.');
     }

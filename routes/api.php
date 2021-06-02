@@ -63,9 +63,9 @@ Route::get('/clients/{id}',  [ClientController::class, 'show'])->middleware('aut
 Route::prefix('/locations/{companyId}')->group(function() {    
     Route::post('/employees',                    [EmployeeController::class, 'store']);    // TODO: this needs to be a protected signed url route
 
-    Route::get('/time-slots',                    [TimeSlotController::class, 'index']); 
+    Route::get('/time-slots',                    [TimeSlotController::class, 'index']); // TODO: scope to company
     Route::get('/service-definitions',           [ServiceDefinitionController::class, 'index']); 
-    Route::get('/employees',                     [EmployeeController::class, 'index']); 
+    Route::get('/employees',                     [EmployeeController::class, 'index']); // TODO: scope to company
 
     Route::group(['middleware' => ['auth:api']], function() {
         Route::put('/employees/{id}',            [EmployeeController::class, 'update']);  // TODO: authed if is current employee or is admin/owner and belongs to company 
@@ -77,8 +77,8 @@ Route::prefix('/locations/{companyId}')->group(function() {
         Route::delete('/employees/{id}/owner',   [EmployeeOwnerController::class, 'destroy']);  
 
         Route::post('/bookings',                 [BookingController::class, 'store']);                
-        Route::get('/bookings/{id}',             [BookingController::class, 'show']);
-        Route::delete('/bookings/{id}',          [BookingController::class, 'destroy']);
+        Route::get('/bookings/{id}',             [BookingController::class, 'show']); // TODO: authed if is admin/owner, booking belongs to employee, booking belongs to client
+        Route::delete('/bookings/{id}',          [BookingController::class, 'destroy']); // TODO: authed if is admin/owner, booking belongs to employee, booking belongs to client 
         
         Route::post('/service-definitions',               [ServiceDefinitionController::class, 'store']); 
         Route::get('/service-definitions/{id}',           [ServiceDefinitionController::class, 'show']);     
