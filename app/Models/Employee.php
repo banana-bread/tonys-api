@@ -11,6 +11,8 @@ use App\Traits\ReceivesEmails;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 
+// TODO: Move time slot creation stuff into a trait.  
+//       HasTimeSlots?
 class Employee extends BaseModel implements UserModel
 {
     use HasUuid, ReceivesEmails, SoftDeletes;
@@ -128,7 +130,7 @@ class Employee extends BaseModel implements UserModel
         return !!$this->time_slots()->count();
     }
 
-    public function hasFutureTimeSlots(): bool
+    public function hasFutureSlots(): bool
     {
         return !!$this->time_slots()->where('start_time', '>' ,now())->count();
     }
@@ -154,18 +156,13 @@ class Employee extends BaseModel implements UserModel
     //       
     //       Currently, this would handle that situation by creating new time slots starting on tuesday,
     //       meaning the remaining slots for monday would be not created.  This may be a RE-WRITE
-    public function createTimeSlotsForNext(int $numberOfDays, int $daysOffset = 0): Collection
+    public function createSlotsForNext(int $numberOfDays): Collection
     {
-        if ($this->hasFutureTimeSlots())
-        {
-            $start = $this->latest_time_slot->start_time->copy()->startOfDay()->addDay();
-            $end = $start->copy()->addDays($numberOfDays);    
-        }
-        else
-        {
-            $start = today()->addDays($daysOffset);
-            $end = today()->addDays($numberOfDays);
-        }
+        $start = $this->hasFutureSlots()
+            ? $this->latest_time_slot->start_time->copy()->startOfDay()->addDay()
+            : today();
+        
+        $end = $start->copy()->addDays($numberOfDays);
 
         $days = DayCollection::fromRange($start, $end);
 
@@ -205,24 +202,66 @@ class Employee extends BaseModel implements UserModel
         return $timeSlots;
     }
 
-    public function updateBaseSchedule($baseSchedule)
+    public function updateBaseSchedule($newBaseSchedule)
     {   
-        // Gather any time slots that have been reserved and make copies.
-        $reservedSlotStartTimes = $this->future_reserved_slots->pluck('start_time');
-
         // Get date of last time slot, determine number of days we need to make slots for.
         $numberOfDays = today()->diffInDays($this->latest_time_slot->start_time);
 
         $this->deleteFutureSlots();
-        $this->createTimeSlotsForNext($numberOfDays);
+        $this->createSlotsForToday();
+        $this->createSlotsForNext($numberOfDays);
+        // TODO: implement
+        $this->reserveSlotsFromStartTimes($this->future_reserved_slots->pluck('start_time'));
     }
 
-    public function deleteFutureSlots()
+    protected function createSlotsForToday()
+    {
+        // - [x] Get company slot duration
+        $slotDuration = $this->company->time_slot_duration;
+
+        // - [x] Get end time of today from base schedule
+        $baseEnd = $this->base_schedule[Str::lower(today()->englishDayOfWeek)]['end'];
+
+        // - [x] IF end of today is null, exit
+        if (! $baseEnd) return;
+
+        // - [x] Get the number of slots needed to fill rest of day
+        $secondsLeftInWorkDay = today()->addSeconds($baseEnd) - now();
+        $totalSlotsInWorkDay = floor($secondsLeftInWorkDay / $slotDuration);
+
+        // - [x] Create the slots
+        $timeSlots = new EloquentCollection();
+
+        for ($i = 0; $i < $totalSlotsInWorkDay; $i++)
+        {
+            $end = today()->addSeconds($baseEnd - ($i * $slotDuration)); 
+            $start = $end->copy()->subSeconds($slotDuration);
+            
+            $timeSlots->push(
+                new TimeSlot([
+                    'employee_id' => $this->id,
+                    'company_id' => $this->company_id,
+                    'reserved' => false,
+                    'start_time' => $start,
+                    'end_time' => $end,
+                ])
+            );
+        }
+
+        $this->time_slots()->saveMany($timeSlots);
+    }
+
+    protected function deleteFutureSlots()
     {
         // Delete remaining slots for today.
         // Delete all future time slots.
         $this->time_slots()
             ->where('start_time', '>', now())
             ->delete();
+    }
+
+    protected function reserveSlotsFromStartTimes(Collection $startTimes)
+    {
+
     }
 }

@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use TimeSlotException;
+
+
 class TimeSlotPdo
 {
     protected Carbon $dateFrom;

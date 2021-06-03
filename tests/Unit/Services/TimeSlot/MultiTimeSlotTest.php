@@ -181,6 +181,12 @@ class MultiTimeSlotTest extends TestCase
     }
 
     /** @test */
+    public function time_slots_that_have_already_started_will_not_be_retrieved()
+    {
+
+    }
+
+    /** @test */
     public function time_slots_after_the_provided_date_to_will_not_be_retrieved()
     {
         $employee = Employee::factory()->create();

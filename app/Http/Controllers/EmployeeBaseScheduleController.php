@@ -19,7 +19,7 @@ class EmployeeBaseScheduleController extends ApiController
             - [x] Get date of last time slot, determine number of days we need to make slots for.
             - [x] Delete remaining slots for today.
             - [x] Delete all future time slots.
-            - [ ] Create future time slots with new base and end date.
+            - [x] Create future time slots with new base and end date.
             - [ ] From copies, mark new applicable slots as reserved.
         */
 

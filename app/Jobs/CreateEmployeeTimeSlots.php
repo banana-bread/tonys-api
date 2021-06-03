@@ -21,11 +21,10 @@ class CreateEmployeeTimeSlots implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(Employee $employee, int $days, int $starting = 0)
+    public function __construct(Employee $employee, int $days)
     {
         $this->employee = $employee;
         $this->days = $days;
-        $this->starting = $starting;
     }
 
     /**
@@ -35,6 +34,6 @@ class CreateEmployeeTimeSlots implements ShouldQueue
      */
     public function handle()
     {
-        $this->employee->createTimeSlotsForNext($this->days, $this->starting);
+        $this->employee->createSlotsForNext($this->days);
     }
 }

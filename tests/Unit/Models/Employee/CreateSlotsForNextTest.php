@@ -1,13 +1,13 @@
 <?php
 
-namespace Tests\Unit\Jobs\CreateEmployeeSchedules;
+namespace Tests\Unit\Models\Employee;
 
 use App\Models\Employee;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-class CreateTimeSlotsTest extends TestCase
+class CreateSlotsForNextTest extends TestCase
 {
     use WithFaker, RefreshDatabase;
 
@@ -16,7 +16,7 @@ class CreateTimeSlotsTest extends TestCase
     {
         $employee = Employee::factory()->create();
 
-        $timeSlots = $employee->createTimeSlotsForNext(10);
+        $timeSlots = $employee->createSlotsForNext(10);
 
         $this->assertNotEmpty($timeSlots);
     }
@@ -26,7 +26,7 @@ class CreateTimeSlotsTest extends TestCase
     {
         $employee = Employee::factory()->no_days_off()->create();
 
-        $timeSlots = $employee->createTimeSlotsForNext(1);
+        $timeSlots = $employee->createSlotsForNext(1);
 
         $baseScheduleStart = $timeSlots->first()->start_time->copy()->startOfDay()->addSeconds($employee->base_schedule['monday']['start']);
 
@@ -38,7 +38,7 @@ class CreateTimeSlotsTest extends TestCase
     {
         $employee = Employee::factory()->no_days_off()->create();
 
-        $timeSlots = $employee->createTimeSlotsForNext(1);
+        $timeSlots = $employee->createSlotsForNext(1);
 
         $baseScheduleEnd = $timeSlots->last()->end_time->copy()->startOfDay()->addSeconds($employee->base_schedule['monday']['end']);
 
@@ -50,7 +50,7 @@ class CreateTimeSlotsTest extends TestCase
     {
         $employee = Employee::factory()->days_end_on_quarter_hour()->create();
 
-        $timeSlots = $employee->createTimeSlotsForNext(1);
+        $timeSlots = $employee->createSlotsForNext(1);
 
         $baseScheduleEnd = $timeSlots->last()->end_time->copy()->startOfDay()->addSeconds($employee->base_schedule['monday']['end']);
 
@@ -64,7 +64,7 @@ class CreateTimeSlotsTest extends TestCase
         $slotsInSingleDay = 16;
         $days = $this->faker->numberBetween(1, 20);
 
-        $timeSlots = $employee->createTimeSlotsForNext($days);
+        $timeSlots = $employee->createSlotsForNext($days);
 
         $this->assertCount(($slotsInSingleDay * $days), $timeSlots);
     }
@@ -76,7 +76,7 @@ class CreateTimeSlotsTest extends TestCase
         $slotsInSingleDay = 16;
         $days = $this->faker->numberBetween(7, 20);
 
-        $timeSlots = $employee->createTimeSlotsForNext($days);
+        $timeSlots = $employee->createSlotsForNext($days);
 
         $this->assertNotCount(($slotsInSingleDay * $days), $timeSlots);
     }
@@ -90,8 +90,8 @@ class CreateTimeSlotsTest extends TestCase
         $days = $this->faker->numberBetween(1, 50);
 
 
-        $existingSlots = $employee->createTimeSlotsForNext($days);
-        $newSlots = $employee->createTimeSlotsForNext($days);
+        $existingSlots = $employee->createSlotsForNext($days);
+        $newSlots = $employee->createSlotsForNext($days);
 
         $latestExistingSlotDay = $existingSlots->last()->start_time->copy()->startOfDay();
         $firstNewSlotDay = $newSlots->first()->start_time->copy()->startOfDay();
@@ -105,7 +105,7 @@ class CreateTimeSlotsTest extends TestCase
         $employee = Employee::factory()->no_days_off()->create();
         $days = $this->faker->numberBetween(1, 50);
 
-        $slots = $employee->createTimeSlotsForNext($days);
+        $slots = $employee->createSlotsForNext($days);
 
         $this->assertTrue($slots->first()->start_time->isToday());
     }
@@ -116,7 +116,7 @@ class CreateTimeSlotsTest extends TestCase
         $employee = Employee::factory()->no_working_days()->create();
         $days = $this->faker->numberBetween(1, 50);
 
-        $slots = $employee->createTimeSlotsForNext($days);
+        $slots = $employee->createSlotsForNext($days);
 
         $this->assertEmpty($slots);
     }
