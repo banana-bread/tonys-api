@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Helpers\BaseSchedule;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -51,6 +52,13 @@ class Company extends BaseModel
     public function service_definitions()
     {
         return $this->hasMany(ServiceDefinition::class);
+    }
+
+    // CUSTOM ATTRIBUTES
+
+    public function getBaseScheduleAttribute()
+    {
+        return new BaseSchedule($this->settings['base_schedule']);
     }
 
     // HELPERS

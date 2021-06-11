@@ -26,6 +26,12 @@ class AuthServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->registerPolicies();
+
+        Gate::define('update-employee-base-schedule', function (User $user) {
+            return auth()->user()->id === $user->id || 
+                   auth()->user()->isOwner() ||
+                   auth()->user()->isAdmin();
+        });
         
         Passport::routes(function ($router) {
             $router->forAccessTokens();

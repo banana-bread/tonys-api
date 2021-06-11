@@ -1,15 +1,20 @@
-<?php
+<?php 
 
 namespace App\Models;
 
+use App\Exceptions\EmployeeException;
+use App\Helpers\BaseSchedule;
 use App\Helpers\DayCollection;
 use App\Models\Contracts\UserModel;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 use App\Traits\ReceivesEmails;
+use Carbon\Carbon;
+use Facade\FlareClient\Time\Time;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 // TODO: Move time slot creation stuff into a trait.  
 //       HasTimeSlots?
@@ -89,7 +94,7 @@ class Employee extends BaseModel implements UserModel
 
     public function getBaseScheduleAttribute()
     {
-        return $this->settings['base_schedule'];
+        return new BaseSchedule($this->settings['base_schedule']);
     }
 
     // TODO: probably add in setBaseScheduleAttribute eventually
@@ -150,12 +155,6 @@ class Employee extends BaseModel implements UserModel
         return $this->isOwner() && Employee::forCompany($this->company_id)->where('owner', true)->count() == 1;
     }
 
-    // TODO: Need to adjust this to account for slots that should be created for the current day.
-    //       For example, if an employee updates their base schedule on monday at 3pm (and they work 
-    //       until 5pm), all future slots including the remainder of monday's slots would be removed.
-    //       
-    //       Currently, this would handle that situation by creating new time slots starting on tuesday,
-    //       meaning the remaining slots for monday would be not created.  This may be a RE-WRITE
     public function createSlotsForNext(int $numberOfDays): Collection
     {
         $start = $this->hasFutureSlots()
@@ -170,12 +169,12 @@ class Employee extends BaseModel implements UserModel
         $singleSlotDuration = $this->company->time_slot_duration;
 
         $days->each(function ($day) use ($timeSlots, $singleSlotDuration) {
-
-            $baseStart = $this->base_schedule[Str::lower($day->englishDayOfWeek)]['start'];
-            $baseEnd = $this->base_schedule[Str::lower($day->englishDayOfWeek)]['end'];
+            $baseStart = $this->base_schedule->start($day->englishDayOfWeek);
+            $baseEnd = $this->base_schedule->end($day->englishDayOfWeek);
 
             if ($baseStart && $baseEnd)
             {
+                
                 $totalSecondsInWorkDay = $baseEnd - $baseStart;
                 $totalSlotsInWorkDay = floor($totalSecondsInWorkDay / $singleSlotDuration);
                 
@@ -202,16 +201,31 @@ class Employee extends BaseModel implements UserModel
         return $timeSlots;
     }
 
-    public function updateBaseSchedule($newBaseSchedule)
+    public function updateBaseSchedule(BaseSchedule $newBaseSchedule)
     {   
+        if (! $newBaseSchedule->fallsWithin($this->company->base_schedule))
+        {
+            throw new EmployeeException([], 'New employee schedule does not fall within company schedule');
+            // exception(EmployeeScheduleException::class, 12)
+            
+            // public function exception(string $class, int $code)
+            // {
+            //     Service container-like class finds exception class and returns the value of provided code.
+            //     Should be an array of messages, http codes, ...., keyed by code. 
+            // }
+        }
+
+        // No changes made, exit
+        if ($newBaseSchedule->matches($this->base_schedule)) return;
+
         // Get date of last time slot, determine number of days we need to make slots for.
-        $numberOfDays = today()->diffInDays($this->latest_time_slot->start_time);
+        $numberOfDays = today()->diffInDays($this->latest_time_slot->start_time);        
+        $oldFutureReservedSlots = collect($this->future_reserved_slots->toArray());
 
         $this->deleteFutureSlots();
         $this->createSlotsForToday();
         $this->createSlotsForNext($numberOfDays);
-        // TODO: implement
-        $this->reserveSlotsFromStartTimes($this->future_reserved_slots->pluck('start_time'));
+        $this->reserveSlots($oldFutureReservedSlots);
     }
 
     protected function createSlotsForToday()
@@ -220,14 +234,17 @@ class Employee extends BaseModel implements UserModel
         $slotDuration = $this->company->time_slot_duration;
 
         // - [x] Get end time of today from base schedule
-        $baseEnd = $this->base_schedule[Str::lower(today()->englishDayOfWeek)]['end'];
+        $baseEnd = $this->base_schedule->end(today()->englishDayOfWeek);
 
-        // - [x] IF end of today is null, exit
+        // - [x] IF end of today is null, exit.
         if (! $baseEnd) return;
 
         // - [x] Get the number of slots needed to fill rest of day
-        $secondsLeftInWorkDay = today()->addSeconds($baseEnd) - now();
+        $secondsLeftInWorkDay = today()->addSeconds($baseEnd)->timestamp - now()->timestamp;
         $totalSlotsInWorkDay = floor($secondsLeftInWorkDay / $slotDuration);
+
+        // [x] If work day is over, exit.
+        if ($secondsLeftInWorkDay <= 0) return;
 
         // - [x] Create the slots
         $timeSlots = new EloquentCollection();
@@ -245,7 +262,7 @@ class Employee extends BaseModel implements UserModel
                     'start_time' => $start,
                     'end_time' => $end,
                 ])
-            );
+            );   
         }
 
         $this->time_slots()->saveMany($timeSlots);
@@ -253,15 +270,19 @@ class Employee extends BaseModel implements UserModel
 
     protected function deleteFutureSlots()
     {
-        // Delete remaining slots for today.
-        // Delete all future time slots.
         $this->time_slots()
             ->where('start_time', '>', now())
             ->delete();
     }
 
-    protected function reserveSlotsFromStartTimes(Collection $startTimes)
+    protected function reserveSlots(Collection $slots)
     {
+        $startTimes = $slots->pluck('start_time')->map(function ($startTime) {
+            return Carbon::parse($startTime);
+        });
 
+        $this->time_slots()
+            ->whereIn('start_time', $startTimes)
+            ->update(['reserved' => true]);
     }
 }

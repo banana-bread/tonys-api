@@ -28,7 +28,7 @@ class CreateSlotsForNextTest extends TestCase
 
         $timeSlots = $employee->createSlotsForNext(1);
 
-        $baseScheduleStart = $timeSlots->first()->start_time->copy()->startOfDay()->addSeconds($employee->base_schedule['monday']['start']);
+        $baseScheduleStart = $timeSlots->first()->start_time->copy()->startOfDay()->addSeconds($employee->base_schedule->start('monday'));
 
         $this->assertTrue($timeSlots->first()->start_time->eq( $baseScheduleStart ));
     }
@@ -40,7 +40,7 @@ class CreateSlotsForNextTest extends TestCase
 
         $timeSlots = $employee->createSlotsForNext(1);
 
-        $baseScheduleEnd = $timeSlots->last()->end_time->copy()->startOfDay()->addSeconds($employee->base_schedule['monday']['end']);
+        $baseScheduleEnd = $timeSlots->last()->end_time->copy()->startOfDay()->addSeconds($employee->base_schedule->end('monday'));
 
         $this->assertTrue($timeSlots->last()->end_time->eq( $baseScheduleEnd ));
     }
@@ -52,7 +52,7 @@ class CreateSlotsForNextTest extends TestCase
 
         $timeSlots = $employee->createSlotsForNext(1);
 
-        $baseScheduleEnd = $timeSlots->last()->end_time->copy()->startOfDay()->addSeconds($employee->base_schedule['monday']['end']);
+        $baseScheduleEnd = $timeSlots->last()->end_time->copy()->startOfDay()->addSeconds($employee->base_schedule->end('monday'));
 
         $this->assertTrue($timeSlots->last()->end_time->lt($baseScheduleEnd));
     }
@@ -95,7 +95,7 @@ class CreateSlotsForNextTest extends TestCase
 
         $latestExistingSlotDay = $existingSlots->last()->start_time->copy()->startOfDay();
         $firstNewSlotDay = $newSlots->first()->start_time->copy()->startOfDay();
-
+        
         $this->assertTrue($latestExistingSlotDay->eq($firstNewSlotDay->subDay()));
     }
 
