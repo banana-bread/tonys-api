@@ -25,6 +25,6 @@ class UpdateEmployeeBaseSchedule implements ShouldQueue
 
     public function handle()
     {
-        $this->employee->updateBaseSchedule($this->updatedBaseSchedule);
+        $this->employee->createSlotsAfterScheduleUpdate();
     }
 }

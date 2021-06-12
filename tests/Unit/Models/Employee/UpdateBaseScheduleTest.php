@@ -67,7 +67,7 @@ class UpdateBaseScheduleTest extends TestCase
     /** @test */
     public function last_remaining_slot_for_today_will_not_exceed_base_schedule_end()
     {
-        $employee = Employee::factory()->create();  
+        $employee = Employee::factory()->no_days_off()->create();  
         Carbon::setTestNow(today()->addHours(9)->addMinutes(40));
         TestUtils::callMethod($employee, 'createSlotsForToday');
 

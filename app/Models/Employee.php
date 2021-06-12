@@ -15,6 +15,7 @@ use Facade\FlareClient\Time\Time;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use App\Jobs\UpdateEmployeeBaseSchedule;
 
 // TODO: Move time slot creation stuff into a trait.  
 //       HasTimeSlots?
@@ -97,9 +98,15 @@ class Employee extends BaseModel implements UserModel
         return new BaseSchedule($this->settings['base_schedule']);
     }
 
-    // TODO: probably add in setBaseScheduleAttribute eventually
+    public function setBaseScheduleAttribute(BaseSchedule $schedule)
+    {
+        $updatedSettings = $this->settings;
+        $updatedSettings['base_schedule'] = $schedule->toArray();
 
-    public function getLatestTimeSlotAttribute(): TimeSlot
+        $this->attributes['settings'] = json_encode($updatedSettings);
+    }
+
+    public function getLatestTimeSlotAttribute(): ?TimeSlot
     {
         return $this->time_slots()->latest('start_time')->first();
     }
@@ -216,9 +223,18 @@ class Employee extends BaseModel implements UserModel
         }
 
         // No changes made, exit
+
         if ($newBaseSchedule->matches($this->base_schedule)) return;
 
-        // Get date of last time slot, determine number of days we need to make slots for.
+        UpdateEmployeeBaseSchedule::dispatch($this, $newBaseSchedule);
+
+        $this->base_schedule = $newBaseSchedule;
+        $this->save();
+    }
+
+    // TODO: don't like the name
+    public function createSlotsAfterScheduleUpdate()
+    {
         $numberOfDays = today()->diffInDays($this->latest_time_slot->start_time);        
         $oldFutureReservedSlots = collect($this->future_reserved_slots->toArray());
 

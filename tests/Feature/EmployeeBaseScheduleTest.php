@@ -6,6 +6,7 @@ use App\Jobs\UpdateEmployeeBaseSchedule;
 use App\Models\Company;
 use App\Models\Employee;
 use App\Models\TimeSlot;
+use Facade\FlareClient\Time\Time;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -22,15 +23,16 @@ class EmployeeBaseScheduleTest extends TestCase
         $employee = Employee::factory()->create(['settings' => [
             'base_schedule' => TestUtils::mockBaseSchedule(9, 17)->toArray()
         ]]);
+        $ts = TimeSlot::factory()->for($employee)->create();
         $this->actingAs($employee->user, 'api');
-        $newSchedule = TestUtils::mockBaseSchedule(9, 17);
+        $newSchedule = TestUtils::mockBaseSchedule(10, 17);
 
         $response = $this->put("locations/$employee->company_id/employees/$employee->id/base-schedule", [
             'base_schedule' => $newSchedule->toArray()
         ]);
 
         $response->assertOk();
-        $this->assertTrue($employee->base_schedule->matches($newSchedule));
+        $this->assertTrue(Employee::findOrFail($employee->id)->base_schedule->matches($newSchedule));
     }
 
     /** @test */
@@ -38,6 +40,7 @@ class EmployeeBaseScheduleTest extends TestCase
     {
         $employee1 = Employee::factory()->create();
         $employee2 = Employee::factory()->for($employee1->company)->create();
+        $ts = TimeSlot::factory()->for($employee1)->create();
         $this->actingAs($employee1->user, 'api');
 
         $response = $this->put("locations/$employee1->company_id/employees/$employee2->id/base-schedule", [
@@ -52,10 +55,11 @@ class EmployeeBaseScheduleTest extends TestCase
     {
         $owner = Employee::factory()->owner()->create();
         $employee = Employee::factory()->for($owner->company)->create();
+        $ts = TimeSlot::factory()->for($employee)->create();
         $this->actingAs($owner->user, 'api');
 
         $response = $this->put("locations/$owner->company_id/employees/$employee->id/base-schedule", [
-            'base_schedule' => TestUtils::mockBaseSchedule(9, 17)->toArray()
+            'base_schedule' => TestUtils::mockBaseSchedule(10, 17)->toArray()
         ]);
 
         $response->assertStatus(200);
@@ -66,10 +70,12 @@ class EmployeeBaseScheduleTest extends TestCase
     {
         $admin = Employee::factory()->admin()->create();
         $employee = Employee::factory()->for($admin->company)->create();
+        $ts = TimeSlot::factory()->for($employee)->create();
+
         $this->actingAs($admin->user, 'api');
 
         $response = $this->put("locations/$admin->company_id/employees/$employee->id/base-schedule", [
-            'base_schedule' => TestUtils::mockBaseSchedule(9, 17)->toArray()
+            'base_schedule' => TestUtils::mockBaseSchedule(10, 17)->toArray()
         ]);
 
         $response->assertStatus(200);

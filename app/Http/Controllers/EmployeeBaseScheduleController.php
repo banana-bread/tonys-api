@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Helpers\BaseSchedule;
 use App\Http\Requests\UpdateEmployeeBaseScheduleRequest;
-use App\Jobs\UpdateEmployeeBaseSchedule;
 use App\Models\Employee;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Support\Facades\Gate;
@@ -19,8 +18,8 @@ class EmployeeBaseScheduleController extends ApiController
         {
             throw new AuthorizationException('User not authorized.');
         }
-
-        UpdateEmployeeBaseSchedule::dispatch($employee, new BaseSchedule(request('base_schedule')));
+        
+        $employee->updateBaseSchedule(new BaseSchedule(request('base_schedule')));
 
         return $this->ok(['employee' => $employee], 'Employee base schedule updated');
     }
