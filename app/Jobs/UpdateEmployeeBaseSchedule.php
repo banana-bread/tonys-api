@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Helpers\BaseSchedule;
 use App\Models\Employee;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -15,12 +14,10 @@ class UpdateEmployeeBaseSchedule implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public Employee $employee;
-    public BaseSchedule $updatedBaseSchedule;
 
-    public function __construct(Employee $employee, BaseSchedule $updatedBaseSchedule)
+    public function __construct(Employee $employee)
     {
         $this->employee = $employee;
-        $this->updatedBaseSchedule = $updatedBaseSchedule;
     }
 
     public function handle()
