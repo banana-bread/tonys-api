@@ -78,17 +78,17 @@ class Employee extends BaseModel implements UserModel
 
     // CUSTOM ATTRIBUTES
 
-    public function getNameAttribute(): string
+    public function getNameAttribute()
     {
         return $this->user->name;
     }
 
-    public function getPhoneAttribute(): string
+    public function getPhoneAttribute()
     {
         return $this->user->phone;
     }
 
-    public function getEmailAttribute(): string
+    public function getEmailAttribute()
     {
         return $this->user->email;
     }

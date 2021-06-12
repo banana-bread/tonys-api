@@ -10,16 +10,20 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeAdminController;
 use App\Http\Controllers\EmployeeBaseScheduleController;
+use App\Http\Controllers\EmployeeInvitationController;
 use App\Http\Controllers\EmployeeOwnerController;
 use App\Http\Controllers\ServiceDefinitionController;
 use App\Http\Controllers\TimeSlotController;
 use App\Mail\BookingCreated;
+use App\Mail\EmployeeInvitationSent;
 use App\Models\Booking;
 use App\Models\Client;
 use App\Models\Company;
+use App\Models\Employee;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -37,14 +41,15 @@ Route::get('/', function(Request $r) {
 });
 
 // Gonna leave this here till we're done with all the email templates
-// Route::get('/mail', function(Request $r) {
+Route::get('/mail', function(Request $r) {
 
-//     $service = Service::factory()->create();
-//     $client = $service->booking->client;
-//     $booking = $service->booking;
-//     $client->send(new BookingCreated($booking));
-
-// });
+    // $service = Service::factory()->create();
+    // $client = $service->booking->client;
+    // $booking = $service->booking;
+    // $client->send(new BookingCreated($booking));
+    // $employee = Employee::factory()->create();
+    Mail::to(request('email'))->send(new EmployeeInvitationSent);
+});
 
 Route::post('/locations',                    [CompanyController::class, 'store']);
 Route::get('/locations/{id}',                [CompanyController::class, 'show']);
@@ -71,6 +76,7 @@ Route::prefix('/locations/{companyId}')->group(function() {
     Route::group(['middleware' => ['auth:api']], function() {
         Route::put('/employees/{id}',            [EmployeeController::class, 'update']);  // TODO: authed if is current employee or is admin/owner and belongs to company 
         Route::get('/employees/{id}',            [EmployeeController::class, 'show']); // TODO: authed if is current employee or is admin/owner and belongs to company 
+        Route::post('/employees/invitation',         [EmployeeInvitationController::class, 'store']);
 
         Route::post('/employees/{id}/admin',     [EmployeeAdminController::class, 'store']); 
         Route::delete('/employees/{id}/admin',   [EmployeeAdminController::class, 'destroy']);  

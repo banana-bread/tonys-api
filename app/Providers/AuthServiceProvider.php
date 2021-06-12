@@ -32,6 +32,10 @@ class AuthServiceProvider extends ServiceProvider
                    auth()->user()->isOwner() ||
                    auth()->user()->isAdmin();
         });
+
+        Gate::define('send-employee-invitation', function () {
+            return auth()->user()->isOwner();
+        });
         
         Passport::routes(function ($router) {
             $router->forAccessTokens();
