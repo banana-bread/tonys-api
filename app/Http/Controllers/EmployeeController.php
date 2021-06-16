@@ -19,6 +19,11 @@ class EmployeeController extends ApiController
 
     public function store(CreateEmployeeRequest $request, string $companyId): JsonResponse
     {
+        if (! request()->hasValidSignature())
+        {
+            return $this->error('Invalid url signature.', 400);
+        }
+
         $service = new RegisterService();
         $employee = $service->employee($companyId);
             

@@ -16,7 +16,7 @@ class RegisterService
     public function employee(string $companyId): Employee
     {
         $user = User::create(
-            request()->except(['admin', 'owner', 'settings'])
+            request()->except(['admin', 'owner', 'settings', 'expires', 'signature'])
         );
 
         $employee = $user->employee()->create([

@@ -67,7 +67,7 @@ Route::put('/clients/{id}',  [ClientController::class, 'update'])->middleware('a
 Route::get('/clients/{id}',  [ClientController::class, 'show'])->middleware('auth:api');;  // TODO: authed if is current client (or many to many exists with company)
 
 Route::prefix('/locations/{companyId}')->group(function() {    
-    Route::post('/employees',                    [EmployeeController::class, 'store']);    // TODO: this needs to be a protected signed url route
+    Route::post('/employees',                    [EmployeeController::class, 'store'])->name('employee-registration');   
 
     Route::get('/time-slots',                    [TimeSlotController::class, 'index']); // TODO: scope to company
     Route::get('/service-definitions',           [ServiceDefinitionController::class, 'index']); 

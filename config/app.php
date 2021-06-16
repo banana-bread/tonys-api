@@ -134,6 +134,8 @@ return [
     |
     */
 
+    'man_spa_url' => env('MAN_SPA_URL'),
+
     'providers' => [
 
         /*

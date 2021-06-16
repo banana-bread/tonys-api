@@ -3,6 +3,8 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Hash;
+
 
 class CreateEmployeeRequest extends FormRequest
 {
@@ -14,6 +16,7 @@ class CreateEmployeeRequest extends FormRequest
             'phone'                                   => 'phone:CA',
             'password'                                => 'required|string',
             'admin'                                   => 'required|boolean',
+            'owner'                                   => 'required|boolean',
             'settings'                                => 'required|array',
             'settings.base_schedule'                  => 'required|array',
 
@@ -45,6 +48,15 @@ class CreateEmployeeRequest extends FormRequest
             'settings.base_schedule.sunday.start'       => 'present',
             'settings.base_schedule.sunday.end'         => 'required_with:settings.base_schedule.sunday.start',
         ];
+    }
+
+    protected function passedValidation()
+    {
+        if (! $this->password) { return; }
+
+        $this->merge([
+            'password' => Hash::make($this->password)
+        ]);
     }
 
     public function authorize(){return true;}
