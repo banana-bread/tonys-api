@@ -24,7 +24,7 @@ class EmployeeInvitationTest extends TestCase
         $this->actingAs($owner->user, 'api');
 
         $this->post("/locations/$company->id/employees/invitation", [
-            'email' => $this->faker->email
+            'emails' => [$this->faker->email]
         ]);
 
         Mail::assertQueued(EmployeeInvitationSent::class);
@@ -39,7 +39,7 @@ class EmployeeInvitationTest extends TestCase
         $this->actingAs($employee->user, 'api');
 
         $request = $this->post("/locations/$company->id/employees/invitation", [
-            'email' => $this->faker->email
+            'emails' => [$this->faker->email]
         ]);
 
         $request->assertStatus(403);
@@ -55,11 +55,17 @@ class EmployeeInvitationTest extends TestCase
         $this->actingAs($admin->user, 'api');
 
         $request = $this->post("/locations/$company->id/employees/invitation", [
-            'email' => $this->faker->email
+            'emails' => [$this->faker->email]
         ]);
 
         $request->assertStatus(403);
         Mail::assertNotQueued(EmployeeInvitationSent::class);
+    }
+
+    /** @test */
+    public function an_owner_can_send_inviations_to_more_than_one_employee_at_a_time()
+    {
+        
     }
 }
 

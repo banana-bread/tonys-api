@@ -7,6 +7,11 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use TimeSlotException;
 
+/*  
+    TODO: 
+        - [ ] Where time is greater than now + 15 minutes
+
+*/
 
 class TimeSlotPdo
 {

@@ -11,7 +11,8 @@ class EmployeeInvitationRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required|email|unique:users',
+            'emails'   => 'required|array',
+            'emails.*' => 'required|email'
         ];
     }
 }

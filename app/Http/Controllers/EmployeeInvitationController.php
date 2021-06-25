@@ -18,8 +18,10 @@ class EmployeeInvitationController extends ApiController
             throw new AuthorizationException('User not authorized');
         }
 
-        Mail::to(request('email'))->queue(new EmployeeInvitationSent);
+        collect(request('emails'))->each(function ($email) {
+            Mail::to($email)->send(new EmployeeInvitationSent);
+        });
 
-        return $this->created(null, 'Invitation sent.');
+        return $this->created(null, 'Invitations sent.');
     }
 }
