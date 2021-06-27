@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Helpers\BaseSchedule;
 use App\Traits\HasUuid;
+use Exception;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Company extends BaseModel
@@ -61,10 +62,33 @@ class Company extends BaseModel
         return new BaseSchedule($this->settings['base_schedule']);
     }
 
+    public function setBaseScheduleAttribute()
+    {
+        $updatedSettings = $this->settings;
+        $updatedSettings['base_schedule'] = $schedule->toArray();
+
+        $this->attributes['settings'] = json_encode($updatedSettings);
+    }
+
     // HELPERS
     
     public function slotsRequiredFor(int $duration)
     {
         return ceil($duration / $this->time_slot_duration);
+    }
+
+    // ACTIONS
+
+    public function updateBaseSchedule(BaseSchedule $newBaseSchedule)
+    {
+        // auth()->user()->employee()->company()->employees->each(function ($employee) use ($newBaseSchedule) {
+        //     if (! $employee->base_schedule->fallsWithin($newBaseSchedule))
+        //     {
+        //         throw new Exception('All employees hours must fall within new schedule');
+        //     }
+        // });
+
+        $this->base_schedule = $newBaseSchedule;
+        $this->save();
     }
 }
