@@ -27,7 +27,7 @@ class EmployeeInvitationTest extends TestCase
             'emails' => [$this->faker->email]
         ]);
 
-        Mail::assertQueued(EmployeeInvitationSent::class);
+        Mail::assertSent(EmployeeInvitationSent::class);
     }
 
     /** @test */
@@ -43,7 +43,7 @@ class EmployeeInvitationTest extends TestCase
         ]);
 
         $request->assertStatus(403);
-        Mail::assertNotQueued(EmployeeInvitationSent::class);
+        Mail::assertNotSent(EmployeeInvitationSent::class);
     }
 
     /** @test */
@@ -59,13 +59,32 @@ class EmployeeInvitationTest extends TestCase
         ]);
 
         $request->assertStatus(403);
-        Mail::assertNotQueued(EmployeeInvitationSent::class);
+        Mail::assertNotSent(EmployeeInvitationSent::class);
     }
 
     /** @test */
     public function an_owner_can_send_inviations_to_more_than_one_employee_at_a_time()
     {
-        
+        Mail::fake();
+        $company = Company::factory()->create();
+        $owner = Employee::factory()->for($company)->owner()->create();
+        $this->actingAs($owner->user, 'api');
+        $emails = [
+            $this->faker->email, 
+            $this->faker->email, 
+            $this->faker->email
+        ];
+
+        $this->post("/locations/$company->id/employees/invitation", [
+            'emails' => $emails
+        ]);
+
+        Mail::assertSent(EmployeeInvitationSent::class, function($mail) use ($emails) {
+            return collect($emails)->each(function($email) use ($mail) {
+                return collect($mail->to)->contains($email);
+            });
+        });
+
     }
 }
 

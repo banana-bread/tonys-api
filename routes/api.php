@@ -8,6 +8,8 @@ use App\Http\Controllers\Auth\AuthedEmployeeController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\BookingEmployeeController;
+use App\Http\Controllers\CompanyEmployeeController;
 use App\Http\Controllers\EmployeeAdminController;
 use App\Http\Controllers\EmployeeBaseScheduleController;
 use App\Http\Controllers\EmployeeInvitationController;
@@ -71,12 +73,13 @@ Route::prefix('/locations/{companyId}')->group(function() {
 
     Route::get('/time-slots',                    [TimeSlotController::class, 'index']); // TODO: scope to company
     Route::get('/service-definitions',           [ServiceDefinitionController::class, 'index']); 
-    Route::get('/employees',                     [EmployeeController::class, 'index']); // TODO: scope to company
+    Route::get('/booking/employees',            [BookingEmployeeController::class, 'index']);
 
     Route::group(['middleware' => ['auth:api']], function() {
+        Route::get('/company/employees',         [CompanyEmployeeController::class, 'index']); // TODO: scope to company
         Route::put('/employees/{id}',            [EmployeeController::class, 'update']);  // TODO: authed if is current employee or is admin/owner and belongs to company 
         Route::get('/employees/{id}',            [EmployeeController::class, 'show']); // TODO: authed if is current employee or is admin/owner and belongs to company 
-        Route::post('/employees/invitation',         [EmployeeInvitationController::class, 'store']);
+        Route::post('/employees/invitation',     [EmployeeInvitationController::class, 'store']);
 
         Route::post('/employees/{id}/admin',     [EmployeeAdminController::class, 'store']); 
         Route::delete('/employees/{id}/admin',   [EmployeeAdminController::class, 'destroy']);  

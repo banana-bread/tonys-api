@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestMock;
 
+// TODO: these tests are broken because not sure how to fake signed urls for testing
 class EmployeeTest extends TestCase
 {
     use WithFaker, RefreshDatabase;
@@ -106,28 +107,61 @@ class EmployeeTest extends TestCase
     }
 
     /** @test */
-    public function all_employees_can_be_retrieved()
+    public function all_company_employees_can_be_retrieved()
     {
         $company = Company::factory()->create();
         $employees = Employee::factory()->for($company)->count(5)->create(); 
-
-        $response = $this->get("/locations/$company->id/employees");
+        $this->actingAs($employees->first()->user, 'api');
+        
+        $response = $this->get("/locations/$company->id/company/employees");
 
         $response->assertOk();
         $this->assertCount(5, $response->json('data.employees'));
     }
 
     /** @test */
-    public function all_employees_retrieved_will_be_scoped_to_the_same_company()
+    public function all_company_employees_retrieved_will_be_scoped_to_the_same_company()
+    {
+        $company = Company::factory()->create();
+        $employees = Employee::factory()->for($company)->count(5)->create(); 
+        Employee::factory()->create();
+        $this->actingAs($employees->first()->user, 'api');
+
+        $response = $this->get("/locations/$company->id/company/employees");
+
+        $response->assertOk();
+        $this->assertCount(5, $response->json('data.employees'));
+    }
+
+    /** @test */
+    public function all_booking_employees_retrieved_will_be_scoped_to_the_same_company()
     {
         $company = Company::factory()->create();
         $employees = Employee::factory()->for($company)->count(5)->create(); 
         Employee::factory()->create();
 
-        $response = $this->get("/locations/$company->id/employees");
+        $response = $this->get("/locations/$company->id/booking/employees");
 
         $response->assertOk();
         $this->assertCount(5, $response->json('data.employees'));
+    }
+
+    // TODO: should we sepeate employee indexes? For management app we want to grab ALL employees, for booking only active ones.
+    /** @test */
+    public function all_booking_employees_retrieved_will_be_active()
+    {
+        $company = Company::factory()->create();
+        $activeEmployees = Employee::factory()->for($company)->count(5)->create(); 
+        $inactiveEmployee = Employee::factory()->for($company)->inactive()->create();
+
+        $response = $this->get("/locations/$company->id/booking/employees");
+
+        $response->assertOk();
+
+        $hasAnInactive = collect($response->json('data.employees'))->contains(function($employee) {
+            return !$employee['bookings_enabled'];
+        });
+        $this->assertFalse($hasAnInactive);
     }
 
 

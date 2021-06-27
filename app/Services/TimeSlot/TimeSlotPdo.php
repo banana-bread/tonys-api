@@ -7,12 +7,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use TimeSlotException;
 
-/*  
-    TODO: 
-        - [ ] Where time is greater than now + 15 minutes
-
-*/
-
 class TimeSlotPdo
 {
     protected Carbon $dateFrom;
@@ -55,18 +49,21 @@ class TimeSlotPdo
     protected function prepareAvailableSlotsSql(): string
     {
         $andEmployeeIdPart = !!$this->employeeId
-        ? "AND employee_id = :employee_id"
+        ? "AND t.employee_id = :employee_id"
         : "";
     
         return    
-            "SELECT id, company_id, employee_id, start_time, end_time, reserved
-            FROM time_slots
-            WHERE date(start_time) >= date(:date_from)
-            AND date(end_time) <= date(:date_to)
-            AND company_id = :company_id " .
+            "SELECT t.id, t.company_id, t.employee_id, t.start_time, t.end_time, t.reserved
+            FROM time_slots as t
+            JOIN employees ON employees.id = t.employee_id
+            WHERE date(t.start_time) >= date(:date_from)
+            AND date(t.end_time) <= date(:date_to)
+            AND t.start_time >= DATE_ADD(now(), INTERVAL 15 MINUTE)
+            AND employees.bookings_enabled = 1
+            AND t.company_id = :company_id " .
             $andEmployeeIdPart .
-            " AND reserved = 0
-             ORDER BY start_time";
+            " AND t.reserved = 0
+             ORDER BY t.start_time";
     }
 
     protected function prepareConsecutiveAvailableSlotsSql(int $slotsRequired): string
@@ -95,16 +92,20 @@ class TimeSlotPdo
             ? "AND employee_id = :employee_id"
             : "";
 
+        // This is currently hard-coded to 15 minutes but will need to be changed when adding more companies
         return
             "WITH s AS (SELECT id, company_id, employee_id, start_time, end_time, reserved, $leadColumnsPart
                         FROM time_slots
                         WHERE date(start_time) >= date(:date_from)
                         AND date(start_time) <= date(:date_to) 
+                        AND start_time >= DATE_ADD(now(), INTERVAL 15 MINUTE)
                         AND company_id = :company_id                  
                         $andEmployeeIdPart)
-                        SELECT id, company_id, employee_id, start_time, end_time
+                        SELECT s.id, s.company_id, s.employee_id, s.start_time, s.end_time
                         FROM s
-                        WHERE reserved = 0
+                        JOIN employees on s.employee_id = employees.id
+                        WHERE s.reserved = 0
+                        AND employees.bookings_enabled = 1
                         $andLeadColumnsPart                        
                         ORDER BY start_time;";
     }
@@ -123,6 +124,7 @@ class TimeSlotPdo
             $params[':employee_id'] = $this->employeeId;
         }
 
+        // $queryWasSuccessful = $stmt->execute();
         $queryWasSuccessful = $stmt->execute($params);
 
         if (! $queryWasSuccessful)

@@ -50,6 +50,25 @@ class BookingTest extends TestCase
     }
 
     /** @test */
+    public function a_booking_can_not_be_created_for_an_inactive_employee()
+    {
+        $client = Client::factory()->create();
+        $serviceDefinition = ServiceDefinition::factory()->create(['duration' => 1800]);
+        $employee = Employee::factory()->inactive()->for($serviceDefinition->company)->create();
+        $this->actingAs($client->user, 'api');
+
+        $response = $this->post("locations/$serviceDefinition->company_id/bookings",[
+            'time_slot_id' => TimeSlot::factory()->for($employee)->create()->id,
+            'client_id' => $client->id,
+            'service_definition_ids' => [
+                $serviceDefinition->id
+            ]
+        ]);
+
+        $response->assertStatus(400);
+    }
+
+    /** @test */
     public function a_booking_can_be_cancelled_by_an_owner_even_if_they_are_not_the_assigned_employee()
     {
         $owner = Employee::factory()->owner()->create();

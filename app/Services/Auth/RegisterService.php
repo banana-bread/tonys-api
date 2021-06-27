@@ -22,6 +22,7 @@ class RegisterService
         $employee = $user->employee()->create([
             'admin' => request('admin'),
             'owner' => request('owner'),
+            'bookings_enabled' => true,
             'company_id' => $companyId,
             'settings' => request('settings'),
         ]);
@@ -41,6 +42,7 @@ class RegisterService
         $employee = $user->employee()->create([
             'admin' => true,
             'owner' => true,
+            'bookings_enabled' => true,
             'company_id' => $company->id,
             'settings' => $company->settings,
         ]);

@@ -45,6 +45,7 @@ class CreateUsersTables extends Migration
             $table->uuid('company_id');
             $table->boolean('admin');
             $table->boolean('owner');
+            $table->boolean('bookings_enabled');
             $table->json('settings');
             $table->timestamps();
             $table->softDeletes();

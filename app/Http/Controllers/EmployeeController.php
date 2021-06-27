@@ -10,13 +10,6 @@ use Illuminate\Http\JsonResponse;
 
 class EmployeeController extends ApiController
 {
-    public function index(string $companyId): JsonResponse
-    {
-        return $this->ok(
-            ['employees' => Employee::forCompany($companyId)->get()], 'Employees retrieved.'
-        );
-    }
-
     public function store(CreateEmployeeRequest $request, string $companyId): JsonResponse
     {
         if (! request()->hasValidSignature())

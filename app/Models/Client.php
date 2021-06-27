@@ -8,6 +8,7 @@ use App\Models\Contracts\UserModel;
 use Illuminate\Support\Collection;
 use App\Traits\HasUuid;
 use App\Traits\ReceivesEmails;
+use Exception;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Client extends BaseModel implements UserModel
@@ -77,6 +78,11 @@ class Client extends BaseModel implements UserModel
 
     public function createBooking(TimeSlot $startingSlot, $serviceDefinitions): Booking
     {     
+        if (! $startingSlot->employee->isActive())
+        {
+            throw new BookingException([], 'Cannot create booking with inactive employee.');
+        }
+
         $duration = $serviceDefinitions->sum('duration');
         $slotsRequired = $startingSlot->company->slotsRequiredFor($duration);
         

@@ -33,6 +33,7 @@ class EmployeeFactory extends Factory
             },
             'admin' => false,
             'owner' => false,
+            'bookings_enabled' => true,
             'settings' => TestMock::employee_settings(),
         ];
     }
@@ -52,6 +53,15 @@ class EmployeeFactory extends Factory
             return [
                 'admin' => true,
                 'owner' => true,
+            ];
+        });
+    }
+
+    public function inactive()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'bookings_enabled' => false,
             ];
         });
     }

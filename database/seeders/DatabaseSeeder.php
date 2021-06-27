@@ -92,8 +92,8 @@ class DatabaseSeeder extends Seeder
 
         $employees->each( function ($employee) use ($days) {
             $days->each(function ($day) use ($employee) {
-                $baseStart = $employee->base_schedule[Str::lower($day->englishDayOfWeek)]['start'];
-                $baseEnd = $employee->base_schedule[Str::lower($day->englishDayOfWeek)]['end'];
+                $baseStart = $employee->base_schedule->start($day->englishDayOfWeek);
+                $baseEnd = $employee->base_schedule->end($day->englishDayOfWeek);
                 $singleSlotDuration = $employee->company->time_slot_duration;
     
                 if ($baseStart && $baseEnd)

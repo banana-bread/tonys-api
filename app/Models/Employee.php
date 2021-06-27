@@ -34,6 +34,7 @@ class Employee extends BaseModel implements UserModel
         'company_id',
         'admin',
         'owner',
+        'bookings_enabled',
         'settings',
 
         'user',
@@ -160,6 +161,11 @@ class Employee extends BaseModel implements UserModel
     public function isOnlyOwner(): bool
     {
         return $this->isOwner() && Employee::forCompany($this->company_id)->where('owner', true)->count() == 1;
+    }
+
+    public function isActive(): bool
+    {
+        return $this->bookings_enabled;
     }
 
     public function createSlotsForNext(int $numberOfDays): Collection
