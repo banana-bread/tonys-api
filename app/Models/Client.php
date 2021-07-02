@@ -10,6 +10,8 @@ use App\Traits\HasUuid;
 use App\Traits\ReceivesEmails;
 use Exception;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 
 class Client extends BaseModel implements UserModel
 {
@@ -48,7 +50,7 @@ class Client extends BaseModel implements UserModel
 
     public function companies()
     {
-        return $this->hasMany(Company::class, 'companies_clients');
+        return $this->belongsToMany(Company::class, 'companies_clients')->withTimestamps();
     }
 
     // CUSTOM ATTRIBUTES
@@ -78,14 +80,15 @@ class Client extends BaseModel implements UserModel
 
     public function createBooking(TimeSlot $startingSlot, $serviceDefinitions): Booking
     {     
-        if (! $startingSlot->employee->isActive())
+        if (! Employee::find($startingSlot->employee_id)->isActive())
         {
             throw new BookingException([], 'Cannot create booking with inactive employee.');
         }
 
         $duration = $serviceDefinitions->sum('duration');
         $slotsRequired = $startingSlot->company->slotsRequiredFor($duration);
-        
+
+
         $allSlots = $slotsRequired > 1
             ? $startingSlot->getNextSlots($slotsRequired)->prepend($startingSlot)
             : $startingSlot;
@@ -95,7 +98,7 @@ class Client extends BaseModel implements UserModel
             throw new BookingException([], 'The requested booking is not available for this client.');
         }
 
-        TimeSlot::lock($allSlots);
+        TimeSlot::lockAndReserve($allSlots);
 
         $booking = Booking::create([
             'client_id' => $this->id,
@@ -104,6 +107,7 @@ class Client extends BaseModel implements UserModel
             'ended_at' => $allSlots->first()->start_time->copy()->addSeconds($duration)
         ]);
 
+        // TODO: Service::fromDefinitions(Collection $definitions) ?
         $services = $serviceDefinitions->map(function ($definition) use ($booking) {
             $service = new Service();
             $service->service_definition_id = $definition->id;
@@ -113,6 +117,7 @@ class Client extends BaseModel implements UserModel
         });
 
         $booking->services()->saveMany($services);
+        $this->attachOrUpdateCompany($booking->employee->company_id);
 
         return $booking;
     }
@@ -150,5 +155,12 @@ class Client extends BaseModel implements UserModel
                 ->count();
 
         return !$hasAnOverlappingBooking;
+    }
+
+    public function attachOrUpdateCompany(string $companyId)
+    {
+        $this->companies()->where('companies.id', $companyId)->exists()
+            ?  $this->companies()->updateExistingPivot($companyId, ['updated_at' => now()])
+            :  $this->companies()->attach($companyId);
     }
 }

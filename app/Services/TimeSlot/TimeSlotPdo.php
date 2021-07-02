@@ -131,7 +131,7 @@ class TimeSlotPdo
         {
             throw new TimeSlotException([], 'There was an error in retrieving available time slots.');
         } 
-
+        
         return collect($stmt->fetchAll());
     }
 

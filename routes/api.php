@@ -1,6 +1,7 @@
 <?php
 
-use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\ClientLoginController;
+use App\Http\Controllers\Auth\EmployeeLoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\Auth\AuthedClientController;
@@ -54,13 +55,14 @@ Route::get('/mail', function(Request $r) {
     Mail::to(request('email'))->send(new EmployeeInvitationSent);
 });
 
-Route::post('/locations',                    [CompanyController::class, 'store']);
-Route::get('/locations/{id}',                [CompanyController::class, 'show']);
+Route::post('/locations',                           [CompanyController::class, 'store']);
+Route::get('/locations/{id}',                       [CompanyController::class, 'show']);
 
-Route::post('/login',                        [LoginController::class, 'login']);
-Route::post('/login/{provider}',             [LoginController::class, 'redirectToProvider']);
-Route::post('/login/{provider}/callback',    [LoginController::class, 'handleProviderCallback']);
-Route::delete('/logout',                       [LogoutController::class, 'logout'])->middleware('auth:api');
+Route::post('/client/login',                        [ClientLoginController::class, 'login']);
+Route::post('/client/login/{provider}',             [ClientLoginController::class, 'redirectToProvider']);
+Route::post('/client/login/{provider}/callback',    [ClientLoginController::class, 'handleProviderCallback']);
+Route::post('/employee/login',                      [EmployeeLoginController::class, 'login']);
+Route::delete('/logout',                            [LogoutController::class, 'logout'])->middleware('auth:api');
 
 Route::post('/clients',      [ClientController::class, 'store']);
 Route::get('/client/authed', [AuthedClientController::class, 'show'])->middleware('auth:api');
@@ -74,12 +76,12 @@ Route::prefix('/locations/{companyId}')->group(function() {
 
     Route::get('/time-slots',                    [TimeSlotController::class, 'index']); // TODO: scope to company
     Route::get('/service-definitions',           [ServiceDefinitionController::class, 'index']); 
-    Route::get('/booking/employees',            [BookingEmployeeController::class, 'index']);
+    Route::get('/booking/employees',             [BookingEmployeeController::class, 'index']);
+    Route::get('/employees/{id}',                [EmployeeController::class, 'show']);  
 
     Route::group(['middleware' => ['auth:api']], function() {
         Route::get('/company/employees',         [CompanyEmployeeController::class, 'index']); // TODO: scope to company
         Route::put('/employees/{id}',            [EmployeeController::class, 'update']);  // TODO: authed if is current employee or is admin/owner and belongs to company 
-        Route::get('/employees/{id}',            [EmployeeController::class, 'show']); // TODO: authed if is current employee or is admin/owner and belongs to company 
         Route::post('/employees/invitation',     [EmployeeInvitationController::class, 'store']);
 
         Route::post('/employees/{id}/admin',     [EmployeeAdminController::class, 'store']); 

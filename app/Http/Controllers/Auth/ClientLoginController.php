@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\ApiController;
 use App\Services\Auth\LoginService;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 
-class LoginController extends ApiController
+class ClientLoginController extends ApiController
 {
-
     public function login(Request $request): ?JsonResponse
     {   
         $service = new LoginService();
@@ -34,6 +34,16 @@ class LoginController extends ApiController
         $service = new LoginService();
         $token = $service->loginWithProvider($request, $provider);
 
+        $this->_authorize();
+
         return $this->ok(['token' => $token], 'User logged in.');
+    }
+
+    private function _authorize()
+    {
+        if (! auth()->user()->isClient())
+        {
+            throw new AuthorizationException('Must log in with client app account.', 400);  
+        } 
     }
 }

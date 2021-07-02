@@ -37,7 +37,7 @@ class Company extends BaseModel
 
     public function clients() 
     {
-        return $this->belongsToMany(Client::class, 'companies_clients');
+        return $this->hasMany(Client::class, 'companies_clients')->withTimestamps();
     }
 
     public function employees()

@@ -14,12 +14,11 @@ class CreateCompaniesClientsTable extends Migration
     public function up()
     {
         Schema::create('companies_clients', function (Blueprint $table) {
-            $table->uuid('id');
+            $table->id();
             $table->uuid('client_id');
             $table->uuid('company_id');
             $table->timestamps();
 
-            $table->primary('id');
             $table->foreign('client_id')->references('id')->on('clients');
             $table->foreign('company_id')->references('id')->on('companies');
         });

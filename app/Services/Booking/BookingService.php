@@ -7,6 +7,7 @@ use App\Models\Booking;
 use App\Models\Client;
 use App\Models\ServiceDefinition;
 use App\Models\TimeSlot;
+use Illuminate\Database\DBAL\TimestampType;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
@@ -18,6 +19,7 @@ class BookingService
             // getting query data
             $client = Client::findOrFail(request('client_id'));
             $startingTimeSlot = TimeSlot::findOrFail(request('time_slot_id'));
+      
             $serviceDefinitions = ServiceDefinition::findOrFail(request('service_definition_ids'));
 
             $booking = $client->createBooking($startingTimeSlot, $serviceDefinitions);

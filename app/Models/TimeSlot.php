@@ -51,9 +51,13 @@ class TimeSlot extends BaseModel
             ->get();
     }
 
-    public static function lock($slots)
+    public static function lockAndReserve($slots)
     {
-        static::whereIn('id', Arr::pluck($slots, 'id'))
+        $ids = $slots instanceof TimeSlot
+            ? [$slots->id]
+            : $slots->pluck('id');
+
+        static::whereIn('id', $ids)
             ->lockForUpdate()
             ->update(['reserved' => true]);
     }
