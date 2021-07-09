@@ -20,6 +20,7 @@ class EmployeeInvitationController extends ApiController
 
         collect(request('emails'))->each(function ($email) {
             Mail::to($email)->send(new EmployeeInvitationSent);
+            // Mail::to($email)->queue(new EmployeeInvitationSent);
         });
 
         return $this->created(null, 'Invitations sent.');
