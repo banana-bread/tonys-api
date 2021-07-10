@@ -8,13 +8,10 @@ use App\Helpers\DayCollection;
 use App\Models\Contracts\UserModel;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Str;
 use App\Traits\ReceivesEmails;
 use Carbon\Carbon;
-use Facade\FlareClient\Time\Time;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use App\Jobs\UpdateEmployeeBaseSchedule;
 
 // TODO: Move time slot creation stuff into a trait.  

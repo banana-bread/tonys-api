@@ -26,7 +26,7 @@ class EmployeeController extends ApiController
     public function show(string $companyId, string $id)
     {
         return $this->ok(
-            ['employee' => Employee::forCompany($companyId)->findOrFail($id)], 'Employee account retrieved.'
+            ['employee' => Employee::forCompany($companyId)->with('company')->findOrFail($id)], 'Employee account retrieved.'
         );
     }
 
