@@ -14,6 +14,7 @@ use App\Http\Controllers\CompanyEmployeeController;
 use App\Http\Controllers\EmployeeAdminController;
 use App\Http\Controllers\EmployeeBaseScheduleController;
 use App\Http\Controllers\CompanyBaseScheduleController;
+use App\Http\Controllers\EmployeeBookingsEnabledController;
 use App\Http\Controllers\EmployeeInvitationController;
 use App\Http\Controllers\EmployeeOwnerController;
 use App\Http\Controllers\ServiceDefinitionController;
@@ -88,6 +89,9 @@ Route::prefix('/locations/{companyId}')->group(function() {
         Route::delete('/employees/{id}/admin',   [EmployeeAdminController::class, 'destroy']);  
         Route::post('/employees/{id}/owner',     [EmployeeOwnerController::class, 'store']); 
         Route::delete('/employees/{id}/owner',   [EmployeeOwnerController::class, 'destroy']);  
+
+
+        Route::put('/employees/{id}/active',   [EmployeeBookingsEnabledController::class, 'update']);  
 
         Route::put('/employees/{id}/base-schedule', [EmployeeBaseScheduleController::class, 'update']);
         Route::put('/company/base-schedule',        [CompanyBaseScheduleController::class, 'update']);

@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\Company;
+use App\Models\Employee;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -13,16 +14,17 @@ class EmployeeInvitationSent extends Mailable
     use Queueable;
 
     public string $url;
-    // public Company $company;
+    public Employee $employee;
+    public Company $company;
 
     public function __construct()
     {
-        // $this->company = auth()->user()->employee()->company;
+        $this->employee = auth()->user()->employee;
+        $this->company = $this->employee->company;
+        
         $this->url = 
             config('app.man_spa_url'). 
-            //TODO: uncomment when testing for real
-            // $this->company->id. 
-            '6b5f38fd-462b-4c34-83a2-c9fcf3113e09'.
+            $this->company->id. 
             '/staff/new?signed-url='.
             rawurlencode(URL::temporarySignedRoute('employee-registration', now()->addWeek(), ['companyId' => '6b5f38fd-462b-4c34-83a2-c9fcf3113e09']));
     }
@@ -30,7 +32,10 @@ class EmployeeInvitationSent extends Mailable
     public function build()
     {
         return $this->from('adriano@example.com')
-            // TODO: create template
-            ->markdown('email.employee-invitation');
+            ->subject('Invitation from ' . $this->company->name)
+            ->markdown('email.employee-invitation', [
+                'employee' => $this->employee,
+                'company' => $this->company
+            ]);
     }
 }

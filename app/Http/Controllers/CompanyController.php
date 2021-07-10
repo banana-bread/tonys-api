@@ -24,7 +24,7 @@ class CompanyController extends ApiController
 
     public function show(string $id): JsonResponse
     {
-        $company = Company::findOrFail($id);
+        $company = Company::where('id', $id)->with('employees')->first();
 
         return $this->ok(['company' => $company], 'Company retrieved.');
     }

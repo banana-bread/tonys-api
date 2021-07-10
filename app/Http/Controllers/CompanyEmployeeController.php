@@ -10,7 +10,7 @@ class CompanyEmployeeController extends ApiController
     public function index(string $companyId): JsonResponse
     {
         return $this->ok(
-            ['employees' => Employee::forCompany($companyId)->get()], 'Employees retrieved.'
+            ['employees' => Employee::forCompany($companyId)->with('company')->get()], 'Employees retrieved.'
         );
     }
 }

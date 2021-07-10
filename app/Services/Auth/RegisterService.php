@@ -27,7 +27,7 @@ class RegisterService
             'settings' => request('settings'),
         ]);
 
-        $employee->send(new EmployeeRegistered());
+        // $employee->send(new EmployeeRegistered());
 
         CreateEmployeeTimeSlots::dispatch($employee, Days::YEAR);
 
