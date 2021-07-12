@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\ApiController;
+use App\Models\User;
 use App\Services\Auth\LoginService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Http\JsonResponse;
@@ -13,6 +14,13 @@ class ClientLoginController extends ApiController
 {
     public function login(Request $request): ?JsonResponse
     {   
+        $user = User::where('email', request('username'))->first();
+
+        if (! $user || ! $user->isEmployee())
+        {
+            throw new AuthorizationException('Must log in with client app account.', 400);  
+        }
+
         $service = new LoginService();
         $token = $service->loginWithPassport($request);
 
@@ -34,7 +42,7 @@ class ClientLoginController extends ApiController
         $service = new LoginService();
         $token = $service->loginWithProvider($request, $provider);
 
-        $this->_authorize();
+        // $this->_authorize();
 
         return $this->ok(['token' => $token], 'User logged in.');
     }
