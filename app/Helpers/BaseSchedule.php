@@ -36,9 +36,9 @@ class BaseSchedule
      */
     public function matches(BaseSchedule $baseSchedule): bool
     {
-        return $this->base_schedule->contains(function ($schedule, $day) use ($baseSchedule) {
-            return $this->start($day) === $baseSchedule->start($day) &&
-                   $this->end($day) === $baseSchedule->end($day);
+        return !$this->base_schedule->contains(function ($schedule, $day) use ($baseSchedule) {
+            return $this->start($day) !== $baseSchedule->start($day) ||
+                   $this->end($day) !== $baseSchedule->end($day);
         });
     }
 

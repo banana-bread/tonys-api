@@ -29,9 +29,10 @@ class ServiceDefinitionController extends ApiController
         $service = ServiceDefinition::forCompany($companyId)->findOrFail($id);
         $this->authorize('update', $service);
 
-        return $this->ok(
-            ['service_definition' => $service->update($request->all()), 'Service definition updated.']
-        );
+        return $this->ok([
+            'service_definition' => $service->update(request()->only(['id', 'name', 'price', 'duration'])), 
+            'Service definition updated.'
+            ]);
     }
 
     public function index(string $companyId): JsonResponse

@@ -226,13 +226,12 @@ class Employee extends BaseModel implements UserModel
         }
 
         // No changes made, exit
-
         if ($newBaseSchedule->matches($this->base_schedule)) return;
-
-        UpdateEmployeeBaseSchedule::dispatch($this);
 
         $this->base_schedule = $newBaseSchedule;
         $this->save();
+
+        UpdateEmployeeBaseSchedule::dispatch($this);
     }
 
     // TODO: don't like the name

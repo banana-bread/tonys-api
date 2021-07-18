@@ -7,6 +7,7 @@ use App\Models\Employee;
 use App\Services\Auth\RegisterService;
 use App\Services\EmployeeService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class EmployeeController extends ApiController
 {
@@ -30,11 +31,12 @@ class EmployeeController extends ApiController
         );
     }
 
-    // TODO: need to set up model mutators in order for this to work I think.
-    public function update(EmployeeRequest $request, string $companyId, string $id): JsonResponse
+    public function update(Request $request, string $companyId, string $id)
     {
         $employee = Employee::forCompany($companyId)->findOrFail($id);
-        $employee->update(request());
+        $this->authorize('update', $employee);
+
+        $employee->user->update(request()->only(['name', 'phone']));
 
         return $this->ok($employee, 'Employee profile updated.');
     }
@@ -44,4 +46,6 @@ class EmployeeController extends ApiController
     {
         //
     }
+
+
 }

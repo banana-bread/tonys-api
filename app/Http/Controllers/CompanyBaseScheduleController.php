@@ -14,13 +14,13 @@ class CompanyBaseScheduleController extends ApiController
     {
         $company = Company::findOrFail($id);
         
-        if (! auth()->user()->isAdmin() || 
+        if (! auth()->user()->isOwner() || 
               auth()->user()->employee->company_id != $company->id)
         {
             throw new AuthorizationException('User not authorized');
         }
-        
-        $employee->updateBaseSchedule(new BaseSchedule(request('base_schedule')));
+        $company->updateBaseSchedule(new BaseSchedule(request('base_schedule')));
+        // $employee->updateBaseSchedule(new BaseSchedule(request('base_schedule')));
 
         return $this->ok(['employee' => $employee], 'Employee base schedule updated');
     }
