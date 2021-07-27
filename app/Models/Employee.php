@@ -213,18 +213,6 @@ class Employee extends BaseModel implements UserModel
 
     public function updateBaseSchedule(BaseSchedule $newBaseSchedule)
     {   
-        if (! $newBaseSchedule->fallsWithin($this->company->base_schedule))
-        {
-            throw new EmployeeException([], 'New employee schedule does not fall within company schedule');
-            // exception(EmployeeScheduleException::class, 12)
-            
-            // public function exception(string $class, int $code)
-            // {
-            //     Service container-like class finds exception class and returns the value of provided code.
-            //     Should be an array of messages, http codes, ...., keyed by code. 
-            // }
-        }
-
         // No changes made, exit
         if ($newBaseSchedule->matches($this->base_schedule)) return;
 

@@ -55,40 +55,10 @@ class Company extends BaseModel
         return $this->hasMany(ServiceDefinition::class);
     }
 
-    // CUSTOM ATTRIBUTES
-
-    public function getBaseScheduleAttribute()
-    {
-        return new BaseSchedule($this->settings['base_schedule']);
-    }
-
-    public function setBaseScheduleAttribute()
-    {
-        $updatedSettings = $this->settings;
-        $updatedSettings['base_schedule'] = $schedule->toArray();
-
-        $this->attributes['settings'] = json_encode($updatedSettings);
-    }
-
     // HELPERS
     
-    public function slotsRequiredFor(int $duration)
+    public function slotsRequiredFor(int $bookingDuration)
     {
-        return ceil($duration / $this->time_slot_duration);
-    }
-
-    // ACTIONS
-
-    public function updateBaseSchedule(BaseSchedule $newBaseSchedule)
-    {
-        // auth()->user()->employee()->company()->employees->each(function ($employee) use ($newBaseSchedule) {
-        //     if (! $employee->base_schedule->fallsWithin($newBaseSchedule))
-        //     {
-        //         throw new Exception('All employees hours must fall within new schedule');
-        //     }
-        // });
-
-        $this->base_schedule = $newBaseSchedule;
-        $this->save();
+        return ceil($bookingDuration / $this->time_slot_duration);
     }
 }

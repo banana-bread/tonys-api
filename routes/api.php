@@ -13,7 +13,6 @@ use App\Http\Controllers\BookingEmployeeController;
 use App\Http\Controllers\CompanyEmployeeController;
 use App\Http\Controllers\EmployeeAdminController;
 use App\Http\Controllers\EmployeeBaseScheduleController;
-use App\Http\Controllers\CompanyBaseScheduleController;
 use App\Http\Controllers\EmployeeBookingsEnabledController;
 use App\Http\Controllers\EmployeeInvitationController;
 use App\Http\Controllers\EmployeeOwnerController;
@@ -94,8 +93,8 @@ Route::prefix('/locations/{companyId}')->group(function() {
         Route::put('/employees/{id}/active',   [EmployeeBookingsEnabledController::class, 'update']);  
 
         Route::put('/employees/{id}/base-schedule', [EmployeeBaseScheduleController::class, 'update']);
-        Route::put('/company/base-schedule',        [CompanyBaseScheduleController::class, 'update']);
 
+        Route::get('/bookings',                  [BookingController::class, 'index']);
         Route::post('/bookings',                 [BookingController::class, 'store']);                
         Route::get('/bookings/{id}',             [BookingController::class, 'show']); // TODO: authed if is admin/owner, booking belongs to employee, booking belongs to client
         Route::delete('/bookings/{id}',          [BookingController::class, 'destroy']); // TODO: authed if is admin/owner, booking belongs to employee, booking belongs to client 

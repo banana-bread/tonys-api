@@ -6,13 +6,23 @@ use App\Http\Requests\CreateBookingRequest;
 use App\Mail\BookingCancelled;
 use App\Models\Booking;
 use App\Services\Booking\BookingService;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Str;
 
 class BookingController extends ApiController
 {
-    public function index()
+    public function index(string $companyId)
     {
-        // TODO: figure out pagination
+        // TODO: this may end up being moved to EmployeeBookingController
+
+        $bookings = Booking::forCompany($companyId)
+            ->whereDate('started_at', Carbon::createFromTimestamp(request('date_for')))
+            ->whereIn('employee_id', Str::of(request('employee_ids'))->explode(','))
+            ->orderBy('started_at')
+            ->get();
+
+        return $this->ok(['bookings' => $bookings], 'Bookings retreived');
     }
 
     public function store(CreateBookingRequest $request): JsonResponse

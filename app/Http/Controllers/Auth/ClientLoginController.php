@@ -16,7 +16,7 @@ class ClientLoginController extends ApiController
     {   
         $user = User::where('email', request('username'))->first();
 
-        if (! $user || ! $user->isEmployee())
+        if (! $user || $user->isEmployee())
         {
             throw new AuthorizationException('Must log in with client app account.', 400);  
         }

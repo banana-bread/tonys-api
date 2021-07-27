@@ -113,42 +113,6 @@ class EmployeeBaseScheduleTest extends TestCase
     }
 
     /** @test */
-    public function starting_time_cannot_be_before_company_starting_time()
-    {
-        $company = Company::factory()->create(['settings' => [
-            'base_schedule' => TestUtils::mockBaseSchedule(9, 17)->toArray()
-        ]]);
-        $employee = Employee::factory()->for($company)->create(['settings' => [
-            'base_schedule' => TestUtils::mockBaseSchedule(9, 17)->toArray()
-        ]]);
-        $this->actingAs($employee->user, 'api');
-
-        $response = $this->put("locations/$company->id/employees/$employee->id/base-schedule", [
-            'base_schedule' => TestUtils::mockBaseSchedule(8, 17)->toArray()
-        ]);
-
-        $response->assertStatus(400);
-    }
-
-    /** @test */
-    public function ending_time_cannot_be_after_company_ending_time()
-    {
-        $company = Company::factory()->create(['settings' => [
-            'base_schedule' => TestUtils::mockBaseSchedule(9, 17)->toArray()
-        ]]);
-        $employee = Employee::factory()->for($company)->create(['settings' => [
-            'base_schedule' => TestUtils::mockBaseSchedule(9, 17)->toArray()
-        ]]);
-        $this->actingAs($employee->user, 'api');
-
-        $response = $this->put("locations/$company->id/employees/$employee->id/base-schedule", [
-            'base_schedule' => TestUtils::mockBaseSchedule(9, 18)->toArray()
-        ]);
-
-        $response->assertStatus(400);
-    }
-
-    /** @test */
     public function a_job_will_be_queued_when_base_schedule_is_updated()
     {
         Bus::fake();
@@ -163,4 +127,40 @@ class EmployeeBaseScheduleTest extends TestCase
             return $response->json('data.employee.id') === $job->employee->id;
         });
     }
+
+    // /** @test */
+    // public function starting_time_cannot_be_before_company_starting_time()
+    // {
+    //     $company = Company::factory()->create(['settings' => [
+    //         'base_schedule' => TestUtils::mockBaseSchedule(9, 17)->toArray()
+    //     ]]);
+    //     $employee = Employee::factory()->for($company)->create(['settings' => [
+    //         'base_schedule' => TestUtils::mockBaseSchedule(9, 17)->toArray()
+    //     ]]);
+    //     $this->actingAs($employee->user, 'api');
+
+    //     $response = $this->put("locations/$company->id/employees/$employee->id/base-schedule", [
+    //         'base_schedule' => TestUtils::mockBaseSchedule(8, 17)->toArray()
+    //     ]);
+
+    //     $response->assertStatus(400);
+    // }
+
+    // /** @test */
+    // public function ending_time_cannot_be_after_company_ending_time()
+    // {
+    //     $company = Company::factory()->create(['settings' => [
+    //         'base_schedule' => TestUtils::mockBaseSchedule(9, 17)->toArray()
+    //     ]]);
+    //     $employee = Employee::factory()->for($company)->create(['settings' => [
+    //         'base_schedule' => TestUtils::mockBaseSchedule(9, 17)->toArray()
+    //     ]]);
+    //     $this->actingAs($employee->user, 'api');
+
+    //     $response = $this->put("locations/$company->id/employees/$employee->id/base-schedule", [
+    //         'base_schedule' => TestUtils::mockBaseSchedule(9, 18)->toArray()
+    //     ]);
+
+    //     $response->assertStatus(400);
+    // }
 }
