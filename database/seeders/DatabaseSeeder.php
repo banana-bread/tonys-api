@@ -9,8 +9,10 @@ use App\Models\Company;
 use App\Models\Employee;
 use App\Models\EmployeeSchedule;
 use App\Models\Service;
+use App\Models\User;
 use App\Models\ServiceDefinition;
 use App\Models\TimeSlot;
+use Database\Factories\UserFactory;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -75,10 +77,13 @@ class DatabaseSeeder extends Seeder
 
     private function createEmployees(Company $company): Collection
     {
-        $employees = Employee::factory()->count(6)->for($company)->create();
-        $managers = Employee::factory()->count(2)->admin()->for($company)->create();
+        $employees = Employee::factory()->count(6)->no_days_off()->for($company)->create();
+        $manager = Employee::factory()->count(1)->admin()->for($company)->create();
 
-        return $employees->concat($managers);
+        $user = User::factory()->create(['name' => 'Milo', 'email' => 'milo@example.com']);
+        $owner = Employee::factory()->count(1)->owner()->for($user)->for($company)->create();
+
+        return $employees->concat($manager)->concat($owner);
     }
 
     private function createClients(): void
@@ -121,9 +126,9 @@ class DatabaseSeeder extends Seeder
 
     private function createServiceDefinitions(Company $company): void
     {
-        ServiceDefinition::factory()->for($company)->create(['name' => 'Child Cut']);
-        ServiceDefinition::factory()->for($company)->create(['name' => 'Beard Trim']);
-        ServiceDefinition::factory()->for($company)->create(['name' => 'Hair Cut']);
+        ServiceDefinition::factory()->for($company)->create(['name' => 'Child Cut', 'duration' => 2700]);
+        ServiceDefinition::factory()->for($company)->create(['name' => 'Beard Trim', 'duration' => 900]);
+        ServiceDefinition::factory()->for($company)->create(['name' => 'Hair Cut', 'duration' => 1800]);
     }
 
     private function createBookings(): void
@@ -153,6 +158,7 @@ class DatabaseSeeder extends Seeder
                             ]);  
                             
                             $slot->reserved = true;
+                            $slot->booking_id = $booking->id;
                             $slot->save();
                         }
                     });

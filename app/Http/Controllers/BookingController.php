@@ -8,6 +8,7 @@ use App\Models\Booking;
 use App\Services\Booking\BookingService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class BookingController extends ApiController
@@ -15,10 +16,10 @@ class BookingController extends ApiController
     public function index(string $companyId)
     {
         // TODO: this may end up being moved to EmployeeBookingController
-
         $bookings = Booking::forCompany($companyId)
             ->whereDate('started_at', Carbon::createFromTimestamp(request('date_for')))
             ->whereIn('employee_id', Str::of(request('employee_ids'))->explode(','))
+            ->whereNull('cancelled_at')
             ->orderBy('started_at')
             ->get();
 
@@ -35,21 +36,28 @@ class BookingController extends ApiController
     public function show(string $companyId, string $id): JsonResponse
     {
         return $this->ok(
-            ['booking' => Booking::forCompany($companyId)->findOrFail($id)], 'Booking retreived.'
+            ['booking' => Booking::forCompany($companyId)->with('services')->findOrFail($id)], 
+            'Booking retreived.'
         );
     }
 
     public function destroy(string $companyId, string $id): JsonResponse
     {
-        $booking = Booking::forCompany($companyId)->findOrFail($id);
-        $booking->cancel();
-
-        $booking->client->send(new BookingCancelled($booking));
-
-        if ($booking->wasCancelledBy($booking->client))
-        {
-            $booking->employee->send(new BookingCancelled($booking));
-        }
+        DB::transaction(function () use ($companyId, $id) 
+        {            
+            $booking = Booking::forCompany($companyId)->findOrFail($id);
+            $booking->cancel();
+    
+            if (!! $booking->client)
+            {
+                $booking->client->send(new BookingCancelled($booking));
+    
+                if ($booking->wasCancelledBy($booking->client))
+                {
+                    $booking->employee->send(new BookingCancelled($booking));
+                }
+            }
+        });
 
         return $this->deleted('Booking cancelled.');
     }

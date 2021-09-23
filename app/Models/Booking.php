@@ -58,6 +58,11 @@ class Booking extends BaseModel
         return $this->hasMany(Service::class);
     }
 
+    public function time_slots()
+    {
+        return $this->hasMany(TimeSlot::class);
+    }
+
     // CUSTOM ATTRIBUTES
 
     public function getDurationAttribute()
@@ -98,7 +103,12 @@ class Booking extends BaseModel
             throw new BookingException([$this], 'Booking cannot be cancelled'); 
         }
 
-        return $this->update([
+        $this->time_slots()->update([
+            'reserved' => false,
+            'booking_id' => null,
+        ]);
+
+        $this->update([
             'cancelled_at' => now(),
             'cancelled_by' => auth()->user()->id,
         ]);
@@ -121,13 +131,13 @@ class Booking extends BaseModel
     public function canBeCancelled(): bool
     {
         // Bookings client is trying to cancel
-        if ($this->client->user_id == auth()->user()->id)
+        if ($this->client && $this->client->user_id == auth()->user()->id)
         {
             return $this->isWithinGracePeriod() && !$this->isCancelled();
         }
         // Bookings employee, or admin is trying to cancel
-        else if ($this->employee->user_id == auth()->user()->id ||
-                 auth()->user()->isAdmin())
+        else if (($this->employee && $this->employee->user_id == auth()->user()->id) ||
+                  auth()->user()->isAdmin())
         {
             return !$this->isCancelled();
         }

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Laravel\Socialite\Facades\Socialite;
 
+// TODO: Rewrite this class.
 class LoginService
 {
     public function loginWithPassport(Request $request): array
@@ -35,6 +36,18 @@ class LoginService
             'client_secret' => config('services.passport.client_secret'),
             'provider'      => $provider,
             'access_token'  => $providerUser->token
+        ]);
+
+        return $this->requestToken($request);
+    }
+
+    public function refreshToken(Request $request)
+    {
+        $request->request->add([
+            'grant_type'     => 'refresh_token',
+            'client_id'      => config('services.passport.client_id'),
+            'client_secret'  => config('services.passport.client_secret'),
+            'scope'          => '',
         ]);
 
         return $this->requestToken($request);

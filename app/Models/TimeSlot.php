@@ -22,9 +22,9 @@ class TimeSlot extends BaseModel
     ];
 
     protected $casts = [
+        'reserved'   => 'boolean',
         'start_time' => 'datetime',
         'end_time'   => 'datetime',
-        'reserved'   => 'boolean'
     ];
 
     // RELATIONS
@@ -51,7 +51,7 @@ class TimeSlot extends BaseModel
             ->get();
     }
 
-    public static function lockAndReserve($slots)
+    public static function lockAndReserve($slots, Booking $booking)
     {
         $ids = $slots instanceof TimeSlot
             ? [$slots->id]
@@ -59,7 +59,7 @@ class TimeSlot extends BaseModel
 
         static::whereIn('id', $ids)
             ->lockForUpdate()
-            ->update(['reserved' => true]);
+            ->update(['reserved' => true, 'booking_id' => $booking->id]);
     }
 
     public static function isReserved($slots): bool

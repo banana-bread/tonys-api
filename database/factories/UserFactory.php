@@ -28,7 +28,7 @@ class UserFactory extends Factory
             'phone' => $this->faker->phoneNumber,
             'email_verified_at' => now(),
             'subscribed_to_emails' => true,
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // password
+            'password' => '$2y$10$RER0OZlftD.ERquv5Xm46uaSnhxZ/VTw0ZdFDELyR6aNQbqWYKc06', // passwordSucks
             'remember_token' => Str::random(10),
         ];
     }

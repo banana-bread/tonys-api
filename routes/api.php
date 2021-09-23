@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\ClientLoginController;
 use App\Http\Controllers\Auth\EmployeeLoginController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\Auth\RefreshTokenController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\Auth\AuthedClientController;
 use App\Http\Controllers\Auth\AuthedEmployeeController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\BookingEmployeeController;
 use App\Http\Controllers\CompanyEmployeeController;
 use App\Http\Controllers\EmployeeAdminController;
 use App\Http\Controllers\EmployeeBaseScheduleController;
+use App\Http\Controllers\EmployeeBookingController;
 use App\Http\Controllers\EmployeeBookingsEnabledController;
 use App\Http\Controllers\EmployeeInvitationController;
 use App\Http\Controllers\EmployeeOwnerController;
@@ -63,6 +65,7 @@ Route::post('/client/login/{provider}',             [ClientLoginController::clas
 Route::post('/client/login/{provider}/callback',    [ClientLoginController::class, 'handleProviderCallback']);
 Route::post('/employee/login',                      [EmployeeLoginController::class, 'login']);
 Route::delete('/logout',                            [LogoutController::class, 'logout'])->middleware('auth:api');
+Route::post('/refresh-token',                       [RefreshTokenController::class, 'refresh'])->middleware('auth:api');
 
 Route::post('/clients',      [ClientController::class, 'store']);
 Route::get('/client/authed', [AuthedClientController::class, 'show'])->middleware('auth:api');
@@ -98,6 +101,8 @@ Route::prefix('/locations/{companyId}')->group(function() {
         Route::post('/bookings',                 [BookingController::class, 'store']);                
         Route::get('/bookings/{id}',             [BookingController::class, 'show']); // TODO: authed if is admin/owner, booking belongs to employee, booking belongs to client
         Route::delete('/bookings/{id}',          [BookingController::class, 'destroy']); // TODO: authed if is admin/owner, booking belongs to employee, booking belongs to client 
+
+        Route::post('/employees/{id}/bookings',    [EmployeeBookingController::class, 'store']);
         
         Route::post('/service-definitions',               [ServiceDefinitionController::class, 'store']); 
         Route::get('/service-definitions/{id}',           [ServiceDefinitionController::class, 'show']);     

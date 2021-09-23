@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Exceptions\EmployeeException;
+use App\Exceptions\BookingException;
 use App\Helpers\BaseSchedule;
 use App\Helpers\DayCollection;
 use App\Models\Contracts\UserModel;
@@ -13,6 +14,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 use App\Jobs\UpdateEmployeeBaseSchedule;
+use Illuminate\Support\Facades\DB;
 
 // TODO: Move time slot creation stuff into a trait.  
 //       HasTimeSlots?
@@ -165,6 +167,9 @@ class Employee extends BaseModel implements UserModel
         return $this->bookings_enabled;
     }
 
+    // ACTIONS
+
+    // TODO: should make sure dates are being saved in UTC
     public function createSlotsForNext(int $numberOfDays): Collection
     {
         $start = $this->hasFutureSlots()
@@ -234,6 +239,7 @@ class Employee extends BaseModel implements UserModel
         $this->reserveSlots($oldFutureReservedSlots);
     }
 
+    // TODO: Make sure dates are UTC
     protected function createSlotsForToday()
     {
         // - [x] Get company slot duration
@@ -257,8 +263,8 @@ class Employee extends BaseModel implements UserModel
 
         for ($i = 0; $i < $totalSlotsInWorkDay; $i++)
         {
-            $end = today()->addSeconds($baseEnd - ($i * $slotDuration)); 
-            $start = $end->copy()->subSeconds($slotDuration);
+            $end = today()->addSeconds($baseEnd - ($i * $slotDuration))->tz('UTC'); 
+            $start = $end->copy()->subSeconds($slotDuration)->tz('UTC');
             
             $timeSlots->push(
                 new TimeSlot([
@@ -290,5 +296,43 @@ class Employee extends BaseModel implements UserModel
         $this->time_slots()
             ->whereIn('start_time', $startTimes)
             ->update(['reserved' => true]);
+    }
+
+    public function createBooking(TimeSlot $startingSlot, Collection $serviceDefinitions)
+    {
+        return DB::transaction(function () use ($startingSlot, $serviceDefinitions) {
+
+        $duration = $serviceDefinitions->sum('duration');
+        $slotsRequired = $startingSlot->company->slotsRequiredFor($duration);
+
+        $allSlots = $slotsRequired > 1
+            ? $startingSlot->getNextSlots($slotsRequired)->prepend($startingSlot)
+            : collect([$startingSlot]);
+
+        if (TimeSlot::isReserved($allSlots))
+        {
+            throw new BookingException([], 'The requested time slot is not available.');
+        }
+
+        $booking = Booking::create([
+            'employee_id' => $this->id,
+            'started_at' => $allSlots->first()->start_time,
+            'ended_at' => $allSlots->first()->start_time->copy()->addSeconds($duration),
+        ]); 
+
+        TimeSlot::lockAndReserve($allSlots, $booking);
+
+        $services = $serviceDefinitions->map(function ($definition) use ($booking) {
+            $service = new Service();
+            $service->service_definition_id = $definition->id;
+            $service->booking_id = $booking->id;
+
+            return $service;
+        });
+
+        $booking->services()->saveMany($services);
+
+        return $booking;
+        });
     }
 }

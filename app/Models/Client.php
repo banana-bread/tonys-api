@@ -8,6 +8,7 @@ use App\Models\Contracts\UserModel;
 use Illuminate\Support\Collection;
 use App\Traits\HasUuid;
 use App\Traits\ReceivesEmails;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Arr;
@@ -91,21 +92,21 @@ class Client extends BaseModel implements UserModel
 
         $allSlots = $slotsRequired > 1
             ? $startingSlot->getNextSlots($slotsRequired)->prepend($startingSlot)
-            : $startingSlot;
+            : collect([$startingSlot]);
 
         if (! $this->isAvailableDuring($allSlots) || TimeSlot::isReserved($allSlots))
         {
             throw new BookingException([], 'The requested booking is not available for this client.');
         }
 
-        TimeSlot::lockAndReserve($allSlots);
-
         $booking = Booking::create([
             'client_id' => $this->id,
             'employee_id' => $allSlots->first()->employee_id,
             'started_at' => $allSlots->first()->start_time,
-            'ended_at' => $allSlots->first()->start_time->copy()->addSeconds($duration)
+            'ended_at' => Carbon::parse($allSlots->first()->start_time)->addSeconds($duration)
         ]);
+
+        TimeSlot::lockAndReserve($allSlots, $booking);
 
         // TODO: Service::fromDefinitions(Collection $definitions) ?
         $services = $serviceDefinitions->map(function ($definition) use ($booking) {

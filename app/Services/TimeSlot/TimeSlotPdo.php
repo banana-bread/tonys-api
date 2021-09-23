@@ -53,7 +53,7 @@ class TimeSlotPdo
         : "";
     
         return    
-            "SELECT t.id, t.company_id, t.employee_id, t.start_time, t.end_time, t.reserved
+            "SELECT t.id, t.company_id, t.employee_id, DATE_FORMAT(t.start_time, '%Y-%m-%dT%T.000000Z') as start_time, DATE_FORMAT(t.end_time, '%Y-%m-%dT%T.000000Z') as end_time, t.reserved
             FROM time_slots as t
             JOIN employees ON employees.id = t.employee_id
             WHERE date(t.start_time) >= date(:date_from)
@@ -101,7 +101,7 @@ class TimeSlotPdo
                         AND start_time >= DATE_ADD(now(), INTERVAL 15 MINUTE)
                         AND company_id = :company_id                  
                         $andEmployeeIdPart)
-                        SELECT s.id, s.company_id, s.employee_id, s.start_time, s.end_time
+                        SELECT s.id, s.company_id, s.employee_id, DATE_FORMAT(s.start_time, '%Y-%m-%dT%T.000000Z') as start_time, DATE_FORMAT(s.end_time, '%Y-%m-%dT%T.000000Z') as end_time
                         FROM s
                         JOIN employees on s.employee_id = employees.id
                         WHERE s.reserved = 0

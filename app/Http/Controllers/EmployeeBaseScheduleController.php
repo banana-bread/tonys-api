@@ -18,7 +18,7 @@ class EmployeeBaseScheduleController extends ApiController
         {
             throw new AuthorizationException('User not authorized.');
         }
-        
+
         $employee->updateBaseSchedule(new BaseSchedule(request('base_schedule')));
 
         return $this->ok(['employee' => $employee], 'Employee base schedule updated');

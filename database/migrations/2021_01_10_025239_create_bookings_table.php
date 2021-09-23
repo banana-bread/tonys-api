@@ -16,7 +16,7 @@ class CreateBookingsTable extends Migration
         Schema::create('bookings', function (Blueprint $table) {
             $table->uuid('id');
             $table->uuid('employee_id');
-            $table->uuid('client_id');
+            $table->uuid('client_id')->nullable();
             $table->dateTime('started_at');
             $table->dateTime('ended_at');
             $table->dateTime('cancelled_at')->nullable();
@@ -26,6 +26,11 @@ class CreateBookingsTable extends Migration
             $table->primary('id');
             $table->foreign('employee_id')->references('id')->on('employees');
             $table->foreign('client_id')->references('id')->on('clients');
+        });
+
+        Schema::table('time_slots', function (Blueprint $table) {
+            $table->uuid('booking_id')->nullable()->after('company_id');
+            $table->foreign('booking_id')->references('id')->on('bookings');
         });
     }
 
