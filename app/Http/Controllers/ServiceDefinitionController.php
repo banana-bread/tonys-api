@@ -12,8 +12,10 @@ class ServiceDefinitionController extends ApiController
     {
         $this->authorize('create', ServiceDefinition::class);
 
+        $service = ServiceDefinition::create(array_merge(request()->only('name', 'price', 'duration'), ['company_id' => $companyId]));
+        
         return $this->created(
-            ['service_definition' => ServiceDefinition::create(array_merge($request->all(), ['company_id' => $companyId])), 'Service definition created']
+            ['service_definition' => $service, 'Service definition created']
         );
     }
 
