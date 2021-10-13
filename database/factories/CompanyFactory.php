@@ -24,7 +24,10 @@ class CompanyFactory extends Factory
     {
         return [
             'name' => $this->faker->firstName . '\'s Barber Shop',
-            'address' => $this->faker->address,
+            'city' => $this->faker->city,
+            'region' => $this->faker->state,
+            'postal_code' => $this->faker->postcode,
+            'country' => $this->faker->country,
             'phone' => $this->faker->phoneNumber,
             'time_slot_duration' => 1800,  // 30 minutes
             'booking_grace_period' => 86400, // 24 hours

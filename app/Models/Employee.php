@@ -24,7 +24,8 @@ class Employee extends BaseModel implements UserModel
         SoftDeletes;
     
     protected $appends = [
-        'name',
+        'first_name',
+        'last_name',
         'phone',
         'email',
     ];
@@ -42,7 +43,8 @@ class Employee extends BaseModel implements UserModel
         'time_slots',
         'bookings',
 
-        'name',
+        'first_name',
+        'last_name',
         'phone',
         'email',
         'latest_schedule',
@@ -79,9 +81,14 @@ class Employee extends BaseModel implements UserModel
 
     // CUSTOM ATTRIBUTES
 
-    public function getNameAttribute()
+    public function getFirstNameAttribute()
     {
-        return $this->user->name;
+        return $this->user->first_name;
+    }
+
+    public function getLastNameAttribute()
+    {
+        return $this->user->last_name;
     }
 
     public function getPhoneAttribute()

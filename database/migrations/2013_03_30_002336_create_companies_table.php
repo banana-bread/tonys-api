@@ -16,7 +16,10 @@ class CreateCompaniesTable extends Migration
         Schema::create('companies', function (Blueprint $table) {
             $table->uuid('id');
             $table->string('name');
-            $table->string('address');
+            $table->string('city');
+            $table->string('region');
+            $table->string('postal_code');
+            $table->string('country');
             $table->string('phone');
             $table->integer('time_slot_duration');
             $table->integer('booking_grace_period');

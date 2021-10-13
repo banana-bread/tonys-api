@@ -77,10 +77,10 @@ class DatabaseSeeder extends Seeder
 
     private function createEmployees(Company $company): Collection
     {
-        $employees = Employee::factory()->count(6)->no_days_off()->for($company)->create();
+        $employees = Employee::factory()->count(3)->no_days_off()->for($company)->create();
         $manager = Employee::factory()->count(1)->admin()->for($company)->create();
 
-        $user = User::factory()->create(['name' => 'Milo', 'email' => 'milo@example.com']);
+        $user = User::factory()->create(['first_name' => 'Milo', 'last_name' => 'Parker', 'email' => 'milo@example.com']);
         $owner = Employee::factory()->count(1)->owner()->for($user)->for($company)->create();
 
         return $employees->concat($manager)->concat($owner);

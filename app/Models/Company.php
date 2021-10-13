@@ -18,7 +18,10 @@ class Company extends BaseModel
     protected $visible = [
         'id',
         'name',
-        'address',
+        'city',
+        'region',
+        'postal_code',
+        'country',
         'phone',
         'time_slot_duration',
         'booking_grace_period',

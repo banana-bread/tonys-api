@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateEmployeeRequest;
 use App\Models\Employee;
 use App\Services\Auth\RegisterService;
-use App\Services\EmployeeService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -35,7 +34,7 @@ class EmployeeController extends ApiController
         $employee = Employee::forCompany($companyId)->findOrFail($id);
         $this->authorize('update', $employee);
 
-        $employee->user->update(request()->only(['name', 'phone']));
+        $employee->user->update(request()->only(['first_name', 'last_name', 'phone']));
 
         return $this->ok($employee, 'Employee profile updated.');
     }

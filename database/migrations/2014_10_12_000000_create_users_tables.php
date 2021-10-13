@@ -15,7 +15,8 @@ class CreateUsersTables extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->uuid('id');
-            $table->string('name');
+            $table->string('first_name');
+            $table->string('last_name');
             $table->string('email')->unique();
             $table->string('phone')->nullable();
             $table->boolean('subscribed_to_emails')->default(true);
