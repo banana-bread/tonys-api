@@ -29,6 +29,14 @@ class CompanyController extends ApiController
         return $this->ok(['company' => $company], 'Company retrieved.');
     }
 
+    public function update(string $id): JsonResponse
+    {
+        $company = Company::where('id', $id)
+            ->update( request()->only(['name', 'city', 'region', 'country', 'postal_code', 'phone']) );
+        
+        return $this->ok(['company' => $company], 'Company updated.');
+    }
+
     // TODO: this will need to be a cascading delete or soft delete?
     // public function destroy(string $id): JsonResponse
     // {

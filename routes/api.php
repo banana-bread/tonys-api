@@ -75,6 +75,7 @@ Route::put('/clients/{id}',  [ClientController::class, 'update'])->middleware('a
 Route::get('/clients/{id}',  [ClientController::class, 'show'])->middleware('auth:api');;  // TODO: authed if is current client (or many to many exists with company)
 
 Route::prefix('/locations/{companyId}')->group(function() {    
+    Route::put('company',                        [CompanyController::class, 'update']);
     Route::post('/employees',                    [EmployeeController::class, 'store'])->name('employee-registration');   
 
     Route::get('/time-slots',                    [TimeSlotController::class, 'index']); // TODO: scope to company
