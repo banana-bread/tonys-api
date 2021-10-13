@@ -58,12 +58,15 @@ class TimeSlotPdo
             JOIN employees ON employees.id = t.employee_id
             WHERE date(t.start_time) >= date(:date_from)
             AND date(t.end_time) <= date(:date_to)
+            AND TIME_TO_SEC(t.end_time) != 0
             AND t.start_time >= DATE_ADD(now(), INTERVAL 15 MINUTE)
             AND employees.bookings_enabled = 1
+            AND t.employee_working = 1
+            -- Risky, assumes all companies will never have available slots at midnight 
             AND t.company_id = :company_id " .
             $andEmployeeIdPart .
             " AND t.reserved = 0
-             ORDER BY t.start_time";
+             ORDER BY t.start_time"; 
     }
 
     protected function prepareConsecutiveAvailableSlotsSql(int $slotsRequired): string
@@ -99,7 +102,10 @@ class TimeSlotPdo
                         WHERE date(start_time) >= date(:date_from)
                         AND date(start_time) <= date(:date_to) 
                         AND start_time >= DATE_ADD(now(), INTERVAL 15 MINUTE)
-                        AND company_id = :company_id                  
+                        AND company_id = :company_id            
+                        AND employee_working = 1
+                        -- Risky, assumes all companies will never have available slots at midnight 
+                        AND TIME_TO_SEC(end_time) != 0       
                         $andEmployeeIdPart)
                         SELECT s.id, s.company_id, s.employee_id, DATE_FORMAT(s.start_time, '%Y-%m-%dT%T.000000Z') as start_time, DATE_FORMAT(s.end_time, '%Y-%m-%dT%T.000000Z') as end_time
                         FROM s

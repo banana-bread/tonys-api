@@ -93,35 +93,7 @@ class DatabaseSeeder extends Seeder
 
     private function createEmployeeTimeSlots(Collection $employees): void
     {
-        $days = DayCollection::fromRange(today()->subMonth(), today()->addMonths(3));
-
-        $employees->each( function ($employee) use ($days) {
-            $days->each(function ($day) use ($employee) {
-                $baseStart = $employee->base_schedule->start($day->englishDayOfWeek);
-                $baseEnd = $employee->base_schedule->end($day->englishDayOfWeek);
-                $singleSlotDuration = $employee->company->time_slot_duration;
-    
-                if ($baseStart && $baseEnd)
-                {
-                    $totalSecondsInWorkDay = $baseEnd - $baseStart;
-                    $totalSlotsInWorkDay = floor($totalSecondsInWorkDay / $singleSlotDuration); 
-    
-                    for ($i = 0; $i < $totalSlotsInWorkDay; $i++)
-                    {
-                        $start = $day->copy()->addSeconds($baseStart + ($i * $singleSlotDuration));
-                        $end = $start->copy()->addSeconds($singleSlotDuration);
-                        
-                        TimeSlot::create([
-                            'employee_id' => $employee->id,
-                            'company_id' => $employee->company_id,
-                            'reserved' => false,
-                            'start_time' => $start,
-                            'end_time' => $end,
-                        ]);
-                    }
-                }
-            });
-        });
+        $employees->each(fn ($employee) => $employee->createSlotsForNext(365));
     }
 
     private function createServiceDefinitions(Company $company): void
@@ -138,7 +110,8 @@ class DatabaseSeeder extends Seeder
 
         TimeSlot::where('reserved', false)
                 ->chunk(3000, function ($timeSlots) use ($clients, $hairCutServiceDefinition){
-                    $timeSlots->each( function($slot) use ($clients, $hairCutServiceDefinition) {
+                    $timeSlots->filter(fn ($slot) => $slot->employee_working)
+                        ->each( function($slot) use ($clients, $hairCutServiceDefinition) {
 
                         // 70% chance a booking is created
                         $shouldCreateBooking = rand(1, 10) > 3 ? true : false;

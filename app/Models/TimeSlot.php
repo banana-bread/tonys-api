@@ -15,6 +15,7 @@ class TimeSlot extends BaseModel
         'employee_id',
         'company_id',
         'reserved',
+        'employee_working',
         'start_time',
         'end_time',
 
@@ -22,9 +23,10 @@ class TimeSlot extends BaseModel
     ];
 
     protected $casts = [
-        'reserved'   => 'boolean',
-        'start_time' => 'datetime',
-        'end_time'   => 'datetime',
+        'reserved'         => 'boolean',
+        'employy_working'  => 'boolean',
+        'start_time'       => 'datetime',
+        'end_time'         => 'datetime',
     ];
 
     // RELATIONS

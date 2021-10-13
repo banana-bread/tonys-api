@@ -18,6 +18,7 @@ class CreateTimeSlotsTable extends Migration
             $table->uuid('employee_id');
             $table->uuid('company_id');
             $table->boolean('reserved')->default(false);
+            $table->boolean('employee_working')->default(false);
             $table->dateTime('start_time');
             $table->dateTime('end_time');
             $table->timestamps();

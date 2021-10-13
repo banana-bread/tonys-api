@@ -2,6 +2,7 @@
 
 namespace App\Helpers;
 
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -45,23 +46,33 @@ class BaseSchedule
     /**
      * Get base schedule start time for a provided day. Today start if no day provided.
      * 
-     * @param string $dayOfWeek
+     * @param Carbon $day
      * @return int
      */
-    public function start(string $dayOfWeek = null): ?int
+    public function start($day): ?int
     {
-        return $this->getBaseTimeForDay('start', $dayOfWeek);
+        if ($day instanceof Carbon)
+        {
+            $day = $day->englishDayOfWeek;
+        }
+
+        return $this->getBaseTimeForDay('start', $day);
     }
 
     /**
      * Get base schedule end time for a provided day. Today end if no day provided.
      * 
-     * @param string $dayOfWeek
+     * @param Carbon $day
      * @return int
      */
-    public function end(string $dayOfWeek = null): ?int
+    public function end($day): ?int
     {
-        return $this->getBaseTimeForDay('end', $dayOfWeek);
+        if ($day instanceof Carbon)
+        {
+            $day = $day->englishDayOfWeek;
+        }
+
+        return $this->getBaseTimeForDay('end', $day);
     }
 
     public function toArray(): array

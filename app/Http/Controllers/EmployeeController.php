@@ -18,8 +18,7 @@ class EmployeeController extends ApiController
             return $this->error('Invalid url signature.', 400);
         }
 
-        $service = new RegisterService();
-        $employee = $service->employee($companyId);
+        $employee = (new RegisterService)->employee($companyId);
             
         return $this->created(['employee' => $employee], 'Employee created.');
     }

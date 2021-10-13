@@ -64,16 +64,8 @@ class MultiTimeSlotTest extends TestCase
         $available3 = TimeSlot::factory()->create(['start_time' => today()->addMinutes(120),'end_time' => today()->addMinutes(150),'employee_id' => $employee->id, 'company_id' => $employee->company_id]);
         $available4 = TimeSlot::factory()->create(['start_time' => today()->addMinutes(150),'end_time' => today()->addMinutes(180),'employee_id' => $employee->id, 'company_id' => $employee->company_id]);
 
-        // logger($available1);
-        // logger($reserved);
-        // logger($available2);
-        // logger($available3);
-        // logger($available4);
-        // logger(today());
-
         Carbon::setTestNow(today());
 
-        logger(now());
         $from = today()->subDay();
         $to = $from->copy()->addMonth();
         $slotsRequired = 3;

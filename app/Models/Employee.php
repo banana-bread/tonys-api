@@ -10,17 +10,18 @@ use App\Models\Contracts\UserModel;
 use App\Traits\HasUuid;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\ReceivesEmails;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+
 use Illuminate\Support\Collection;
-use App\Jobs\UpdateEmployeeBaseSchedule;
+use App\Jobs\UpdateEmployeeTimeSlots;
+use App\Traits\CreatesTimeSlots;
 use Illuminate\Support\Facades\DB;
 
-// TODO: Move time slot creation stuff into a trait.  
-//       HasTimeSlots?
 class Employee extends BaseModel implements UserModel
 {
-    use HasUuid, ReceivesEmails, SoftDeletes;
+    use HasUuid, 
+        ReceivesEmails, 
+        CreatesTimeSlots, 
+        SoftDeletes;
     
     protected $appends = [
         'name',
@@ -169,53 +170,6 @@ class Employee extends BaseModel implements UserModel
 
     // ACTIONS
 
-    // TODO: should make sure dates are being saved in UTC
-    public function createSlotsForNext(int $numberOfDays): Collection
-    {
-        $start = $this->hasFutureSlots()
-            ? $this->latest_time_slot->start_time->copy()->startOfDay()->addDay()
-            : today();
-        
-        $end = $start->copy()->addDays($numberOfDays);
-
-        $days = DayCollection::fromRange($start, $end);
-
-        $timeSlots = new EloquentCollection();
-        $singleSlotDuration = $this->company->time_slot_duration;
-
-        $days->each(function ($day) use ($timeSlots, $singleSlotDuration) {
-            $baseStart = $this->base_schedule->start($day->englishDayOfWeek);
-            $baseEnd = $this->base_schedule->end($day->englishDayOfWeek);
-
-            if ($baseStart && $baseEnd)
-            {
-                
-                $totalSecondsInWorkDay = $baseEnd - $baseStart;
-                $totalSlotsInWorkDay = floor($totalSecondsInWorkDay / $singleSlotDuration);
-                
-                for ($i = 0; $i < $totalSlotsInWorkDay; $i++)
-                {
-                    $start = $day->copy()->addSeconds($baseStart + ($i * $singleSlotDuration));
-                    $end = $start->copy()->addSeconds($singleSlotDuration);
-                    
-                    $timeSlots->push(
-                        new TimeSlot([
-                            'employee_id' => $this->id,
-                            'company_id' => $this->company_id,
-                            'reserved' => false,
-                            'start_time' => $start,
-                            'end_time' => $end,
-                        ])
-                    );
-                }
-            }
-        });
-
-        $this->time_slots()->saveMany($timeSlots);
-
-        return $timeSlots;
-    }
-
     public function updateBaseSchedule(BaseSchedule $newBaseSchedule)
     {   
         // No changes made, exit
@@ -224,79 +178,9 @@ class Employee extends BaseModel implements UserModel
         $this->base_schedule = $newBaseSchedule;
         $this->save();
 
-        UpdateEmployeeBaseSchedule::dispatch($this);
+        UpdateEmployeeTimeSlots::dispatch($this);
     }
 
-    // TODO: don't like the name
-    public function createSlotsAfterScheduleUpdate()
-    {
-        $numberOfDays = today()->diffInDays($this->latest_time_slot->start_time);        
-        $oldFutureReservedSlots = collect($this->future_reserved_slots->toArray());
-
-        $this->deleteFutureSlots();
-        $this->createSlotsForToday();
-        $this->createSlotsForNext($numberOfDays);
-        $this->reserveSlots($oldFutureReservedSlots);
-    }
-
-    // TODO: Make sure dates are UTC
-    protected function createSlotsForToday()
-    {
-        // - [x] Get company slot duration
-        $slotDuration = $this->company->time_slot_duration;
-
-        // - [x] Get end time of today from base schedule
-        $baseEnd = $this->base_schedule->end(today()->englishDayOfWeek);
-
-        // - [x] IF end of today is null, exit.
-        if (! $baseEnd) return;
-
-        // - [x] Get the number of slots needed to fill rest of day
-        $secondsLeftInWorkDay = today()->addSeconds($baseEnd)->timestamp - now()->timestamp;
-        $totalSlotsInWorkDay = floor($secondsLeftInWorkDay / $slotDuration);
-
-        // [x] If work day is over, exit.
-        if ($secondsLeftInWorkDay <= 0) return;
-
-        // - [x] Create the slots
-        $timeSlots = new EloquentCollection();
-
-        for ($i = 0; $i < $totalSlotsInWorkDay; $i++)
-        {
-            $end = today()->addSeconds($baseEnd - ($i * $slotDuration))->tz('UTC'); 
-            $start = $end->copy()->subSeconds($slotDuration)->tz('UTC');
-            
-            $timeSlots->push(
-                new TimeSlot([
-                    'employee_id' => $this->id,
-                    'company_id' => $this->company_id,
-                    'reserved' => false,
-                    'start_time' => $start,
-                    'end_time' => $end,
-                ])
-            );   
-        }
-
-        $this->time_slots()->saveMany($timeSlots);
-    }
-
-    protected function deleteFutureSlots()
-    {
-        $this->time_slots()
-            ->where('start_time', '>', now())
-            ->delete();
-    }
-
-    protected function reserveSlots(Collection $slots)
-    {
-        $startTimes = $slots->pluck('start_time')->map(function ($startTime) {
-            return Carbon::parse($startTime);
-        });
-
-        $this->time_slots()
-            ->whereIn('start_time', $startTimes)
-            ->update(['reserved' => true]);
-    }
 
     public function createBooking(TimeSlot $startingSlot, Collection $serviceDefinitions)
     {
@@ -333,6 +217,31 @@ class Employee extends BaseModel implements UserModel
         $booking->services()->saveMany($services);
 
         return $booking;
+        });
+    }
+
+    // TODO: this really should not be public, currently is so UpdateEmployeeTimeSlots 
+    //       job can be performed seperately of base schedule update.
+    public function updateTimeSlots()
+    {
+        TimeSlot::query()->update(['employee_working' => false]);
+
+        $weekDays = collect(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']);
+
+        $weekDays->each(function ($day, $key)
+        {
+            $startTime = $this->base_schedule->start($day);
+            $endTime = $this->base_schedule->end($day);
+
+            if (!$startTime || !$endTime) return;
+
+            // TODO: this currently performs up to 7 updates, but 
+            //       could be done more performantly in 1
+            TimeSlot::where('start_time', '>=', now())
+                ->whereRaw("WEEKDAY(start_time) = $key")
+                ->whereRaw("TIME_TO_SEC(start_time) >= $startTime")
+                ->whereRaw("TIME_TO_SEC(end_time) <= $endTime")
+                ->update(['employee_working' => true]);
         });
     }
 }

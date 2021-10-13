@@ -2,7 +2,7 @@
 
 namespace Tests\Feature;
 
-use App\Jobs\UpdateEmployeeBaseSchedule;
+use App\Jobs\UpdateEmployeeTimeSlots;
 use App\Models\Company;
 use App\Models\Employee;
 use App\Models\TimeSlot;
@@ -123,7 +123,7 @@ class EmployeeBaseScheduleTest extends TestCase
             'base_schedule' => TestUtils::mockBaseSchedule(10, 17)->toArray()
         ]);
 
-        Bus::assertDispatched(function (UpdateEmployeeBaseSchedule $job) use ($response) {
+        Bus::assertDispatched(function (UpdateEmployeeTimeSlots $job) use ($response) {
             return $response->json('data.employee.id') === $job->employee->id;
         });
     }
