@@ -85,6 +85,7 @@ Route::prefix('/locations/{companyId}')->group(function() {
 
     Route::group(['middleware' => ['auth:api']], function() {
         Route::get('/company/employees',         [CompanyEmployeeController::class, 'index']); // TODO: scope to company
+        Route::patch('company/employees',        [CompanyEmployeeController::class, 'update']);
         Route::put('/employees/{id}',            [EmployeeController::class, 'update']);  // TODO: authed if is current employee or is admin/owner and belongs to company 
         Route::post('/employees/invitation',     [EmployeeInvitationController::class, 'store']);
 
