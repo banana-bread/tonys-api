@@ -25,7 +25,7 @@ class CompanyFactory extends Factory
         return [
             'name' => $this->faker->firstName . '\'s Barber Shop',
             'city' => $this->faker->city,
-            'region' => $this->faker->state,
+            'region' => 'ON',
             'postal_code' => $this->faker->postcode,
             'country' => $this->faker->country,
             'phone' => $this->faker->phoneNumber,
