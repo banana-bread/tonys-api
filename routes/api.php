@@ -65,7 +65,8 @@ Route::post('/client/login/{provider}',             [ClientLoginController::clas
 Route::post('/client/login/{provider}/callback',    [ClientLoginController::class, 'handleProviderCallback']);
 Route::post('/employee/login',                      [EmployeeLoginController::class, 'login']);
 Route::delete('/logout',                            [LogoutController::class, 'logout'])->middleware('auth:api');
-Route::post('/refresh-token',                       [RefreshTokenController::class, 'refresh'])->middleware('auth:api');
+// Route::post('/refresh-token',                       [RefreshTokenController::class, 'refresh'])->middleware('auth:api');
+Route::post('/refresh-token',                       [RefreshTokenController::class, 'refresh']);
 
 Route::post('/clients',      [ClientController::class, 'store']);
 Route::get('/client/authed', [AuthedClientController::class, 'show'])->middleware('auth:api');

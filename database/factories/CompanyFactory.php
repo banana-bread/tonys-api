@@ -27,6 +27,7 @@ class CompanyFactory extends Factory
             'city' => $this->faker->city,
             'region' => 'ON',
             'postal_code' => $this->faker->postcode,
+            'address' => '72 Springfield rd',
             'country' => $this->faker->country,
             'phone' => $this->faker->phoneNumber,
             'time_slot_duration' => 1800,  // 30 minutes

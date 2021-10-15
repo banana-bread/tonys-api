@@ -25,10 +25,11 @@ class CreateClientRequest extends FormRequest
     public function rules()
     {
         return [
-            'name'     => 'required|string',
-            'email'    => 'required|email|unique:users',
-            'phone'    => 'phone:CA|nullable',
-            'password' => 'required|string', 
+            'first_name'     => 'required|string',
+            'last_name'      => 'required|string',
+            'email'          => 'required|email|unique:users',
+            'phone'          => 'phone:CA|nullable',
+            'password'       => 'required|string', 
         ];
     }
 

@@ -19,7 +19,8 @@ class Client extends BaseModel implements UserModel
     use HasUuid, ReceivesEmails, SoftDeletes;
 
     protected $appends = [
-        'name',
+        'first_name',
+        'last_name',
         'phone',
         'email',
         'subscribes_to_emails',
@@ -56,9 +57,14 @@ class Client extends BaseModel implements UserModel
 
     // CUSTOM ATTRIBUTES
 
-    public function getNameAttribute(): string
+    public function getFirstNameAttribute(): string
     {
-        return $this->user->name;
+        return $this->user->first_name;
+    }
+
+    public function getLastNameAttribute(): string
+    {
+        return $this->user->last_name;
     }
 
     public function getPhoneAttribute(): ?string

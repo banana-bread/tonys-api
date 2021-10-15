@@ -10,6 +10,7 @@ use App\Models\Employee;
 use App\Models\User;
 use App\Mail\EmployeeRegistered;
 use App\Models\Company;
+use Illuminate\Support\Facades\DB;
 
 class RegisterService
 {
@@ -56,8 +57,11 @@ class RegisterService
 
     public function client(): Client
     {
-        $user = User::create(request()->toArray());
-
-        return $user->client()->create();
+        return DB::transaction(function ()
+        {
+            $user = User::create(request()->all());
+    
+            return $user->client()->create();
+        });
     }
 }

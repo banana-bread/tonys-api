@@ -19,6 +19,7 @@ class CreateCompaniesTable extends Migration
             $table->string('city');
             $table->string('region');
             $table->string('postal_code');
+            $table->string('address');
             $table->string('country');
             $table->string('phone');
             $table->integer('time_slot_duration');

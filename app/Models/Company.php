@@ -21,6 +21,7 @@ class Company extends BaseModel
         'city',
         'region',
         'postal_code',
+        'address',
         'country',
         'phone',
         'time_slot_duration',

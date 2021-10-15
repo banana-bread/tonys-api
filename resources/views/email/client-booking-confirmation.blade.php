@@ -25,7 +25,7 @@
 </div>
 <div>
     <span>Staff:</span>
-    <span style="font-weight: bold;">{{ $booking->client->name }}</span>
+    <span style="font-weight: bold;">{{ $booking->client->first_name }}</span>
 </div>
 <div>
     <span>Booking time:</span>
