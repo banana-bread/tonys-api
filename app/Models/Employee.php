@@ -28,6 +28,7 @@ class Employee extends BaseModel implements UserModel
 
     protected $visible = [
         'id',
+        'user_id',
         'company_id',
         'admin',
         'owner',

@@ -370,9 +370,6 @@ class BookingTest extends TestCase
         $associationAfterUpdate = collect(DB::table('companies_clients')->find(1));
         $updatedAndCreatedAreSameAfterUpdate = $associationAfterUpdate['created_at'] == $associationAfterUpdate['updated_at'];
         
-        // logger($associationBeforeUpdate);
-        // logger($associationAfterUpdate);
-
         $this->assertTrue($updatedAndCreatedAreSameBeforeUpdate);
         $this->assertFalse($updatedAndCreatedAreSameAfterUpdate);
     }
