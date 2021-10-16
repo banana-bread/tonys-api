@@ -20,7 +20,7 @@ class EmployeeOwner extends Employee
     {
         if ($this->isOnlyOwner())
         {
-            throw new EmployeeException([], 'Cannot delete the only admin');
+            throw new EmployeeException([], 'At least one staff member must be an owner.');
         }
 
         $this->owner = false; 

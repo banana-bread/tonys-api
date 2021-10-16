@@ -2,11 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\EmployeeException;
 use App\Http\Requests\CreateEmployeeRequest;
+use App\Models\Booking;
 use App\Models\Employee;
+use App\Models\Service;
+use App\Models\TimeSlot;
 use App\Services\Auth\RegisterService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class EmployeeController extends ApiController
 {
@@ -39,10 +44,28 @@ class EmployeeController extends ApiController
         return $this->ok($employee, 'Employee profile updated.');
     }
 
-    // TODO: should make this a soft delete probably
-    public function destroy($id)
+    public function delete(string $company_id, string $id)
     {
-        //
+        $employee = Employee::findOrFail($id);
+
+        if (! (auth()->user()->isOwner() && auth()->user()->employee->company_id === $employee->company_id) && 
+            auth()->user()->id !== $id)
+        {
+            throw new EmployeeException([], 'User unauthorized to perform this action');
+        }
+
+        DB::transaction(function () use ($employee)
+        {
+            $bookingIds = $employee->bookings()->pluck('id');
+
+            TimeSlot::where('employee_id', $employee->id)->delete();
+            Service::whereIn('booking_id', $bookingIds->all())->delete();
+            Booking::whereIn('id', $bookingIds->all())->delete();
+            $employee->delete();
+            $employee->user->delete();
+        });
+
+        return $this->deleted('Employee deleted.');
     }
 
 

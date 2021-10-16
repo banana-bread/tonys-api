@@ -2,13 +2,10 @@
 
 namespace App\Models;
 
-use App\Exceptions\EmployeeException;
 use App\Exceptions\BookingException;
 use App\Helpers\BaseSchedule;
-use App\Helpers\DayCollection;
 use App\Models\Contracts\UserModel;
 use App\Traits\HasUuid;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Traits\ReceivesEmails;
 
 use Illuminate\Support\Collection;
@@ -20,8 +17,7 @@ class Employee extends BaseModel implements UserModel
 {
     use HasUuid, 
         ReceivesEmails, 
-        CreatesTimeSlots, 
-        SoftDeletes;
+        CreatesTimeSlots;
     
     protected $appends = [
         'first_name',

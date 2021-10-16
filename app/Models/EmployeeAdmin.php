@@ -16,10 +16,10 @@ class EmployeeAdmin extends Employee
 
     public function delete()
     {
-        if ($this->isOnlyOwner())
-        {
-            throw new EmployeeException([], 'Cannot delete the only admin');
-        }
+        // if ($this->isOnlyOwner())
+        // {
+        //     throw new EmployeeException([], 'Cannot delete the only admin');
+        // }
 
         if ($this->isOwner())
         {

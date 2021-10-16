@@ -9,14 +9,10 @@ use Illuminate\Support\Collection;
 use App\Traits\HasUuid;
 use App\Traits\ReceivesEmails;
 use Carbon\Carbon;
-use Exception;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 
 class Client extends BaseModel implements UserModel
 {
-    use HasUuid, ReceivesEmails, SoftDeletes;
+    use HasUuid, ReceivesEmails;
 
     protected $appends = [
         'first_name',

@@ -34,7 +34,6 @@ class CreateUsersTables extends Migration
             $table->uuid('id');
             $table->uuid('user_id')->unique();
             $table->timestamps();
-            $table->softDeletes();
 
             $table->primary('id');
             $table->foreign('user_id')->references('id')->on('users');
@@ -49,7 +48,6 @@ class CreateUsersTables extends Migration
             $table->boolean('bookings_enabled');
             $table->json('settings');
             $table->timestamps();
-            $table->softDeletes();
 
             $table->primary('id');
             $table->foreign('user_id')->references('id')->on('users');

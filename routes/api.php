@@ -88,6 +88,7 @@ Route::prefix('/locations/{companyId}')->group(function() {
         Route::get('/company/employees',         [CompanyEmployeeController::class, 'index']); // TODO: scope to company
         Route::patch('company/employees',        [CompanyEmployeeController::class, 'update']);
         Route::put('/employees/{id}',            [EmployeeController::class, 'update']);  // TODO: authed if is current employee or is admin/owner and belongs to company 
+        Route::delete('employees/{id}',          [EmployeeController::class, 'delete']);
         Route::post('/employees/invitation',     [EmployeeInvitationController::class, 'store']);
 
         Route::post('/employees/{id}/admin',     [EmployeeAdminController::class, 'store']); 
