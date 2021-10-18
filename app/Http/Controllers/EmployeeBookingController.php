@@ -24,8 +24,7 @@ class EmployeeBookingController extends ApiController
     {
         $employee = Employee::findOrFail($id);
 
-        if (auth()->user()->id !== $employee->user_id || 
-            auth()->user()->isAdmin())
+        if (auth()->user()->id !== $employee->user_id && ! auth()->user()->isAdmin())
         {
             throw new BookingException([], 'User not authorized to perform this action.');
         }
