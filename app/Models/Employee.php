@@ -199,7 +199,7 @@ class Employee extends BaseModel implements UserModel
 
         if (TimeSlot::isReserved($allSlots))
         {
-            throw new BookingException([], 'The requested time slot is not available.');
+            throw new BookingException([], 'Time slot not available.');
         }
 
         $booking = Booking::create([
