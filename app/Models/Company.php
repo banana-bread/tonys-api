@@ -11,7 +11,7 @@ class Company extends BaseModel
 {
     use HasUuid, SoftDeletes;
 
-    protected $with = ['owner'];
+    protected $with = ['owner', 'service_definitions'];
     
     protected $appends = [];
 
@@ -31,6 +31,7 @@ class Company extends BaseModel
         'clients',
         'employees',
         'owner',
+        'service_definitions',
     ];
 
     protected $casts = [
@@ -46,7 +47,7 @@ class Company extends BaseModel
 
     public function employees()
     {
-        return $this->hasMany(Employee::class);
+        return $this->hasMany(Employee::class)->orderBy('ordinal_position');
     }
 
     public function owner()
@@ -56,7 +57,7 @@ class Company extends BaseModel
 
     public function service_definitions()
     {
-        return $this->hasMany(ServiceDefinition::class);
+        return $this->hasMany(ServiceDefinition::class)->orderBy('ordinal_position');
     }
 
     // HELPERS

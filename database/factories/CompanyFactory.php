@@ -30,7 +30,7 @@ class CompanyFactory extends Factory
             'address' => '72 Springfield rd',
             'country' => $this->faker->country,
             'phone' => $this->faker->phoneNumber,
-            'time_slot_duration' => 1800,  // 30 minutes
+            'time_slot_duration' => 900,  // 15 minutes
             'booking_grace_period' => 86400, // 24 hours
             'settings' => [],
         ];

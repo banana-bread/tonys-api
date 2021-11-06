@@ -41,6 +41,8 @@ class Booking extends BaseModel
         'cancelled_at' => 'datetime'
     ];
 
+    protected $with = ['services', 'client'];
+
     // RELATIONS
 
     public function client()

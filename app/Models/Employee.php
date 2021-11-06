@@ -34,6 +34,7 @@ class Employee extends BaseModel implements UserModel
         'owner',
         'bookings_enabled',
         'settings',
+        'ordinal_position',
 
         'user',
         'company', 

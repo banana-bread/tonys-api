@@ -11,15 +11,17 @@ class CompanyEmployeeController extends ApiController
     public function index(string $companyId): JsonResponse
     {
         return $this->ok(
-            ['employees' => Employee::forCompany($companyId)->with('company')->get()], 'Employees retrieved.'
+            ['employees' => Company::findOrFail($companyId)->employees], 'Employees retrieved.'
         );
     }
 
     public function update(string $companyId): JsonResponse
     {
-        // TODO: would need to change if we want this route to be reusable... this is fine for now.
-        Employee::where('company_id', $companyId)
-            ->update(['bookings_enabled' => collect(request())->first()['bookings_enabled'] ]);
+        $attributes = collect( request()->all() );
+
+        Company::findOrFail($companyId)->employees()->each(
+            fn($employee) => $employee->update( $attributes->firstWhere('id', $employee->id) ) 
+        );
         
         return $this->ok(
             ['company' => Company::where('id', $companyId)->with('employees')->get()], 'Employees updated.'

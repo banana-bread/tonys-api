@@ -35,6 +35,7 @@ class EmployeeFactory extends Factory
             'owner' => false,
             'bookings_enabled' => true,
             'settings' => TestMock::employee_settings(),
+            'ordinal_position' => 0,
         ];
     }
 

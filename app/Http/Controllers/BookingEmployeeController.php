@@ -2,17 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Employee;
+use App\Models\Company;
 use Illuminate\Http\JsonResponse;
 
 class BookingEmployeeController extends ApiController
 {
     public function index(string $companyId): JsonResponse
     {
-        $employees = 
-            Employee::forCompany($companyId)
-                ->where('bookings_enabled', true)
-                ->get();
+        $employees = Company::findOrFail($companyId)
+            ->employees()
+            ->where('bookings_enabled', true)
+            ->get();
 
         return $this->ok(
             ['employees' => $employees], 'Employees retrieved.'

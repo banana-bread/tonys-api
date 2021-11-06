@@ -77,13 +77,16 @@ class DatabaseSeeder extends Seeder
 
     private function createEmployees(Company $company): Collection
     {
-        $employees = Employee::factory()->count(3)->no_days_off()->for($company)->create();
-        $manager = Employee::factory()->count(1)->admin()->for($company)->create();
+        $employees = new Collection();
+        $employees->push(Employee::factory()->no_days_off()->for($company)->create());
+        $employees->push(Employee::factory()->no_days_off()->for($company)->create());
+        $employees->push(Employee::factory()->no_days_off()->for($company)->create());
+        $employees->push(Employee::factory()->admin()->for($company)->create());
 
         $user = User::factory()->create(['first_name' => 'Milo', 'last_name' => 'Parker', 'email' => 'milo@example.com']);
-        $owner = Employee::factory()->count(1)->owner()->for($user)->for($company)->create();
+        $employees->push(Employee::factory()->owner()->for($user)->for($company)->create());
 
-        return $employees->concat($manager)->concat($owner);
+        return $employees;
     }
 
     private function createClients(): void
@@ -98,9 +101,9 @@ class DatabaseSeeder extends Seeder
 
     private function createServiceDefinitions(Company $company): void
     {
-        ServiceDefinition::factory()->for($company)->create(['name' => 'Child Cut', 'duration' => 2700]);
-        ServiceDefinition::factory()->for($company)->create(['name' => 'Beard Trim', 'duration' => 900]);
-        ServiceDefinition::factory()->for($company)->create(['name' => 'Hair Cut', 'duration' => 1800]);
+        ServiceDefinition::factory()->for($company)->create(['name' => 'Hair Cut', 'duration' => 1800, 'ordinal_position' => 0]);
+        ServiceDefinition::factory()->for($company)->create(['name' => 'Beard Trim', 'duration' => 900, 'ordinal_position' => 1]);
+        ServiceDefinition::factory()->for($company)->create(['name' => 'Child Cut', 'duration' => 2700, 'ordinal_position' => 2]);
     }
 
     private function createBookings(): void
@@ -111,6 +114,7 @@ class DatabaseSeeder extends Seeder
         TimeSlot::where('reserved', false)
                 ->chunk(3000, function ($timeSlots) use ($clients, $hairCutServiceDefinition){
                     $timeSlots->filter(fn ($slot) => $slot->employee_working)
+                        ->nth(2)
                         ->each( function($slot) use ($clients, $hairCutServiceDefinition) {
 
                         // 70% chance a booking is created
@@ -122,17 +126,27 @@ class DatabaseSeeder extends Seeder
                                 'client_id' => $clients->random()->id,
                                 'employee_id' => $slot->employee_id,
                                 'started_at' => $slot->start_time,
-                                'ended_at' => $slot->end_time,
+                                'ended_at' => $slot->start_time->copy()->addMinutes(30),
                             ]);
 
                             Service::create([
                                 'service_definition_id' => $hairCutServiceDefinition->id,
                                 'booking_id' => $booking->id
                             ]);  
+
+                            // TimeSlot::where('employee_id', $slot->employee_id)
+                            //     ->where('start_time', $booking->started_at)
+                            //     ->orWhere('start_time', $booking->started_at)
+                            //     ->update(['booking_id' => $booking->id]);
                             
                             $slot->reserved = true;
                             $slot->booking_id = $booking->id;
                             $slot->save();
+
+                            TimeSlot::where('id', $slot->id + 1)->update([
+                                'reserved' => true,
+                                'booking_id' => $slot->booking_id,
+                            ]);
                         }
                     });
                 });

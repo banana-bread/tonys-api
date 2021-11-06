@@ -12,6 +12,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\BookingEmployeeController;
 use App\Http\Controllers\CompanyEmployeeController;
+use App\Http\Controllers\CompanyServiceDefinitionsController;
 use App\Http\Controllers\EmployeeAdminController;
 use App\Http\Controllers\EmployeeBaseScheduleController;
 use App\Http\Controllers\EmployeeBookingController;
@@ -85,16 +86,17 @@ Route::prefix('/locations/{companyId}')->group(function() {
     Route::get('/employees/{id}',                [EmployeeController::class, 'show']);  
 
     Route::group(['middleware' => ['auth:api']], function() {
-        Route::get('/company/employees',         [CompanyEmployeeController::class, 'index']); // TODO: scope to company
-        Route::patch('company/employees',        [CompanyEmployeeController::class, 'update']);
-        Route::put('/employees/{id}',            [EmployeeController::class, 'update']);  // TODO: authed if is current employee or is admin/owner and belongs to company 
-        Route::delete('employees/{id}',          [EmployeeController::class, 'delete']);
-        Route::post('/employees/invitation',     [EmployeeInvitationController::class, 'store']);
+        Route::get('/company/employees',             [CompanyEmployeeController::class, 'index']); // TODO: scope to company
+        Route::patch('/company/employees',           [CompanyEmployeeController::class, 'update']);
+        Route::patch('/company/service-definitions', [CompanyServiceDefinitionsController::class, 'update']);
+        Route::put('/employees/{id}',                [EmployeeController::class, 'update']);  // TODO: authed if is current employee or is admin/owner and belongs to company 
+        Route::delete('employees/{id}',              [EmployeeController::class, 'delete']);
+        Route::post('/employees/invitation',         [EmployeeInvitationController::class, 'store']);
 
-        Route::post('/employees/{id}/admin',     [EmployeeAdminController::class, 'store']); 
-        Route::delete('/employees/{id}/admin',   [EmployeeAdminController::class, 'destroy']);  
-        Route::post('/employees/{id}/owner',     [EmployeeOwnerController::class, 'store']); 
-        Route::delete('/employees/{id}/owner',   [EmployeeOwnerController::class, 'destroy']);  
+        Route::post('/employees/{id}/admin',         [EmployeeAdminController::class, 'store']); 
+        Route::delete('/employees/{id}/admin',       [EmployeeAdminController::class, 'destroy']);  
+        Route::post('/employees/{id}/owner',         [EmployeeOwnerController::class, 'store']); 
+        Route::delete('/employees/{id}/owner',       [EmployeeOwnerController::class, 'destroy']);  
 
 
         Route::put('/employees/{id}/active',   [EmployeeBookingsEnabledController::class, 'update']);  

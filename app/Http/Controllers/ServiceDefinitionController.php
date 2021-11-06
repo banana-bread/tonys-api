@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\CreateServiceDefinitionRequest;
+use App\Models\Company;
 use App\Models\ServiceDefinition;
 use Illuminate\Http\JsonResponse;
 
@@ -12,7 +13,15 @@ class ServiceDefinitionController extends ApiController
     {
         $this->authorize('create', ServiceDefinition::class);
 
-        $service = ServiceDefinition::create(array_merge(request()->only('name', 'price', 'duration'), ['company_id' => $companyId]));
+        $ordinalPosition = Company::where('id', $companyId)
+            ->join('service_definitions', 'service_definintions.company_id', '=', 'companies.id')
+            ->count();
+
+        $attributes = array_merge(
+            request()->only('name', 'price', 'duration'), 
+            ['company_id' => $companyId, 'ordinal_position' => $ordinalPosition]);
+
+        $service = ServiceDefinition::create($attributes);
         
         return $this->created(
             ['service_definition' => $service, 'Service definition created']
@@ -40,7 +49,7 @@ class ServiceDefinitionController extends ApiController
     public function index(string $companyId): JsonResponse
     {
         return $this->ok(
-            ['service_definitions' => ServiceDefinition::forCompany($companyId)->get(), 'Service definitions retrieved.']
+            ['service_definitions' => Company::findOrFail($companyId)->service_definitions, 'Service definitions retrieved.']
         );
     }
 

@@ -26,6 +26,7 @@ class RegisterService
             'bookings_enabled' => true,
             'company_id' => $companyId,
             'settings' => request('settings'),
+            'ordinal_position' =>  Company::findOrFail($company)->employees()->count(),
         ]);
 
         // $employee->send(new EmployeeRegistered());

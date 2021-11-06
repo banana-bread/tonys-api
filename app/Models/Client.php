@@ -28,7 +28,8 @@ class Client extends BaseModel implements UserModel
         'companies',
         'bookings',
 
-        'name',
+        'first_name',
+        'last_name',
         'phone',
         'email',
         'subscribes_to_emails',

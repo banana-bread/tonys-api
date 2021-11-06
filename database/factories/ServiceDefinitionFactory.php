@@ -29,6 +29,7 @@ class ServiceDefinitionFactory extends Factory
             'name' => $this->faker->word(),
             'price' => collect([1500, 2000, 3000])->random(), // $15, $20, or $30
             'duration' => collect([900, 1800, 2700])->random(), // 15, 30, or 45 minutes
+            'ordinal_position' => 0,
         ];
     }
 

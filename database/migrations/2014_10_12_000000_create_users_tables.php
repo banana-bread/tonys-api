@@ -47,6 +47,7 @@ class CreateUsersTables extends Migration
             $table->boolean('owner');
             $table->boolean('bookings_enabled');
             $table->json('settings');
+            $table->integer('ordinal_position');
             $table->timestamps();
 
             $table->primary('id');
