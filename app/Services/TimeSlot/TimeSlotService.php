@@ -2,8 +2,6 @@
 
 namespace App\Services\TimeSlot;
 
-use App\Models\Employee;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 use App\Models\ServiceDefinition;

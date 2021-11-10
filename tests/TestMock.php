@@ -2,41 +2,31 @@
 
 namespace Tests;
 
-use Faker\Factory;
-
-/*
-
-    All times here are 1pm - 9pm and are stored as UTC.  Will be 9am - 5pm EST 
-
-*/
 class TestMock 
 {
     public static function employee_settings(): array
     {
-        $start = today()->addHours(13)->timestamp - today()->timestamp;
-        $end = today()->addHours(21)->timestamp - today()->timestamp;
-
         return [
             'base_schedule' => [
                 'monday' => [
-                    'start' => $start,
-                    'end' => $end,
+                    'start' => '09:00',
+                    'end' => '17:00',
                 ],
                 'tuesday' => [
-                    'start' => $start,
-                    'end' => $end,
+                    'start' => '09:00',
+                    'end' => '17:00',
                 ],
                 'wednesday' => [
-                    'start' => $start,
-                    'end' => $end,
+                    'start' => '09:00',
+                    'end' => '17:00',
                 ],
-                'thursday' => [
-                    'start' => $start,
-                    'end' => $end,
+                'thursday' => [ 
+                    'start' => '09:00',
+                    'end' => '17:00',
                 ],
                 'friday' => [
-                    'start' => $start,
-                    'end' => $end,
+                    'start' => '09:00',
+                    'end' => '17:00',
                 ],
                 'saturday' => [
                     'start' => null,
@@ -45,45 +35,6 @@ class TestMock
                 'sunday' => [
                     'start' => null,
                     'end' => null,
-                ],
-            ]            
-        ];
-    }
-
-    public static function employee_settings_base_schedule_ends_on_quarter_hour(): array
-    {
-        $start = today()->addHours(13)->timestamp - today()->timestamp;
-        $end = today()->addHours(21)->addMinutes(15)->timestamp - today()->timestamp;
-
-        return [
-            'base_schedule' => [
-                'monday' => [
-                    'start' => $start,
-                    'end' => $end,
-                ],
-                'tuesday' => [
-                    'start' => $start,
-                    'end' => $end,
-                ],
-                'wednesday' => [
-                    'start' => $start,
-                    'end' => $end,
-                ],
-                'thursday' => [
-                    'start' => $start,
-                    'end' => $end,
-                ],
-                'friday' => [
-                    'start' => $start,
-                    'end' => $end,
-                ],
-                'saturday' => [
-                    'start' => $start,
-                    'end' => $end,
-                ],
-                'sunday' => [
-                    'start' => $start,
-                    'end' => $end,
                 ],
             ]            
         ];
@@ -91,38 +42,35 @@ class TestMock
 
     public static function employee_settings_no_days_off(): array
     {
-        $start = today()->addHours(13)->timestamp - today()->timestamp;
-        $end = today()->addHours(21)->timestamp - today()->timestamp;
-
         return [
             'base_schedule' => [
                 'monday' => [
-                    'start' => $start,
-                    'end' => $end,
+                    'start' => '09:00',
+                    'end' => '17:00',
                 ],
                 'tuesday' => [
-                    'start' => $start,
-                    'end' => $end,
+                    'start' => '09:00',
+                    'end' => '17:00',
                 ],
                 'wednesday' => [
-                    'start' => $start,
-                    'end' => $end,
+                    'start' => '09:00',
+                    'end' => '17:00',
                 ],
                 'thursday' => [
-                    'start' => $start,
-                    'end' => $end,
+                    'start' => '09:00',
+                    'end' => '17:00',
                 ],
                 'friday' => [
-                    'start' => $start,
-                    'end' => $end,
+                    'start' => '09:00',
+                    'end' => '17:00',
                 ],
                 'saturday' => [
-                    'start' => $start,
-                    'end' => $end,
+                    'start' => '09:00',
+                    'end' => '17:00',
                 ],
                 'sunday' => [
-                    'start' => $start,
-                    'end' => $end,
+                    'start' => '09:00',
+                    'end' => '17:00',
                 ],
             ]            
         ];

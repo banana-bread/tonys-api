@@ -25,6 +25,7 @@ class CreateCompaniesTable extends Migration
             $table->integer('time_slot_duration');
             $table->integer('booking_grace_period');
             $table->json('settings');
+            $table->string('timezone');
             $table->timestamps();
             $table->softDeletes();
 

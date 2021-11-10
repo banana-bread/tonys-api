@@ -55,6 +55,8 @@ class LoginService
 
     protected function requestToken(Request $request): array
     {
-        return json_decode(App::call('\Laravel\Passport\Http\Controllers\AccessTokenController@issueToken', [$request])->content(), true);
+        $tokenResponse =  App::call('\Laravel\Passport\Http\Controllers\AccessTokenController@issueToken', [$request])->content();
+
+        return json_decode($tokenResponse, true);
     }
 }

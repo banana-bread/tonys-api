@@ -32,6 +32,7 @@ class CompanyFactory extends Factory
             'phone' => $this->faker->phoneNumber,
             'time_slot_duration' => 900,  // 15 minutes
             'booking_grace_period' => 86400, // 24 hours
+            'timezone' => 'America/Toronto',
             'settings' => [],
         ];
     }

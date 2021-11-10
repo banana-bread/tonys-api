@@ -58,11 +58,11 @@ class TimeSlotPdo
             JOIN employees ON employees.id = t.employee_id
             WHERE date(t.start_time) >= date(:date_from)
             AND date(t.end_time) <= date(:date_to)
+            -- Risky, assumes all companies will never have available slots at midnight 
             AND TIME_TO_SEC(t.end_time) != 0
             AND t.start_time >= DATE_ADD(now(), INTERVAL 15 MINUTE)
             AND employees.bookings_enabled = 1
             AND t.employee_working = 1
-            -- Risky, assumes all companies will never have available slots at midnight 
             AND t.company_id = :company_id " .
             $andEmployeeIdPart .
             " AND t.reserved = 0
