@@ -96,7 +96,7 @@ class DatabaseSeeder extends Seeder
 
     private function createEmployeeTimeSlots(Collection $employees): void
     {
-        $employees->each(fn ($employee) => $employee->createSlotsForNext(365));
+        $employees->each(fn ($employee) => $employee->createSlotsForNext(365)); 
     }
 
     private function createServiceDefinitions(Company $company): void
@@ -112,7 +112,7 @@ class DatabaseSeeder extends Seeder
         $hairCutServiceDefinition = ServiceDefinition::where('name', 'Hair Cut')->first();
 
         TimeSlot::where('reserved', false)
-                ->chunk(3000, function ($timeSlots) use ($clients, $hairCutServiceDefinition){
+                ->chunk(500, function ($timeSlots) use ($clients, $hairCutServiceDefinition){
                     $timeSlots->filter(fn ($slot) => $slot->employee_working)
                         ->nth(2)
                         ->each( function($slot) use ($clients, $hairCutServiceDefinition) {

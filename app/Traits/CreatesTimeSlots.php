@@ -20,14 +20,17 @@ trait CreatesTimeSlots
         $startDate = $this->hasFutureSlots()
             ? $this->latest_time_slot->start_time->copy()->startOfDay()->addDay()
             : today();
-        
-        for ($i = 0; $i < $numberOfSlots; $i++)
-        {
-            $startTime = $startDate->copy()->addSeconds($i * $singleSlotDuration);
-            $endTime = $startTime->copy()->addSeconds($singleSlotDuration);
 
-            $slots->push( $this->_makeSlot($startTime, $endTime, $localTimeZone) );
-        }
+            
+        collect(range(0, $numberOfSlots))
+            ->each(function ($i) use ($startDate, $singleSlotDuration, $slots, $localTimeZone)
+            {
+                $startTime = $startDate->copy()->addSeconds($i * $singleSlotDuration);
+                $endTime = $startTime->copy()->addSeconds($singleSlotDuration);
+
+                $slots->push( $this->_makeSlot($startTime, $endTime, $localTimeZone) );
+
+            });
 
         $this->_insertSlots($slots);
         return $slots;
