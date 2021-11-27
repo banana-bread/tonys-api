@@ -97,9 +97,14 @@ class Client extends BaseModel implements UserModel
             ? $startingSlot->getNextSlots($slotsRequired)->prepend($startingSlot)
             : collect([$startingSlot]);
 
-        if (! $this->isAvailableDuring($allSlots) || TimeSlot::isReserved($allSlots))
+        if (! $this->isAvailableDuring($allSlots))
         {
-            throw new BookingException([], 'The requested booking is not available for this client.');
+            throw new BookingException([], 'You already have a booking at this time.');
+        }
+
+        if (! TimeSlot::isAvailable($allSlots))
+        {
+            throw new BookingException([], 'Time slot is no longer available.');
         }
 
         $booking = Booking::create([

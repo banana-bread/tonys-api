@@ -12,6 +12,7 @@ use Illuminate\Support\Collection;
 use App\Jobs\UpdateEmployeeTimeSlots;
 use App\Traits\CreatesTimeSlots;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class Employee extends BaseModel implements UserModel
 {
@@ -183,7 +184,9 @@ class Employee extends BaseModel implements UserModel
         $this->base_schedule = $newBaseSchedule;
         $this->save();
 
-        UpdateEmployeeTimeSlots::dispatch($this);
+        $this->updateTimeSlots();
+
+        // UpdateEmployeeTimeSlots::dispatch($this);
     }
 
 
@@ -198,9 +201,9 @@ class Employee extends BaseModel implements UserModel
             ? $startingSlot->getNextSlots($slotsRequired)->prepend($startingSlot)
             : collect([$startingSlot]);
 
-        if (TimeSlot::isReserved($allSlots))
+        if (! TimeSlot::isAvailable($allSlots))
         {
-            throw new BookingException([], 'Time slot not available.');
+            throw new BookingException([], 'Time slot no longer available.');
         }
 
         $booking = Booking::create([
@@ -229,24 +232,41 @@ class Employee extends BaseModel implements UserModel
     //       job can be performed seperately of base schedule update.
     public function updateTimeSlots()
     {
-        TimeSlot::query()->update(['employee_working' => false]);
+        DB::transaction(function () {
+
+        TimeSlot::query()
+            ->where('employee_id', $this->id)
+            ->update(['employee_working' => false]);
 
         $weekDays = collect(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']);
+        $localTimezone = $this->company()->pluck('timezone');
 
-        $weekDays->each(function ($day, $key)
+        $weekDays->each(function ($day, $key) use ($localTimezone)
         {
             $startTime = $this->base_schedule->start($day);
             $endTime = $this->base_schedule->end($day);
 
             if (!$startTime || !$endTime) return;
 
+            // TODO: Extract these calculations to... somewhere else.  BaseSchedule?
+            $startHourInSeconds = ((int) Str::of($startTime)->explode(':')->first()) * 3600;
+            $startMinuteInSeconds = ((int) Str::of($startTime)->explode(':')->last()) * 60;
+            $startTimeInSeconds = $startHourInSeconds + $startMinuteInSeconds;
+
+            $endHourInSeconds = ((int) Str::of($endTime)->explode(':')->first()) * 3600;
+            $endMinuteInSeconds = ((int) Str::of($endTime)->explode(':')->last()) * 60;
+            $endTimeInSeconds = $endHourInSeconds + $endMinuteInSeconds;
+
             // TODO: this currently performs up to 7 updates, but 
             //       could be done more performantly in 1
-            TimeSlot::where('start_time', '>=', now())
-                ->whereRaw("WEEKDAY(start_time) = $key")
-                ->whereRaw("TIME_TO_SEC(start_time) >= $startTime")
-                ->whereRaw("TIME_TO_SEC(end_time) <= $endTime")
+            TimeSlot::where('start_time', '>=', now()->addDay()->startOfDay())
+                ->where('employee_id', $this->id)
+                ->whereRaw("WEEKDAY(CONVERT_TZ(start_time, 'UTC', ?)) = ?", [$localTimezone, $key])
+                ->whereRaw("TIME_TO_SEC(CONVERT_TZ(start_time, 'UTC', ?)) >= ?", [$localTimezone, $startTimeInSeconds])
+                ->whereRaw("TIME_TO_SEC(CONVERT_TZ(end_time, 'UTC', ?)) <= ?", [$localTimezone, $endTimeInSeconds])
+                ->whereRaw("DATE(CONVERT_TZ(start_time, 'UTC', ?)) = DATE(CONVERT_TZ(end_time, 'UTC', ?))", [$localTimezone, $localTimezone])
                 ->update(['employee_working' => true]);
+        });
         });
     }
 }

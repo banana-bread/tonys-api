@@ -18,6 +18,8 @@ use App\Http\Controllers\EmployeeBaseScheduleController;
 use App\Http\Controllers\EmployeeBookingController;
 use App\Http\Controllers\EmployeeBookingsEnabledController;
 use App\Http\Controllers\EmployeeInvitationController;
+use App\Http\Controllers\ClientForgotPasswordController;
+use App\Http\Controllers\ClientResetPasswordController;
 use App\Http\Controllers\EmployeeOwnerController;
 use App\Http\Controllers\ServiceDefinitionController;
 use App\Http\Controllers\TimeSlotController;
@@ -66,7 +68,6 @@ Route::post('/client/login/{provider}',             [ClientLoginController::clas
 Route::post('/client/login/{provider}/callback',    [ClientLoginController::class, 'handleProviderCallback']);
 Route::post('/employee/login',                      [EmployeeLoginController::class, 'login']);
 Route::delete('/logout',                            [LogoutController::class, 'logout'])->middleware('auth:api');
-// Route::post('/refresh-token',                       [RefreshTokenController::class, 'refresh'])->middleware('auth:api');
 Route::post('/refresh-token',                       [RefreshTokenController::class, 'refresh']);
 
 Route::post('/clients',      [ClientController::class, 'store']);
@@ -75,6 +76,10 @@ Route::get('/employee/authed', [AuthedEmployeeController::class, 'show'])->middl
 
 Route::put('/clients/{id}',  [ClientController::class, 'update'])->middleware('auth:api'); // TODO: authed if is current client 
 Route::get('/clients/{id}',  [ClientController::class, 'show'])->middleware('auth:api');;  // TODO: authed if is current client (or many to many exists with company)
+
+Route::post('/clients/forgot-password',           [ClientForgotPasswordController::class, 'store']);
+Route::post('/clients/reset-password',            [ClientResetPasswordController::class, 'store'])->name('client-reset-password');   
+
 
 Route::prefix('/locations/{companyId}')->group(function() {    
     Route::put('company',                        [CompanyController::class, 'update']);

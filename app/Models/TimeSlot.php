@@ -63,11 +63,11 @@ class TimeSlot extends BaseModel
             ->lockForUpdate()
             ->update(['reserved' => true, 'booking_id' => $booking->id]);
     }
-
-    public static function isReserved($slots): bool
+    
+    public static function isAvailable($slots): bool
     {
         return $slots instanceof TimeSlot
-            ? $slots->reserved
-            : $slots->contains(function ($slot) { return $slot->reserved; });
+            ? (! $slots->reserved && $slots->employee_working)
+            : ! $slots->contains(fn ($slot) => $slot->reserved || !$slot->employee_working);
     }
 }

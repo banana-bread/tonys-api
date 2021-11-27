@@ -17,13 +17,14 @@ class BookingController extends ApiController
     {
         // TODO: this may end up being moved to EmployeeBookingController
         $bookings = Booking::forCompany($companyId)
-            ->whereDate('started_at', Carbon::createFromTimestamp(request('date_for')))
-            ->whereIn('employee_id', Str::of(request('employee_ids'))->explode(','))
+            // ->select('bookings.*', '''clients.name', )
+            ->whereDate('started_at', Carbon::createFromTimestamp(request('date_for')) )
             ->whereNull('cancelled_at')
             ->orderBy('started_at')
-            ->get();
+            ->get()
+            ->groupBy('employee_id');
 
-        return $this->ok(['bookings' => $bookings], 'Bookings retreived');
+        return $this->ok(['employee_bookings' => $bookings], 'Bookings retreived');
     }
 
     public function store(CreateBookingRequest $request): JsonResponse

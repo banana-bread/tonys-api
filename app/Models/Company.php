@@ -27,6 +27,7 @@ class Company extends BaseModel
         'time_slot_duration',
         'booking_grace_period',
         'settings',
+        'timezone',
 
         'clients',
         'employees',

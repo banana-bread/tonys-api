@@ -10,8 +10,9 @@ trait CreatesTimeSlots
 {
     public function createSlotsForNext(int $numberOfDays): Collection
     {
-        $singleSlotDuration = $this->company->time_slot_duration;
-        $localTimeZone = $this->company->timezone;
+        $companyData = $this->company()->select('time_slot_duration', 'timezone')->first();
+        $singleSlotDuration = $companyData->time_slot_duration;
+        $localTimeZone = $companyData->timezone;
         $secondsIn24Hours = 86400;
         $numberOfSlots = ($secondsIn24Hours / $singleSlotDuration) * $numberOfDays;
         $slots = new Collection();
@@ -51,7 +52,7 @@ trait CreatesTimeSlots
         if (! $slotStartTime->isSameDay($slotEndTime)) return false;
 
         $baseScheduleStart = $this->base_schedule->start($slotStartTime);
-        $baseScheduleEnd = $this->base_schedule->start($slotStartEnd);
+        $baseScheduleEnd = $this->base_schedule->end($slotEndTime);
 
         if (! $baseScheduleStart || ! $baseScheduleEnd) return false;
 
@@ -61,13 +62,12 @@ trait CreatesTimeSlots
         $currentDateStartTime = Carbon::parse($localStartTimeString, $localTimezone)->setTimezone('UTC');
         $currentDateEndTime = Carbon::parse($localEndTimeString, $localTimezone)->setTimezone('UTC');
 
-
         return $slotStartTime->gte($currentDateStartTime) && $slotEndTime->lte($currentDateEndTime);
     }
 
     private function _insertSlots(Collection $slots)
     {
         $slots->chunk(5000)
-            ->each(fn ($slotChunk) => TimeSlot::insert($slotChunk->all()));;
+            ->each(fn ($slotChunk) => TimeSlot::insert($slotChunk->all()));
     }
 }

@@ -49,7 +49,7 @@ class BaseSchedule
      * @param Carbon $day
      * @return int
      */
-    public function start($day): ?int
+    public function start($day): ?string
     {
         if ($day instanceof Carbon)
         {
@@ -65,7 +65,7 @@ class BaseSchedule
      * @param Carbon $day
      * @return int
      */
-    public function end($day): ?int
+    public function end($day): ?string
     {
         if ($day instanceof Carbon)
         {
@@ -80,14 +80,14 @@ class BaseSchedule
         return $this->base_schedule->toArray();
     }
 
-    protected function getBaseTimeForDay(string $timeOfDay, $dayOfWeek): ?int
+    protected function getBaseTimeForDay(string $timeOfDay, $dayOfWeek): ?string
     {
         return $dayOfWeek
             ? $this->getBaseTimeOrNull($dayOfWeek, $timeOfDay)
             : $this->getBaseTimeOrNull(today()->englishDayOfWeek, $timeOfDay);
     }
 
-    protected function getBaseTimeOrNull(string $dayOfWeek, string $timeOfDay): ?int
+    protected function getBaseTimeOrNull(string $dayOfWeek, string $timeOfDay): ?string
     {
         if (isset($this->base_schedule->get(Str::lower($dayOfWeek))[$timeOfDay]))
         { 
