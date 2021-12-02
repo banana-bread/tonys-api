@@ -181,10 +181,19 @@ class Employee extends BaseModel implements UserModel
         // No changes made, exit
         if ($newBaseSchedule->matches($this->base_schedule)) return;
 
-        $this->base_schedule = $newBaseSchedule;
-        $this->save();
-
-        $this->updateTimeSlots();
+        // When there are ~ a years worth of slots to update, this update doesn't take 
+        // too long.  If we move to creating 5 years worth of timeslots or something,
+        // we would want to dispatch a job to do that.  We would then also need to pass
+        // the old base schedule to the job, in case the job fails, we would set base schedule 
+        // back to its old value.  
+        // 
+        DB::transaction(function () use ($newBaseSchedule)
+        {
+            $this->base_schedule = $newBaseSchedule;
+            $this->save();
+    
+            $this->updateTimeSlots();
+        });
 
         // UpdateEmployeeTimeSlots::dispatch($this);
     }
@@ -237,7 +246,7 @@ class Employee extends BaseModel implements UserModel
     {
         DB::transaction(function () {
 
-        TimeSlot::query()
+        TimeSlot::where('start_time', '>=', now()->addDay()->startOfDay())
             ->where('employee_id', $this->id)
             ->update(['employee_working' => false]);
 
