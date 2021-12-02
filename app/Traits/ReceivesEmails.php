@@ -9,6 +9,6 @@ trait ReceivesEmails
 {
     public function send(Mailable $mailable)
     {
-        Mail::to($this->user)->queue($mailable);        
+        Mail::to($this->user)->send($mailable);        
     }
 }

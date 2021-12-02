@@ -10,10 +10,8 @@
 @endcomponent
 <br>
 <div>
-<p>This is a paragraph that explains certain things, like booking cancellation grace period or any restrictions related to COVID.</p>
+<p>For any cancellations, please contact us. <span style="font-weight: bold;">{{ $company->formatted_phone }}</span></p>
 </div>
-
-
 
 <div>
     <span>Service:</span>
@@ -25,20 +23,20 @@
 </div>
 <div>
     <span>Staff:</span>
-    <span style="font-weight: bold;">{{ $booking->client->first_name }}</span>
+    <span style="font-weight: bold;">{{ $booking->employee->first_name }}</span>
 </div>
 <div>
     <span>Booking time:</span>
-    <span style="font-weight: bold;">{{ $booking->started_at->format('D, M d, g:i A') }}</span> 
+    <span style="font-weight: bold;">{{ $booking->started_at->setTimezone($company->timezone)->format('D, M d, g:i A') }}</span> 
 </div>
 <div>
     <span>Total:</span>
     <span style="font-weight: bold;">{{ $booking->formatted_total }}</span>
 </div>
 
-@component('mail::button', ['url' => 'https://laracasts.com'])
+<!-- @component('mail::button', ['url' => 'https://laracasts.com'])
     View your booking
-@endcomponent
+@endcomponent -->
 
 @endcomponent
 

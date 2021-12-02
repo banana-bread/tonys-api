@@ -18,7 +18,7 @@ trait CreatesTimeSlots
         $slots = new Collection();
 
         $startDate = $this->hasFutureSlots()
-            ? $this->latest_time_slot->start_time->copy()->startOfDay()->addDay()
+            ? $this->latest_time_slot->end_time->copy()
             : today();
 
             
@@ -29,7 +29,6 @@ trait CreatesTimeSlots
                 $endTime = $startTime->copy()->addSeconds($singleSlotDuration);
 
                 $slots->push( $this->_makeSlot($startTime, $endTime, $localTimeZone) );
-
             });
 
         $this->_insertSlots($slots);

@@ -97,10 +97,10 @@ class Client extends BaseModel implements UserModel
             ? $startingSlot->getNextSlots($slotsRequired)->prepend($startingSlot)
             : collect([$startingSlot]);
 
-        if (! $this->isAvailableDuring($allSlots))
-        {
-            throw new BookingException([], 'You already have a booking at this time.');
-        }
+        // if (! $this->isAvailableDuring($allSlots))
+        // {
+        //     throw new BookingException([], 'You already have a booking at this time.');
+        // }
 
         if (! TimeSlot::isAvailable($allSlots))
         {
@@ -121,6 +121,9 @@ class Client extends BaseModel implements UserModel
             $service = new Service();
             $service->service_definition_id = $definition->id;
             $service->booking_id = $booking->id;
+            $service->name = $definition->name;
+            $service->price = $definition->price;
+            $service->duration = $definition->duration;
 
             return $service;
         });
@@ -150,18 +153,17 @@ class Client extends BaseModel implements UserModel
             throw new InvalidParameterException([$timeSlots], 'invalid parameter type.  Must be TimeSlot model or collection of TimeSlots');
         }
 
-        // TODO: this works now and is scoped to client_id, but we're getting the collection from the db 
-        //       this should be doable purley in db.
+        // $startTime->addSecond();
    
         $hasAnOverlappingBooking = 
             $this->bookings()
-                ->where('started_at', '>=', now())
-                ->whereRaw('bookings.started_at BETWEEN ? AND ?', [$startTime, $endTime])
-                ->orWhereRaw('bookings.ended_at BETWEEN ? AND ?', [$startTime, $endTime])
-                ->orWhereRaw('? BETWEEN bookings.started_at AND bookings.ended_at', [$startTime])
-                ->get()
                 ->where('client_id', $this->id)
-                ->count();
+                ->where(function ($query) use ($startTime, $endTime) {
+                    $query->whereRaw('bookings.started_at BETWEEN ? AND ?', [$startTime, $endTime])
+                        ->orWhereRaw('bookings.ended_at BETWEEN ? AND ?', [$startTime, $endTime])
+                        ->orWhereRaw('? BETWEEN bookings.started_at AND bookings.ended_at', [$startTime]);
+                })
+                ->exists();
 
         return !$hasAnOverlappingBooking;
     }

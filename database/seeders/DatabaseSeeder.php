@@ -131,7 +131,10 @@ class DatabaseSeeder extends Seeder
 
                             Service::create([
                                 'service_definition_id' => $hairCutServiceDefinition->id,
-                                'booking_id' => $booking->id
+                                'booking_id' => $booking->id,
+                                'name' => $hairCutServiceDefinition->name,
+                                'price' => $hairCutServiceDefinition->price,
+                                'duration' => $hairCutServiceDefinition->duration,
                             ]);  
 
                             // TimeSlot::where('employee_id', $slot->employee_id)

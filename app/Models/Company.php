@@ -6,6 +6,7 @@ use App\Helpers\BaseSchedule;
 use App\Traits\HasUuid;
 use Exception;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Str;
 
 class Company extends BaseModel
 {
@@ -33,6 +34,8 @@ class Company extends BaseModel
         'employees',
         'owner',
         'service_definitions',
+
+        'formatted_phone',
     ];
 
     protected $casts = [
@@ -66,5 +69,20 @@ class Company extends BaseModel
     public function slotsRequiredFor(int $bookingDuration)
     {
         return ceil($bookingDuration / $this->time_slot_duration);
+    }
+
+    // Custom attributes
+
+    public function getFormattedPhoneAttribute(): string
+    {
+        return '('.Str::substr($this->phone, 2, 3).') '.Str::substr($this->phone, 5, 3).'-'.Str::substr($this->phone, 8);
+    }
+
+    public function toArray(): array
+    {
+        return array_merge(
+            parent::toArray(),
+            ['phone' => Str::substr($this->phone, 2)]
+        );
     }
 }

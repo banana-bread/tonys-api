@@ -12,6 +12,7 @@ use App\Services\Auth\RegisterService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class EmployeeController extends ApiController
 {
@@ -39,7 +40,29 @@ class EmployeeController extends ApiController
         $employee = Employee::forCompany($companyId)->findOrFail($id);
         $this->authorize('update', $employee);
 
-        $employee->user->update(request()->only(['first_name', 'last_name', 'phone']));
+        DB::transaction(function () use ($employee)
+        {
+            if (!! request('old_password'))
+            {
+                if (! request('new_password'))
+                {
+                    throw new EmployeeException([], 'A new password was not provided.');
+                }            
+
+                $user = $employee->user;
+
+                if (! Hash::check(request('old_password'), $user->password) )
+                {
+                    throw new EmployeeException([], 'Old password was incorrect.');
+                }            
+                
+                $user->password = Hash::make(request('new_password'));
+                $user->save();
+            }
+
+            $employee->user->update(request()->only(['first_name', 'last_name', 'phone']));
+
+        });
 
         return $this->ok($employee, 'Employee profile updated.');
     }
@@ -51,7 +74,7 @@ class EmployeeController extends ApiController
         if (! (auth()->user()->isOwner() && auth()->user()->employee->company_id === $employee->company_id) && 
             auth()->user()->id !== $id)
         {
-            throw new EmployeeException([], 'User unauthorized to perform this action');
+            throw new EmployeeException([], 'User not authorized to perform this action');
         }
 
         DB::transaction(function () use ($employee)

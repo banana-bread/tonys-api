@@ -12,14 +12,15 @@ class ServiceDefinitionController extends ApiController
     public function store(CreateServiceDefinitionRequest $request, string $companyId)
     {
         $this->authorize('create', ServiceDefinition::class);
-
-        $ordinalPosition = Company::where('id', $companyId)
-            ->join('service_definitions', 'service_definintions.company_id', '=', 'companies.id')
+        
+        $ordinalPosition = Company::where('companies.id', $companyId)
+            ->join('service_definitions', 'service_definitions.company_id', '=', 'companies.id')
             ->count();
 
         $attributes = array_merge(
             request()->only('name', 'price', 'duration'), 
-            ['company_id' => $companyId, 'ordinal_position' => $ordinalPosition]);
+            ['company_id' => $companyId, 'ordinal_position' => $ordinalPosition]
+        );
 
         $service = ServiceDefinition::create($attributes);
         

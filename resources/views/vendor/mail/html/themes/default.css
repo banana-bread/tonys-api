@@ -38,7 +38,7 @@ a img {
 /* Typography */
 
 h1 {
-    color: #2d3748;
+    color: #fff;
     font-size: 18px;
     font-weight: bold;
     margin-top: 0;
@@ -264,13 +264,13 @@ img {
 }
 
 .panel-content {
-    background-color: #ADDEC9;
-    color: #FFF;
+    background-color: #1E88E5;
+    color: #eef2fb;
     padding: 16px;
 }
 
 .panel-content p {
-    color: #718096;
+    color: #060c19;
 }
 
 .panel-item {

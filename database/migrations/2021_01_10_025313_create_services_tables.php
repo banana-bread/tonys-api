@@ -31,10 +31,12 @@ class CreateServicesTables extends Migration
             $table->uuid('id');
             $table->uuid('service_definition_id');
             $table->uuid('booking_id');
+            $table->string('name');
+            $table->integer('price');
+            $table->integer('duration');
             $table->timestamps();
 
             $table->primary('id');
-            $table->foreign('service_definition_id')->references('id')->on('service_definitions');
             $table->foreign('booking_id')->references('id')->on('bookings');
         });
     }

@@ -203,7 +203,7 @@ class Employee extends BaseModel implements UserModel
 
         if (! TimeSlot::isAvailable($allSlots))
         {
-            throw new BookingException([], 'Time slot no longer available.');
+            throw new BookingException([], 'Time slot not available.');
         }
 
         $booking = Booking::create([
@@ -218,6 +218,9 @@ class Employee extends BaseModel implements UserModel
             $service = new Service();
             $service->service_definition_id = $definition->id;
             $service->booking_id = $booking->id;
+            $service->name = $definition->name;
+            $service->price = $definition->price;
+            $service->duration = $definition->duration;
 
             return $service;
         });
