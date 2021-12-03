@@ -58,9 +58,26 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
+            'options' => [\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET time_zone = \'+00:00\''],
+        ],
+
+        'mysql_test' => [
+            'driver' => 'mysql',
+            'url' => env('TEST_DATABASE_URL'),
+            // 'host' => env('DB_HOST', '127.0.0.1'),
+            'host' => env('TEST_DB_HOST', '192.168.1.3'),
+            'port' => env('TEST_DB_PORT', '3306'),
+            'database' => env('TEST_DB_DATABASE', 'forge'),
+            'username' => env('TEST_DB_USERNAME', 'forge'),
+            'password' => env('TEST_DB_PASSWORD', ''),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => [\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET time_zone = \'+00:00\''],
         ],
 
         'pgsql' => [

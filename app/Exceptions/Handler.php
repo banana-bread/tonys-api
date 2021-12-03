@@ -3,10 +3,17 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Laravel\Passport\Exceptions\OAuthServerException;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Validation\ValidationException;
 use Throwable;
+use App\Traits\ApiResponse;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Collection;
 
 class Handler extends ExceptionHandler
 {
+    use ApiResponse;
     /**
      * A list of the exception types that are not reported.
      *
@@ -26,15 +33,50 @@ class Handler extends ExceptionHandler
         'password_confirmation',
     ];
 
-    /**
-     * Register the exception handling callbacks for the application.
-     *
-     * @return void
-     */
-    public function register()
+
+    public function render($request, Throwable $t): JsonResponse
     {
-        $this->reportable(function (Throwable $e) {
-            //
-        });
+
+        if ($t instanceof BaseException) 
+        {
+            return $this->error($t->getDebugMessage(), 400);
+        }
+
+        if ($t instanceof OAuthServerException) 
+        {
+            return $this->handleOAuthServerException($t);
+        }
+
+        if ($t instanceof AuthenticationException)
+        {
+            return $this->error('User not authenticated', 401);
+        }
+
+        if ($t instanceof ValidationException) 
+        {   
+            return $this->error(collect($t->errors())->first()[0], 422);
+        }
+
+        if ($t instanceof \Illuminate\Auth\Access\AuthorizationException)
+        {
+            return $this->error('User is not authorized to perform this request', 403);
+        }
+        \Log::info($t);
+        return $this->error('Unknown server error.');
+    }
+
+    // TODO: refine this, make sure we're checking for everything
+    protected function handleOAuthServerException(OAuthServerException $t): JsonResponse
+    {
+        if ($t->statusCode() === 400)
+        {
+            return $this->error('Username or password did not match.', 400);
+        }
+        else if ($t->statusCode() === 401)
+        {
+            return $this->error('Your credentials are incorrect.  Please try again.', 401);
+        }
+
+        return $this->error('OAuth server error.');
     }
 }

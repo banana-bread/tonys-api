@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\User;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
+use Laravel\Passport\Passport;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -25,6 +27,21 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        //
+        Gate::define('update-employee-base-schedule', function (User $user) {
+            return auth()->user()->id === $user->id || 
+                   auth()->user()->isOwner() ||
+                   auth()->user()->isAdmin();
+        });
+
+        Gate::define('send-employee-invitation', function () {
+            return auth()->user()->isOwner();
+        });
+        
+        Passport::routes(function ($router) {
+            $router->forAccessTokens();
+        });
+
+        Passport::tokensExpireIn(now()->addDays(1));
+        Passport::refreshTokensExpireIn(now()->addDays(30));
     }
 }
