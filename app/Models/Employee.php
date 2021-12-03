@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Exceptions\BookingException;
+use App\Exceptions\ScheduleException;
 use App\Helpers\BaseSchedule;
 use App\Models\Contracts\UserModel;
 use App\Traits\HasUuid;
@@ -181,7 +182,12 @@ class Employee extends BaseModel implements UserModel
         // No changes made, exit
         if ($newBaseSchedule->matches($this->base_schedule)) return;
 
-        // When there are ~ a years worth of slots to update, this update doesn't take 
+        if (! $newBaseSchedule->hasValidTimes())
+        {
+            throw new ScheduleException([], 'Start times must be before end times.');
+        }
+
+        // When there are about a years worth of slots to update, this update doesn't take 
         // too long.  If we move to creating 5 years worth of timeslots or something,
         // we would want to dispatch a job to do that.  We would then also need to pass
         // the old base schedule to the job, in case the job fails, we would set base schedule 
@@ -246,12 +252,13 @@ class Employee extends BaseModel implements UserModel
     {
         DB::transaction(function () {
 
-        TimeSlot::where('start_time', '>=', now()->addDay()->startOfDay())
+        $localTimezone = $this->company()->value('timezone');
+
+        TimeSlot::where('start_time', '>=', now($localTimezone)->startOfDay())
             ->where('employee_id', $this->id)
             ->update(['employee_working' => false]);
 
         $weekDays = collect(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']);
-        $localTimezone = $this->company()->pluck('timezone');
 
         $weekDays->each(function ($day, $key) use ($localTimezone)
         {
@@ -271,7 +278,7 @@ class Employee extends BaseModel implements UserModel
 
             // TODO: this currently performs up to 7 updates, but 
             //       could be done more performantly in 1
-            TimeSlot::where('start_time', '>=', now()->addDay()->startOfDay())
+            TimeSlot::where('start_time', '>=', now($localTimezone)->startOfDay())
                 ->where('employee_id', $this->id)
                 ->whereRaw("WEEKDAY(CONVERT_TZ(start_time, 'UTC', ?)) = ?", [$localTimezone, $key])
                 ->whereRaw("TIME_TO_SEC(CONVERT_TZ(start_time, 'UTC', ?)) >= ?", [$localTimezone, $startTimeInSeconds])

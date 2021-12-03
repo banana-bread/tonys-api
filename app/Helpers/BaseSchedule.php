@@ -43,6 +43,18 @@ class BaseSchedule
         });
     }
 
+    public function hasValidTimes(): bool
+    {
+        return !$this->base_schedule->filter(
+            fn($day) => !!$day['start'] && !!$day['end']
+        )->contains(function ($day) {
+            $startNum = intval( Str::remove(':', $day['start']) );
+            $endNum = intval( Str::remove(':', $day['end']) );
+            
+            return $startNum > $endNum;
+        });
+    }
+
     /**
      * Get base schedule start time for a provided day. Today start if no day provided.
      * 
