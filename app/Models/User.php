@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use App\Traits\HasUuid;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -79,5 +80,13 @@ class User extends Authenticatable
     public function isOwner(): bool
     {
         return $this->isEmployee() && $this->employee->isOwner();
+    }
+
+    public function toArray(): array
+    {
+        return array_merge(
+            parent::toArray(),
+            ['phone' => Str::substr($this->phone, 2)]
+        );
     }
 }
