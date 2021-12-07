@@ -177,32 +177,6 @@ class Employee extends BaseModel implements UserModel
 
     // ACTIONS
 
-    public function updateBaseSchedule(BaseSchedule $newBaseSchedule)
-    {   
-        // No changes made, exit
-        if ($newBaseSchedule->matches($this->base_schedule)) return;
-
-        if (! $newBaseSchedule->hasValidTimes())
-        {
-            throw new ScheduleException([], 'Start times must be before end times.');
-        }
-
-        // When there are about a years worth of slots to update, this update doesn't take 
-        // too long.  If we move to creating 5 years worth of timeslots or something,
-        // we would want to dispatch a job to do that.  We would then also need to pass
-        // the old base schedule to the job, in case the job fails, we would set base schedule 
-        // back to its old value.  
-        // 
-        DB::transaction(function () use ($newBaseSchedule)
-        {
-            $this->base_schedule = $newBaseSchedule;
-            $this->save();
-    
-            $this->updateTimeSlots();
-        });
-
-        // UpdateEmployeeTimeSlots::dispatch($this);
-    }
 
 
     public function createBooking(TimeSlot $startingSlot, Collection $serviceDefinitions)
@@ -246,12 +220,40 @@ class Employee extends BaseModel implements UserModel
         });
     }
 
+    public function updateBaseSchedule(BaseSchedule $newBaseSchedule)
+    {   
+        logger('[Employee] Started updating base schedule');
+        // No changes made, exit
+        if ($newBaseSchedule->matches($this->base_schedule)) return;
+
+        if (! $newBaseSchedule->hasValidTimes())
+        {
+            throw new ScheduleException([], 'Start times must be before end times.');
+        }
+
+        // When there are about a years worth of slots to update, this update doesn't take 
+        // too long.  If we move to creating 5 years worth of timeslots or something,
+        // we would want to dispatch a job to do that.  We would then also need to pass
+        // the old base schedule to the job, in case the job fails, we would set base schedule 
+        // back to its old value.  
+        // 
+        DB::transaction(function () use ($newBaseSchedule)
+        {
+            $this->base_schedule = $newBaseSchedule;
+            $this->save();
+
+            logger('[Employee] Saved new base schedule');
+    
+            $this->updateTimeSlots();
+        });
+
+        // UpdateEmployeeTimeSlots::dispatch($this);
+    }
+
     // TODO: this really should not be public, currently is so UpdateEmployeeTimeSlots 
     //       job can be performed seperately of base schedule update.
     public function updateTimeSlots()
     {
-        DB::transaction(function () {
-
         $localTimezone = $this->company()->value('timezone');
 
         TimeSlot::where('start_time', '>=', now($localTimezone)->startOfDay())
@@ -259,6 +261,8 @@ class Employee extends BaseModel implements UserModel
             ->update(['employee_working' => false]);
 
         $weekDays = collect(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']);
+
+        logger('[Employee] Started updating slots');
 
         $weekDays->each(function ($day, $key) use ($localTimezone)
         {
@@ -286,6 +290,7 @@ class Employee extends BaseModel implements UserModel
                 ->whereRaw("DATE(CONVERT_TZ(start_time, 'UTC', ?)) = DATE(CONVERT_TZ(end_time, 'UTC', ?))", [$localTimezone, $localTimezone])
                 ->update(['employee_working' => true]);
         });
-        });
+
+        logger('[Employee] Finished updating slots');
     }
 }
