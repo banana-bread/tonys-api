@@ -264,7 +264,7 @@ class Employee extends BaseModel implements UserModel
 
         logger('[Employee] $weekDays: ' . $weekDays);
         logger('[Employee] $today: ' . now($localTimezone)->startOfDay());
-        logger('[Employee] $baseSchedule: ' . $this->base_schedule);
+        logger('[Employee] $baseSchedule: ' . $this->base_schedule->toArray());
         $weekDays->each(function ($day, $key) use ($localTimezone)
         {
             logger('[Employee] Started updating slots');
