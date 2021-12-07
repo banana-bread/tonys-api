@@ -25,7 +25,7 @@ class BookingCreated extends Mailable
     
     public function build()
     {
-        return $this->from('adriano@example.com')
+        return $this->from('simplebarberapp@gmail.com')
             ->subject($this->booking->employee->company->name . " Booking Confirmation!" )
             ->markdown('email.client-booking-confirmation');
     }
