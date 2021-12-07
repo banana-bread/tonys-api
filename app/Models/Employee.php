@@ -272,10 +272,11 @@ class Employee extends BaseModel implements UserModel
             $startTime = $this->base_schedule->start($day);
             $endTime = $this->base_schedule->end($day);
 
+            if (!$startTime || !$endTime) return;
+
+
             logger('[Employee] $startTime: ' . $startTime);
             logger('[Employee] $endTime: ' . $endTime);
-
-            if (!$startTime || !$endTime) return;
 
             // TODO: Extract these calculations to... somewhere else.  BaseSchedule?
             $startHourInSeconds = ((int) Str::of($startTime)->explode(':')->first()) * 3600;
@@ -288,13 +289,15 @@ class Employee extends BaseModel implements UserModel
 
             // TODO: this currently performs up to 7 updates, but 
             //       could be done more performantly in 1
-            TimeSlot::where('start_time', '>=', now($localTimezone)->startOfDay())
+            $didWork = TimeSlot::where('start_time', '>=', now($localTimezone)->startOfDay())
                 ->where('employee_id', $this->id)
                 ->whereRaw("WEEKDAY(CONVERT_TZ(start_time, 'UTC', ?)) = ?", [$localTimezone, $key])
                 ->whereRaw("TIME_TO_SEC(CONVERT_TZ(start_time, 'UTC', ?)) >= ?", [$localTimezone, $startTimeInSeconds])
                 ->whereRaw("TIME_TO_SEC(CONVERT_TZ(end_time, 'UTC', ?)) <= ?", [$localTimezone, $endTimeInSeconds])
                 ->whereRaw("DATE(CONVERT_TZ(start_time, 'UTC', ?)) = DATE(CONVERT_TZ(end_time, 'UTC', ?))", [$localTimezone, $localTimezone])
                 ->update(['employee_working' => true]);
+
+            logger('[Employee] Update successful: ' . $didWork);
         });
 
         logger('[Employee] Finished updating slots');
