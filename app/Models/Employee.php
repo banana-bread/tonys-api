@@ -262,10 +262,13 @@ class Employee extends BaseModel implements UserModel
 
         $weekDays = collect(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']);
 
-        logger('[Employee] Started updating slots');
-
+        logger('[Employee] $weekDays: ' . $weekDays);
+        logger('[Employee] $today: ' . now($localTimezone)->startOfDay());
+        logger('[Employee] $baseSchedule: ' . $this->base_schedule);
         $weekDays->each(function ($day, $key) use ($localTimezone)
         {
+            logger('[Employee] Started updating slots');
+
             $startTime = $this->base_schedule->start($day);
             $endTime = $this->base_schedule->end($day);
 
