@@ -27,7 +27,7 @@ class ClientForgotPassword extends Mailable
 
     public function build()
     {
-        return $this->from('adriano@example.com')
+        return $this->from('simplebarberapp@gmail.com')
             ->subject('Simple Barber password reset requested')
             ->markdown('email.client-forgot-password');
     }

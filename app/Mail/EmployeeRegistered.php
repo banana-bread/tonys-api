@@ -12,7 +12,7 @@ class EmployeeRegistered extends Mailable
 
     public function build()
     {
-        return $this->from('adriano@example.com')
+        return $this->from('simplebarberapp@gmail.com')
             // TODO: create template
             ->markdown('email.employee-registered-confirmation');
     }
