@@ -31,11 +31,9 @@ class CompanyController extends ApiController
 
     public function update(string $id): JsonResponse
     {
-        $phone = '+1' . request('phone');
-
-        $data = array_merge(['phone' => $phone], request()->only(['name', 'city', 'region', 'country', 'address', 'postal_code']));
-
-        $company = Company::where('id', $id)->update($data);
+        $company = Company::where('id', $id)->update(
+            request()->only(['name', 'city', 'region', 'country', 'address', 'postal_code', 'phone'])
+        );
         
         return $this->ok(['company' => $company], 'Company updated.');
     }

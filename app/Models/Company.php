@@ -78,11 +78,11 @@ class Company extends BaseModel
         return '('.Str::substr($this->phone, 2, 3).') '.Str::substr($this->phone, 5, 3).'-'.Str::substr($this->phone, 8);
     }
 
-    public function toArray(): array
-    {
-        return array_merge(
-            parent::toArray(),
-            ['phone' => Str::substr($this->phone, 2)]
-        );
-    }
+    // public function toArray(): array
+    // {
+    //     return array_merge(
+    //         parent::toArray(),
+    //         ['phone' => Str::substr($this->phone, 2)]
+    //     );
+    // }
 }

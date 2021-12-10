@@ -82,11 +82,11 @@ class User extends Authenticatable
         return $this->isEmployee() && $this->employee->isOwner();
     }
 
-    public function toArray(): array
-    {
-        return array_merge(
-            parent::toArray(),
-            ['phone' => Str::substr($this->phone, 2)]
-        );
-    }
+    // public function toArray(): array
+    // {
+    //     return array_merge(
+    //         parent::toArray(),
+    //         ['phone' => Str::substr($this->phone, 2)]
+    //     );
+    // }
 }
