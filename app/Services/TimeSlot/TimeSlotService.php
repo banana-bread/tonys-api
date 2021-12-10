@@ -11,7 +11,7 @@ use App\Http\Requests\TimeSlotRequest;
 
 class TimeSlotService
 {
-    public function getAvailableSlots(string $companyId): Collection
+    public function getAvailableSlots(string $companyId)
     {   
         $employeeId = request('employee-id');
         $serviceDefinitions = ServiceDefinition::find(
@@ -20,17 +20,10 @@ class TimeSlotService
         
         $dateFrom = Carbon::createFromTimestamp( request('date-from') );
         $dateTo = Carbon::createFromTimestamp( request('date-to') );
-        $singleSlotDuration = $serviceDefinitions->first()->company->time_slot_duration;
 
-        $summedServiceDuration = $serviceDefinitions->sum('duration');
-        $slotsRequired = ceil($summedServiceDuration / $singleSlotDuration);
+        $tsPdo = new TimeSlotPdo($dateFrom, $dateTo, $companyId, $serviceDefinitions, $employeeId);
+        $slots = $tsPdo->execute();
 
-        $tsPdo = new TimeSlotPdo($dateFrom, $dateTo, $companyId, $employeeId);
-
-        $slots = $slotsRequired > 1
-            ? $tsPdo->fetchConsecutiveAvailableSlots($slotsRequired)
-            : $tsPdo->fetchAvailableSlots();
-            
         return $slots;
     }
 }

@@ -79,6 +79,11 @@ class Employee extends BaseModel implements UserModel
         return $this->hasMany(Booking::class);
     }
 
+    public function services()
+    {
+        return $this->belongsToMany(ServiceDefinition::class)->withTimestamps();
+    }
+
     // CUSTOM ATTRIBUTES
 
     public function getFirstNameAttribute()
@@ -241,8 +246,6 @@ class Employee extends BaseModel implements UserModel
         {
             $this->base_schedule = $newBaseSchedule;
             $this->save();
-
-            logger('[Employee] Saved new base schedule');
     
             $this->updateTimeSlots();
         });
@@ -261,8 +264,6 @@ class Employee extends BaseModel implements UserModel
             ->update(['employee_working' => false]);
 
         $weekDays = collect(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']);
-
-        logger('[Employee] Started updating slots');
 
         $weekDays->each(function ($day, $key) use ($localTimezone)
         {
@@ -290,7 +291,5 @@ class Employee extends BaseModel implements UserModel
                 ->whereRaw("DATE(CONVERT_TZ(start_time, 'UTC', ?)) = DATE(CONVERT_TZ(end_time, 'UTC', ?))", [$localTimezone, $localTimezone])
                 ->update(['employee_working' => true]);
         });
-
-        logger('[Employee] Finished updating slots');
     }
 }
