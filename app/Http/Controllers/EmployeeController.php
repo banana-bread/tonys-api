@@ -23,6 +23,9 @@ class EmployeeController extends ApiController
             return $this->error('Invalid url signature.', 400);
         }
 
+        // TODO: Check companies services.  When all employees are assigned to a particular service
+        //       That is treated as 'all'.  Assign new employee to any service that is 'all'
+
         $employee = (new RegisterService)->employee($companyId);
             
         return $this->created(['employee' => $employee], 'Employee created.');
@@ -42,26 +45,9 @@ class EmployeeController extends ApiController
 
         DB::transaction(function () use ($employee)
         {
-            if (!! request('old_password'))
-            {
-                if (! request('new_password'))
-                {
-                    throw new EmployeeException([], 'A new password was not provided.');
-                }            
-
-                $user = $employee->user;
-
-                if (! Hash::check(request('old_password'), $user->password) )
-                {
-                    throw new EmployeeException([], 'Old password was incorrect.');
-                }            
-                
-                $user->password = Hash::make(request('new_password'));
-                $user->save();
-            }
-
+            $this->handlePasswordUpdate($employee);
+        
             $employee->user->update(request()->only(['first_name', 'last_name', 'phone']));
-
         });
 
         return $this->ok($employee, 'Employee profile updated.');
@@ -91,5 +77,24 @@ class EmployeeController extends ApiController
         return $this->deleted('Employee deleted.');
     }
 
+    private function handlePasswordUpdate(Employee $employee)
+    {
+        if (!! request('old_password'))
+        {
+            if (! request('new_password'))
+            {
+                throw new EmployeeException([], 'A new password was not provided.');
+            }            
 
+            $user = $employee->user;
+
+            if (! Hash::check(request('old_password'), $user->password) )
+            {
+                throw new EmployeeException([], 'Old password was incorrect.');
+            }            
+            
+            $user->password = Hash::make(request('new_password'));
+            $user->save();
+        }
+    }
 }
