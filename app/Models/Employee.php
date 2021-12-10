@@ -79,6 +79,11 @@ class Employee extends BaseModel implements UserModel
         return $this->hasMany(Booking::class);
     }
 
+    public function services()
+    {
+        return $this->belongsToMany(ServiceDefinition::class)->withTimestamps();
+    }
+
     // CUSTOM ATTRIBUTES
 
     public function getFirstNameAttribute()
@@ -241,8 +246,6 @@ class Employee extends BaseModel implements UserModel
         {
             $this->base_schedule = $newBaseSchedule;
             $this->save();
-
-            logger('[Employee] Saved new base schedule');
     
             $this->updateTimeSlots();
         });
@@ -261,22 +264,13 @@ class Employee extends BaseModel implements UserModel
             ->update(['employee_working' => false]);
 
         $weekDays = collect(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']);
-
-        logger('[Employee] $weekDays: ' . $weekDays);
-        logger('[Employee] $today: ' . now($localTimezone)->startOfDay());
         
         $weekDays->each(function ($day, $key) use ($localTimezone)
-        {
-            logger('[Employee] Started updating slots');
-            
+        {        
             $startTime = $this->base_schedule->start($day);
             $endTime = $this->base_schedule->end($day);
 
             if (!$startTime || !$endTime) return;
-
-
-            logger('[Employee] $startTime: ' . $startTime);
-            logger('[Employee] $endTime: ' . $endTime);
 
             // TODO: Extract these calculations to... somewhere else.  BaseSchedule?
             $startHourInSeconds = ((int) Str::of($startTime)->explode(':')->first()) * 3600;
@@ -289,17 +283,13 @@ class Employee extends BaseModel implements UserModel
 
             // TODO: this currently performs up to 7 updates, but 
             //       could be done more performantly in 1
-            $didWork = TimeSlot::where('start_time', '>=', now($localTimezone)->startOfDay())
+            TimeSlot::where('start_time', '>=', now($localTimezone)->startOfDay())
                 ->where('employee_id', $this->id)
                 ->whereRaw("WEEKDAY(CONVERT_TZ(start_time, 'UTC', ?)) = ?", [$localTimezone, $key])
                 ->whereRaw("TIME_TO_SEC(CONVERT_TZ(start_time, 'UTC', ?)) >= ?", [$localTimezone, $startTimeInSeconds])
                 ->whereRaw("TIME_TO_SEC(CONVERT_TZ(end_time, 'UTC', ?)) <= ?", [$localTimezone, $endTimeInSeconds])
                 ->whereRaw("DATE(CONVERT_TZ(start_time, 'UTC', ?)) = DATE(CONVERT_TZ(end_time, 'UTC', ?))", [$localTimezone, $localTimezone])
                 ->update(['employee_working' => true]);
-
-            logger('[Employee] Update successful: ' . $didWork);
         });
-
-        logger('[Employee] Finished updating slots');
     }
 }
