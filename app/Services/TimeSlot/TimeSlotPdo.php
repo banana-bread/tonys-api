@@ -76,7 +76,6 @@ class TimeSlotPdo
         $andEmployeeIdPart = !!$this->employeeId
             ? "AND t.employee_id = :employee_id "
             : " ";
-        
         $andEmployeeCanPerformServicePart =  $this->getAndEmployeeCanPerformServicePart();
     
         return    
