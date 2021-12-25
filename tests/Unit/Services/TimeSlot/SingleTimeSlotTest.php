@@ -11,11 +11,10 @@ use Tests\TestCase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
-class SingleTimeSlotTest extends TestCase
+class SingleIdiotTest extends TestCase
 {
     use WithFaker, RefreshDatabase;
 
-    /** @test */
     public function specifying_employee_id_will_return_available_slots_for_only_that_particular_employee()
     {
         $employee1 = Employee::factory()->create();
@@ -36,7 +35,7 @@ class SingleTimeSlotTest extends TestCase
     }
 
     /** @test */
-    public function number_of_available_time_slots_is_0_when_nothing_is_available()
+    public function number_of_available_time_slots_is_0_when_all_slots_are_reserved()
     {
         $tsReserved = TimeSlot::factory()->reserved()->create(['start_time' => today()->addHours(9)->addMinutes(30), 'end_time' => today()->addHours(10)]);
 

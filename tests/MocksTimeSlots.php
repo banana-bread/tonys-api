@@ -5,6 +5,8 @@ namespace Tests;
 use App\Models\Employee;
 use App\Models\ServiceDefinition;
 use App\Models\TimeSlot;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 trait MocksTimeSlots 
 {
@@ -27,14 +29,14 @@ trait MocksTimeSlots
             ."date-to=$to->timestamp";
     }
 
-    public function makeSlotsFor(Employee $employee, int $count = 1)
+    public function makeSlotsFor(Employee $employee, int $count = 1, int $startingHour = 9)
     {
         $slots = collect(range(1, $count))->map(fn($num) =>
             TimeSlot::factory()->create([
                 'company_id'  => $employee->company_id,
                 'employee_id' => $employee->id,
-                'start_time'  => today()->addDay()->addHours(9)->addMinutes((15 * ($num-1))),
-                'end_time'    => today()->addDay()->addHours(9)->addMinutes((15 + (15 * ($num-1)))),
+                'start_time'  => today()->addDay()->addHours($startingHour)->addMinutes((15 * ($num-1))),
+                'end_time'    => today()->addDay()->addHours($startingHour)->addMinutes((15 + (15 * ($num-1)))),
             ])
         );
 
@@ -46,16 +48,28 @@ trait MocksTimeSlots
         return $slots;
     }
 
-    public function makeServicesFor(Employee $employee, int $number = 1, string $duration = 'short')
+    public function makeServicesFor($employees, int $number = 1, string $duration = 'short')
     {
+        if ($employees instanceof Employee)
+        {
+            $employees = collect([$employees]);
+        }
+
+        if (! $employees instanceof Collection)
+        {
+            $employees = collect($employees);
+        }
+
         $services = collect(range(1, $number))->map(fn($num) =>
-            ServiceDefinition::factory()->{$duration}()->create(['company_id' => $employee->company_id])
+            ServiceDefinition::factory()->{$duration}()->create(['company_id' => $employees->first()->company_id])
         );
 
-        $employeeServiceDefinitions = $services->map(fn($service) => [
-            'employee_id'           => $employee->id, 
-            'service_definition_id' => $service->id
-        ])->all();
+        $employeeServiceDefinitions = $services->flatMap(fn($service) => 
+            $employees->map(fn($emp) => [
+                'employee_id'           => $emp->id, 
+                'service_definition_id' => $service->id
+            ])
+        )->all();
 
         DB::table('employee_service_definition')->insert($employeeServiceDefinitions);
         
