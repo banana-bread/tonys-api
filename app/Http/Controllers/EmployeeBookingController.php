@@ -38,6 +38,7 @@ class EmployeeBookingController extends ApiController
             return $employee->createBooking($startingSlot, $serviceDefinitions);
         });
 
+        $booking->load('services');
 
         return $this->ok(['booking' => $booking], 'Booking created.');
     }
