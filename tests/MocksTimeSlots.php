@@ -31,7 +31,7 @@ trait MocksTimeSlots
 
     public function makeSlotsFor(Employee $employee, int $count = 1, int $startingHour = 9)
     {
-        $slots = collect(range(1, $count))->map(fn($num) =>
+        return collect(range(1, $count))->map(fn($num) =>
             TimeSlot::factory()->create([
                 'company_id'  => $employee->company_id,
                 'employee_id' => $employee->id,
@@ -39,13 +39,6 @@ trait MocksTimeSlots
                 'end_time'    => today()->addDay()->addHours($startingHour)->addMinutes((15 + (15 * ($num-1)))),
             ])
         );
-
-        if ($slots->count() === 1)
-        {
-            return $slots->first();
-        }
-
-        return $slots;
     }
 
     public function makeServicesFor($employees, int $number = 1, string $duration = 'short')

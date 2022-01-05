@@ -127,7 +127,7 @@ class TimeSlotPdo
             "WITH s AS (SELECT id, company_id, employee_id, start_time, end_time, reserved, $leadColumnsPart
                         FROM time_slots
                         WHERE date(start_time) >= date(:date_from)
-                        AND date(start_time) <= date(:date_to) 
+                        AND date(end_time) <= date(:date_to) 
                         AND start_time >= DATE_ADD(now(), INTERVAL 15 MINUTE)
                         AND company_id = :company_id            
                         AND employee_working = 1
