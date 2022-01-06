@@ -114,4 +114,6 @@ return [
 
     'password_timeout' => 10800,
 
+    'recaptcha_secret' => env('RECAPTCHA_SECRET'),
+
 ];

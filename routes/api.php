@@ -23,16 +23,8 @@ use App\Http\Controllers\ClientResetPasswordController;
 use App\Http\Controllers\EmployeeOwnerController;
 use App\Http\Controllers\ServiceDefinitionController;
 use App\Http\Controllers\TimeSlotController;
-use App\Mail\BookingCreated;
-use App\Mail\EmployeeInvitationSent;
-use App\Models\Booking;
-use App\Models\Client;
-use App\Models\Company;
-use App\Models\Employee;
-use App\Models\Service;
-use App\Models\User;
+use App\Http\Controllers\RecaptchaController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -48,6 +40,8 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function(Request $r) {
     return response()->json('tony\'s api');
 });
+
+Route::post('/verify-recaptcha',                    [RecaptchaController::class, 'verify']);
 
 Route::post('/locations',                           [CompanyController::class, 'store']);
 Route::get('/locations/{id}',                       [CompanyController::class, 'show']);
