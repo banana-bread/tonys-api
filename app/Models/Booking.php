@@ -84,7 +84,9 @@ class Booking extends BaseModel
 
     public function getFormattedTotalAttribute()
     {
-        return '$' . number_format(($this->total/100), 2, '.', ' ');
+        $totalWithTax = $this->total * 1.13;
+
+        return '$' . number_format(($totalWithTax/100), 2, '.', ' ');
     }
 
     // SCOPES
