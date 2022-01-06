@@ -75,7 +75,7 @@ class Company extends BaseModel
 
     public function getFormattedPhoneAttribute(): string
     {
-        return '('.Str::substr($this->phone, 2, 3).') '.Str::substr($this->phone, 5, 3).'-'.Str::substr($this->phone, 8);
+        return '('.Str::substr($this->phone, 0, 3).') '.Str::substr($this->phone, 3, 3).'-'.Str::substr($this->phone, 6);
     }
 
     // public function toArray(): array

@@ -76,7 +76,6 @@ class TimeSlotPdo
         $andEmployeeIdPart = !!$this->employeeId
             ? "AND t.employee_id = :employee_id "
             : " ";
-        
         $andEmployeeCanPerformServicePart =  $this->getAndEmployeeCanPerformServicePart();
     
         return    
@@ -128,7 +127,7 @@ class TimeSlotPdo
             "WITH s AS (SELECT id, company_id, employee_id, start_time, end_time, reserved, $leadColumnsPart
                         FROM time_slots
                         WHERE date(start_time) >= date(:date_from)
-                        AND date(start_time) <= date(:date_to) 
+                        AND date(end_time) <= date(:date_to) 
                         AND start_time >= DATE_ADD(now(), INTERVAL 15 MINUTE)
                         AND company_id = :company_id            
                         AND employee_working = 1
@@ -183,10 +182,33 @@ class TimeSlotPdo
 
     protected function chooseRandomSlotWhenManyAreAvailable(Collection $availableSlots): Collection
     {
-        $availableSlots = $availableSlots->groupBy('start_time');
+        $availableSlotGroups = $availableSlots->groupBy('start_time');
 
-        return $availableSlots->map(function($slot) {
-            return $slot->random();
+        $companyOwners = \DB::table('employees')
+            ->select('id')
+            ->where('company_id', $this->companyId)
+            ->where('owner', true)
+            ->get()
+            ->keyBy('id');
+
+        $slotsPerBookingTimes = $availableSlotGroups->map(function($slots) use ($companyOwners) 
+        {
+            // This is a hard-coded implementation of the priority booking feature.  It currently
+            // favours non-owner employees for a specific timeslot if both owners and non-owners
+            // are availble for it.
+
+            $hasOwners = $slots->contains(fn ($slot) => $companyOwners->has($slot['employee_id']));
+            $hasNonOwners = $slots->contains(fn ($slot) => !$companyOwners->has($slot['employee_id']));
+
+            if ($hasOwners && $hasNonOwners)
+            {
+                $slots = $slots->filter(fn ($slot) => !$companyOwners->has($slot['employee_id']));
+            }
+
+            return $slots->random();
+
         })->values();
+
+        return $slotsPerBookingTimes;
     }
 }

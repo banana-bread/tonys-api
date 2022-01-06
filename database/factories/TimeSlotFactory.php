@@ -39,6 +39,7 @@ class TimeSlotFactory extends Factory
             'employee_id' => $employee->id,
             'company_id' => $employee->company_id,
             'reserved' => false,
+            'employee_working' => true,
             'start_time' => $startedAt,
             'end_time' => $endedAt
         ];
