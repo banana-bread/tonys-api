@@ -182,10 +182,33 @@ class TimeSlotPdo
 
     protected function chooseRandomSlotWhenManyAreAvailable(Collection $availableSlots): Collection
     {
-        $availableSlots = $availableSlots->groupBy('start_time');
+        $availableSlotGroups = $availableSlots->groupBy('start_time');
 
-        return $availableSlots->map(function($slot) {
-            return $slot->random();
+        $companyOwners = \DB::table('employees')
+            ->select('id')
+            ->where('company_id', $this->companyId)
+            ->where('owner', true)
+            ->get()
+            ->keyBy('id');
+
+        $slotsPerBookingTimes = $availableSlotGroups->map(function($slots) use ($companyOwners) 
+        {
+            // This is a hard-coded implementation of the priority booking feature.  It currently
+            // favours non-owner employees for a specific timeslot if both owners and non-owners
+            // are availble for it.
+
+            $hasOwners = $slots->contains(fn ($slot) => $companyOwners->has($slot['employee_id']));
+            $hasNonOwners = $slots->contains(fn ($slot) => !$companyOwners->has($slot['employee_id']));
+
+            if ($hasOwners && $hasNonOwners)
+            {
+                $slots = $slots->filter(fn ($slot) => !$companyOwners->has($slot['employee_id']));
+            }
+
+            return $slots->random();
+
         })->values();
+
+        return $slotsPerBookingTimes;
     }
 }
