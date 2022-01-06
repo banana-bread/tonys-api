@@ -25,9 +25,31 @@ class LoginService
     {
         $providerUser = Socialite::driver($provider)->stateless()->user();
 
+        switch($provider)
+        {
+            case 'facebook':
+               $firstName = $providerUser->offsetGet('first_name');
+               $lastName = $providerUser->offsetGet('last_name');
+               break;
+         
+            case 'google':
+               $firstName = $providerUser->offsetGet('given_name');
+               $lastName = $providerUser->offsetGet('family_name');
+               break;
+         
+            default:
+               $firstName = $providerUser->getName();
+               $lastName = $providerUser->getName();
+         }
+
         User::firstOrCreate(
             ['provider_id' => $providerUser->getId()],
-            ['name' => $providerUser->getName(), 'email' => $providerUser->getEmail(), 'provider' => $provider,]
+            [
+                'first_name' => $firstName,
+                'last_name' => $lastName,
+                'email' => $providerUser->getEmail(), 
+                'provider' => $provider,
+            ]
         );
 
         $request->request->replace([

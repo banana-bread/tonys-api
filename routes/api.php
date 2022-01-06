@@ -49,23 +49,12 @@ Route::get('/', function(Request $r) {
     return response()->json('tony\'s api');
 });
 
-// Gonna leave this here till we're done with all the email templates
-Route::get('/mail', function(Request $r) {
-
-    // $service = Service::factory()->create();
-    // $client = $service->booking->client;
-    // $booking = $service->booking;
-    // $client->send(new BookingCreated($booking));
-    // $employee = Employee::factory()->create();
-    Mail::to(request('email'))->send(new EmployeeInvitationSent);
-});
-
 Route::post('/locations',                           [CompanyController::class, 'store']);
 Route::get('/locations/{id}',                       [CompanyController::class, 'show']);
 
 Route::post('/client/login',                        [ClientLoginController::class, 'login']);
-Route::post('/client/login/{provider}',             [ClientLoginController::class, 'redirectToProvider']);
-Route::post('/client/login/{provider}/callback',    [ClientLoginController::class, 'handleProviderCallback']);
+// Route::post('/client/login/{provider}',             [ClientLoginController::class, 'redirectToProvider']);
+// Route::get('/client/login/{provider}/callback',    [ClientLoginController::class, 'handleProviderCallback']);
 Route::post('/employee/login',                      [EmployeeLoginController::class, 'login']);
 Route::delete('/logout',                            [LogoutController::class, 'logout'])->middleware('auth:api');
 Route::post('/refresh-token',                       [RefreshTokenController::class, 'refresh']);
