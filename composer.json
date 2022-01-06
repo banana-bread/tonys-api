@@ -13,7 +13,7 @@
         "fakerphp/faker": "^1.13",
         "fideloper/proxy": "^4.4",
         "fruitcake/laravel-cors": "^2.0",
-        "guzzlehttp/guzzle": "^7.2",
+        "guzzlehttp/guzzle": "^7.4",
         "laravel/framework": "^8.12",
         "laravel/passport": "^10.2",
         "laravel/socialite": "^5.1",

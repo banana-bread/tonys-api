@@ -23,16 +23,8 @@ use App\Http\Controllers\ClientResetPasswordController;
 use App\Http\Controllers\EmployeeOwnerController;
 use App\Http\Controllers\ServiceDefinitionController;
 use App\Http\Controllers\TimeSlotController;
-use App\Mail\BookingCreated;
-use App\Mail\EmployeeInvitationSent;
-use App\Models\Booking;
-use App\Models\Client;
-use App\Models\Company;
-use App\Models\Employee;
-use App\Models\Service;
-use App\Models\User;
+use App\Http\Controllers\RecaptchaController;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -49,23 +41,14 @@ Route::get('/', function(Request $r) {
     return response()->json('tony\'s api');
 });
 
-// Gonna leave this here till we're done with all the email templates
-Route::get('/mail', function(Request $r) {
-
-    // $service = Service::factory()->create();
-    // $client = $service->booking->client;
-    // $booking = $service->booking;
-    // $client->send(new BookingCreated($booking));
-    // $employee = Employee::factory()->create();
-    Mail::to(request('email'))->send(new EmployeeInvitationSent);
-});
+Route::post('/verify-recaptcha',                    [RecaptchaController::class, 'verify']);
 
 Route::post('/locations',                           [CompanyController::class, 'store']);
 Route::get('/locations/{id}',                       [CompanyController::class, 'show']);
 
 Route::post('/client/login',                        [ClientLoginController::class, 'login']);
-Route::post('/client/login/{provider}',             [ClientLoginController::class, 'redirectToProvider']);
-Route::post('/client/login/{provider}/callback',    [ClientLoginController::class, 'handleProviderCallback']);
+// Route::post('/client/login/{provider}',             [ClientLoginController::class, 'redirectToProvider']);
+// Route::get('/client/login/{provider}/callback',    [ClientLoginController::class, 'handleProviderCallback']);
 Route::post('/employee/login',                      [EmployeeLoginController::class, 'login']);
 Route::delete('/logout',                            [LogoutController::class, 'logout'])->middleware('auth:api');
 Route::post('/refresh-token',                       [RefreshTokenController::class, 'refresh']);
