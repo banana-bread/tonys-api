@@ -45,6 +45,7 @@ Route::post('/verify-recaptcha',                    [RecaptchaController::class,
 
 Route::post('/locations',                           [CompanyController::class, 'store']);
 Route::get('/locations/{id}',                       [CompanyController::class, 'show']);
+Route::get('/locations/slug/{slug}',                [CompanyController::class, 'showBySlug']);
 
 Route::post('/client/login',                        [ClientLoginController::class, 'login']);
 // Route::post('/client/login/{provider}',             [ClientLoginController::class, 'redirectToProvider']);
