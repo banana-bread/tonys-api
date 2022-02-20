@@ -19,6 +19,7 @@ class Company extends BaseModel
     protected $visible = [
         'id',
         'name',
+        'slug',
         'city',
         'region',
         'postal_code',
@@ -41,7 +42,7 @@ class Company extends BaseModel
     protected $casts = [
         'settings' => 'collection'
     ];
-
+ 
     // RELATIONS
 
     public function clients() 
