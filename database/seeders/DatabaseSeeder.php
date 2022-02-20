@@ -38,7 +38,7 @@ class DatabaseSeeder extends Seeder
         $employees = $this->createEmployees($company);
         $this->createClients();
         $this->createEmployeeTimeslots($employees);
-        $this->createServiceDefinitions($company);        
+        $this->createServiceDefinitions($company, $employees);        
         $this->createBookings();     
     }
 
@@ -99,11 +99,18 @@ class DatabaseSeeder extends Seeder
         $employees->each(fn ($employee) => $employee->createSlotsForNext(365)); 
     }
 
-    private function createServiceDefinitions(Company $company): void
+    private function createServiceDefinitions(Company $company, Collection $employees): void
     {
-        ServiceDefinition::factory()->for($company)->create(['name' => 'Hair Cut', 'duration' => 1800, 'ordinal_position' => 0]);
-        ServiceDefinition::factory()->for($company)->create(['name' => 'Beard Trim', 'duration' => 900, 'ordinal_position' => 1]);
-        ServiceDefinition::factory()->for($company)->create(['name' => 'Child Cut', 'duration' => 2700, 'ordinal_position' => 2]);
+        $s1 = ServiceDefinition::factory()->for($company)->create(['name' => 'Hair Cut', 'duration' => 1800, 'ordinal_position' => 0]);
+        $s2 = ServiceDefinition::factory()->for($company)->create(['name' => 'Beard Trim', 'duration' => 900, 'ordinal_position' => 1]);
+        $s3 = ServiceDefinition::factory()->for($company)->create(['name' => 'Child Cut', 'duration' => 2700, 'ordinal_position' => 2]);
+
+        $services = collect([$s1, $s2, $s3]);
+        $employeeIds = $employees->pluck('id');
+
+        $services->each(fn($service) => 
+            $service->employees()->sync($employeeIds)
+        );
     }
 
     private function createBookings(): void
