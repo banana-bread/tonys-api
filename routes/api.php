@@ -10,7 +10,7 @@ use App\Http\Controllers\Auth\AuthedEmployeeController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\EmployeeController;
-use App\Http\Controllers\BookingEmployeeController;
+use App\Http\Controllers\ClientBookingController;
 use App\Http\Controllers\CompanyEmployeeController;
 use App\Http\Controllers\CompanyServiceDefinitionsController;
 use App\Http\Controllers\EmployeeAdminController;
@@ -58,8 +58,10 @@ Route::post('/clients',      [ClientController::class, 'store']);
 Route::get('/client/authed', [AuthedClientController::class, 'show'])->middleware('auth:api');
 Route::get('/employee/authed', [AuthedEmployeeController::class, 'show'])->middleware('auth:api');
 
-Route::put('/clients/{id}',  [ClientController::class, 'update'])->middleware('auth:api'); // TODO: authed if is current client 
-Route::get('/clients/{id}',  [ClientController::class, 'show'])->middleware('auth:api');;  // TODO: authed if is current client (or many to many exists with company)
+Route::put('/clients/{id}',           [ClientController::class, 'update'])->middleware('auth:api'); // TODO: authed if is current client 
+Route::get('/clients/{id}',           [ClientController::class, 'show'])->middleware('auth:api');  // TODO: authed if is current client (or many to many exists with company)
+Route::get('/clients/{id}/bookings',  [ClientBookingController::class, 'index'])->middleware('auth:api');
+Route::delete('/bookings/{id}',          [BookingController::class, 'destroy'])->middleware('auth:api');
 
 Route::post('/clients/forgot-password',           [ClientForgotPasswordController::class, 'store']);
 Route::post('/clients/reset-password',            [ClientResetPasswordController::class, 'store'])->name('client-reset-password');   
@@ -95,7 +97,6 @@ Route::prefix('/locations/{companyId}')->group(function() {
         Route::get('/bookings',                  [BookingController::class, 'index']);
         Route::post('/bookings',                 [BookingController::class, 'store']);                
         Route::get('/bookings/{id}',             [BookingController::class, 'show']); // TODO: authed if is admin/owner, booking belongs to employee, booking belongs to client
-        Route::delete('/bookings/{id}',          [BookingController::class, 'destroy']); // TODO: authed if is admin/owner, booking belongs to employee, booking belongs to client 
 
         Route::post('/employees/{id}/bookings',    [EmployeeBookingController::class, 'store']);
         

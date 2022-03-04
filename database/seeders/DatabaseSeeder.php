@@ -72,7 +72,10 @@ class DatabaseSeeder extends Seeder
 
     private function createCompany(): Company
     {
-        return Company::factory()->create();
+        return Company::factory()->create([
+            'name' => 'Tony\'s Barber Shop',
+            'slug' => 'tonys'
+        ]);
     }
 
     private function createEmployees(Company $company): Collection
