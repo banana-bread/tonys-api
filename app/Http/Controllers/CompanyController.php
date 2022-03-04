@@ -24,14 +24,18 @@ class CompanyController extends ApiController
 
     public function show(string $id): JsonResponse
     {
-        $company = Company::where('id', $id)->with('employees')->first();
+        $company = Company::where('id', $id)
+            ->with(['employees', 'service_definitions'])
+            ->first();
 
         return $this->ok(['company' => $company], 'Company retrieved.');
     }
 
     public function showBySlug(string $slug): JsonResponse
     {
-        $company = Company::where('slug', $slug)->with('employees')->first();
+        $company = Company::where('slug', $slug)
+            ->with(['employees', 'service_definitions'])
+            ->first();
 
         return $this->ok(['company' => $company], 'Company retrieved.');
     }

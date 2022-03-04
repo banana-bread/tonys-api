@@ -6,6 +6,7 @@ use App\Exceptions\BookingException;
 use App\Models\Contracts\UserModel;
 use App\Traits\HasUuid;
 use Carbon\CarbonInterval;
+use Illuminate\Support\Facades\DB;
 
 class Booking extends BaseModel
 {
@@ -102,20 +103,23 @@ class Booking extends BaseModel
 
     public function cancel()
     {
-        if (! $this->canBeCancelled())
+        if ($this->isCancelled())
         {
-            throw new BookingException([$this], 'Booking cannot be cancelled'); 
+            throw new BookingException([], 'Booking already cancelled');
         }
 
-        $this->time_slots()->update([
-            'reserved' => false,
-            'booking_id' => null,
-        ]);
+        DB::transaction(function () {
 
-        $this->update([
-            'cancelled_at' => now(),
-            'cancelled_by' => auth()->user()->id,
-        ]);
+            $this->time_slots()->update([
+                'reserved' => false,
+                'booking_id' => null,
+            ]);
+    
+            $this->update([
+                'cancelled_at' => now(),
+                'cancelled_by' => auth()->user()->id,
+            ]);
+        });
     }
 
     // HELPERS
@@ -125,29 +129,29 @@ class Booking extends BaseModel
         return !!$this->cancelled_at;
     }
 
-    public function isWithinGracePeriod(): bool
-    {
-        return $this->started_at->greaterThan(
-            now()->addSeconds($this->employee->company->booking_grace_period)
-        );
-    }
+    // public function isWithinGracePeriod(): bool
+    // {
+    //     return $this->started_at->greaterThan(
+    //         now()->addSeconds($this->employee->company->booking_grace_period)
+    //     );
+    // }
 
-    public function canBeCancelled(): bool
-    {
-        // Bookings client is trying to cancel
-        if ($this->client && $this->client->user_id == auth()->user()->id)
-        {
-            return $this->isWithinGracePeriod() && !$this->isCancelled();
-        }
-        // Bookings employee, or admin is trying to cancel
-        else if (($this->employee && $this->employee->user_id == auth()->user()->id) ||
-                  auth()->user()->isAdmin())
-        {
-            return !$this->isCancelled();
-        }
+    // public function canBeCancelled(): bool
+    // {
+    //     // Bookings client is trying to cancel
+    //     if ($this->client && $this->client->user_id == auth()->user()->id)
+    //     {
+    //         return $this->isWithinGracePeriod() && !$this->isCancelled();
+    //     }
+    //     // Bookings employee, or admin is trying to cancel
+    //     else if (($this->employee && $this->employee->user_id == auth()->user()->id) ||
+    //               auth()->user()->isAdmin())
+    //     {
+    //         return !$this->isCancelled();
+    //     }
 
-        return false;
-    }
+    //     return false;
+    // }
 
     public function wasCancelledBy(UserModel $model)
     {

@@ -12,7 +12,7 @@ class Company extends BaseModel
 {
     use HasUuid, SoftDeletes;
 
-    protected $with = ['owner', 'service_definitions'];
+    protected $with = [];
     
     protected $appends = [];
 

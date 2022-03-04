@@ -10,7 +10,7 @@
 @endcomponent
 <br>
 <div>
-<p>For any cancellations, please contact us. <span style="font-weight: bold;">{{ $company->formatted_phone }}</span></p>
+<!-- <p>For any cancellations, please contact us. <span style="font-weight: bold;">{{ $company->formatted_phone }}</span></p> -->
 </div>
 
 <div>
@@ -34,9 +34,9 @@
     <span style="font-weight: bold;">{{ $booking->formatted_total }}</span>
 </div>
 
-<!-- @component('mail::button', ['url' => 'https://laracasts.com'])
-    View your booking
-@endcomponent -->
+@component('mail::button', ['url' => $bookingUrl ])
+    View booking
+@endcomponent
 
 @endcomponent
 

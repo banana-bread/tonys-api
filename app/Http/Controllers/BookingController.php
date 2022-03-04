@@ -5,11 +5,11 @@ namespace App\Http\Controllers;
 use App\Http\Requests\CreateBookingRequest;
 use App\Mail\BookingCancelled;
 use App\Models\Booking;
+use App\Models\TimeSlot;
 use App\Services\Booking\BookingService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use Illuminate\Auth\Access\AuthorizationException;
 
 class BookingController extends ApiController
 {
@@ -42,24 +42,30 @@ class BookingController extends ApiController
         );
     }
 
-    public function destroy(string $companyId, string $id): JsonResponse
+    public function destroy(string $id): JsonResponse
     {
-        DB::transaction(function () use ($companyId, $id) 
-        {            
-            $booking = Booking::forCompany($companyId)->findOrFail($id);
-            $booking->cancel();
-    
-            if (!! $booking->client)
-            {
-                $booking->client->send(new BookingCancelled($booking));
-    
-                if ($booking->wasCancelledBy($booking->client))
-                {
-                    $booking->employee->send(new BookingCancelled($booking));
-                }
-            }
-        });
+        $booking = Booking::findOrFail($id);
+
+        if (!$this->_authedUserIsBookingsClient($booking) && 
+            !$this->_authedUserBelongsToBookingsCompany($booking))
+        {
+            throw new AuthorizationException('User not authorized.');
+        }
+
+        $booking->cancel();
 
         return $this->deleted('Booking cancelled.');
+    }
+
+    private function _authedUserIsBookingsClient(Booking $booking): bool
+    {
+        return auth()->user()->isClient() && 
+               auth()->user()->client->id === $booking->client_id;
+    }
+
+    private function _authedUserBelongsToBookingsCompany(Booking $booking): bool
+    {
+        return auth()->user()->isEmployee() && 
+               auth()->user()->employee->company_id === $booking->employee->company_id;
     }
 }
