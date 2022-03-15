@@ -32,7 +32,7 @@ services:
     mysql:
         image: 'mysql:8.0'
         # uncomment on m1 mac
-        # platform: linux/amd64
+        platform: linux/amd64
         ports:
             - '${FORWARD_DB_PORT:-3306}:3306'
         environment:
@@ -47,7 +47,7 @@ services:
             - sail
     mysql_test:
         image: 'mysql:8.0'
-        # platform: linux/amd64
+        platform: linux/amd64
         environment:
             MYSQL_ROOT_PASSWORD: '${TEST_DB_PASSWORD}'
             MYSQL_DATABASE: '${TEST_DB_DATABASE}'
