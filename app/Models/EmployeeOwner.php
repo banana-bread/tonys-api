@@ -20,7 +20,7 @@ class EmployeeOwner extends Employee
     {
         if ($this->isOnlyOwner())
         {
-            throw new EmployeeException([], 'At least one staff member must be an owner.');
+            throw new EmployeeException([], 'At least user must be an owner');
         }
 
         $this->owner = false; 
