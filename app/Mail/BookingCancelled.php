@@ -34,7 +34,7 @@ class BookingCancelled extends Mailable
             ? 'email.client-booking-cancellation-confirmation'
             : 'email.employee-booking-cancellation-confirmation';
             
-        return $this->from('simplebarberapp@gmail.com')
+        return $this->from('simplebarberapp@gmail.com', 'Simple Barber')
             ->subject("Booking Cancelled" )
             ->markdown($template);
     }

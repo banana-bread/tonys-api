@@ -31,7 +31,7 @@ class EmployeeInvitationSent extends Mailable
 
     public function build()
     {
-        return $this->from('simplebarberapp@gmail.com')
+        return $this->from('simplebarberapp@gmail.com', 'Simple Barber')
             ->subject('Invitation from ' . $this->company->name)
             ->markdown('email.employee-invitation', [
                 'employee' => $this->employee,
