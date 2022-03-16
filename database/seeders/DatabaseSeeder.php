@@ -99,7 +99,7 @@ class DatabaseSeeder extends Seeder
 
     private function createEmployeeTimeSlots(Collection $employees): void
     {
-        $employees->each(fn ($employee) => $employee->createSlotsForNext(365)); 
+        $employees->each(fn ($employee) => $employee->createSlotsForNext(30)); 
     }
 
     private function createServiceDefinitions(Company $company, Collection $employees): void

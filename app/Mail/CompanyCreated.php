@@ -31,8 +31,7 @@ class CompanyCreated extends Mailable
      */
     public function build()
     {
-        return $this->from('simplebarberapp@gmail.com')
-        // TODO: create template
+        return $this->from('simplebarberapp@gmail.com', 'Simple Barber')        // TODO: create template
         ->markdown('email.company-created-confirmation');
     }
 }
