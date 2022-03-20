@@ -20,6 +20,7 @@ use App\Http\Controllers\EmployeeBookingsEnabledController;
 use App\Http\Controllers\EmployeeInvitationController;
 use App\Http\Controllers\ClientForgotPasswordController;
 use App\Http\Controllers\ClientResetPasswordController;
+use App\Http\Controllers\EmployeeBlockedTimeController;
 use App\Http\Controllers\EmployeeOwnerController;
 use App\Http\Controllers\ServiceDefinitionController;
 use App\Http\Controllers\TimeSlotController;
@@ -88,7 +89,7 @@ Route::prefix('/locations/{companyId}')->group(function() {
         Route::delete('/employees/{id}/admin',       [EmployeeAdminController::class, 'destroy']);  
         Route::post('/employees/{id}/owner',         [EmployeeOwnerController::class, 'store']); 
         Route::delete('/employees/{id}/owner',       [EmployeeOwnerController::class, 'destroy']);  
-
+        Route::post('/employees/{id}/blocked-time',  [EmployeeBlockedTimeController::class, 'store']);
 
         Route::put('/employees/{id}/active',   [EmployeeBookingsEnabledController::class, 'update']);  
 
