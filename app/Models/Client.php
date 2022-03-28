@@ -122,6 +122,7 @@ class Client extends BaseModel implements UserModel
             $service->service_definition_id = $definition->id;
             $service->booking_id = $booking->id;
             $service->name = $definition->name;
+            $service->description = $definition->description;
             $service->price = $definition->price;
             $service->duration = $definition->duration;
 

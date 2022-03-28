@@ -13,6 +13,7 @@ class ServiceDefinition extends BaseModel
         'id',
         'company_id',
         'name',
+        'description',
         'price',
         'duration',
 
