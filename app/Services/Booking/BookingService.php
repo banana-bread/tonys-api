@@ -7,8 +7,6 @@ use App\Models\Booking;
 use App\Models\Client;
 use App\Models\ServiceDefinition;
 use App\Models\TimeSlot;
-use Illuminate\Database\DBAL\TimestampType;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 
 class BookingService

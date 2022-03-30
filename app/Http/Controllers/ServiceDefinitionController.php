@@ -17,9 +17,9 @@ class ServiceDefinitionController extends ApiController
         $ordinalPosition = Company::where('companies.id', $companyId)
             ->join('service_definitions', 'service_definitions.company_id', '=', 'companies.id')
             ->count();
-        
+
         $attributes = array_merge(
-            request()->only('name', 'price', 'duration'), 
+            request()->only('name', 'price', 'duration', 'description'), 
             ['company_id' => $companyId, 'ordinal_position' => $ordinalPosition]
         );
 
@@ -47,7 +47,7 @@ class ServiceDefinitionController extends ApiController
         $service->employees()->sync(request('employee_ids'));
 
         return $this->ok([
-            'service_definition' => $service->update(request()->only(['id', 'name', 'price', 'duration'])), 
+            'service_definition' => $service->update(request()->only(['id', 'name', 'price', 'duration', 'description'])), 
             'Service definition updated.'
         ]);
     }

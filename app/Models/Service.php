@@ -11,6 +11,7 @@ class Service extends BaseModel
     protected $visible = [
         'id',
         'name',
+        'description',
         'price',
         'duration',
         'service_definition_id',
