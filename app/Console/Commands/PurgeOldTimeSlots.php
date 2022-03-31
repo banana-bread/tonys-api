@@ -28,7 +28,7 @@ class PurgeOldTimeSlots extends Command
      */
     public function handle()
     {
-        TimeSlot::where('end_time', '<', now()->subDay())->delete();
+        TimeSlot::where('end_time', '<', now()->subMonth())->delete();
 
         return Command::SUCCESS;
     }
