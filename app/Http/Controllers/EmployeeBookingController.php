@@ -35,7 +35,7 @@ class EmployeeBookingController extends ApiController
                 'id', collect(request('services'))->pluck('id')
             )->get();
             $startingSlot = $employee->time_slots()->where('start_time', request('event.start'))->first();
-            return $employee->createBooking($startingSlot, $serviceDefinitions);
+            return $employee->createBooking($startingSlot, $serviceDefinitions, request('manual_client_name'));
         });
 
         $booking->load('services');

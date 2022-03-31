@@ -184,9 +184,9 @@ class Employee extends BaseModel implements UserModel
 
 
 
-    public function createBooking(TimeSlot $startingSlot, Collection $serviceDefinitions)
+    public function createBooking(TimeSlot $startingSlot, Collection $serviceDefinitions, ?string $manualClientName)
     {
-        return DB::transaction(function () use ($startingSlot, $serviceDefinitions) {
+        return DB::transaction(function () use ($startingSlot, $serviceDefinitions, $manualClientName) {
 
         $duration = $serviceDefinitions->sum('duration');
         $slotsRequired = $startingSlot->company->slotsRequiredFor($duration);
@@ -202,6 +202,7 @@ class Employee extends BaseModel implements UserModel
 
         $booking = Booking::create([
             'employee_id' => $this->id,
+            'manual_client_name' => $manualClientName ?: 'Walk-in',
             'started_at' => $allSlots->first()->start_time,
             'ended_at' => $allSlots->first()->start_time->copy()->addSeconds($duration),
         ]); 

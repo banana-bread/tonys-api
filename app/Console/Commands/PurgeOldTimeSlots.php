@@ -12,7 +12,7 @@ class PurgeOldTimeSlots extends Command
      *
      * @var string
      */
-    protected $signature = 'timeslots:purge';
+    protected $signature = 'slots:purge';
 
     /**
      * The console command description.

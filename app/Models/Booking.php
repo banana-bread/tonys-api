@@ -20,6 +20,7 @@ class Booking extends BaseModel
     protected $visible = [
         'id',
         'client_id',
+        'manual_client_name',
         'employee_id',
         'cancelled_at',
         'cancelled_by',

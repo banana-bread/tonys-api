@@ -24,7 +24,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('timeslots:purge')
+        $schedule->command('slots:purge')
             ->monthlyOn(1, '03:00')
             ->environments(['production']);
     }
