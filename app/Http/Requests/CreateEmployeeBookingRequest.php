@@ -14,11 +14,11 @@ class CreateEmployeeBookingRequest extends FormRequest
     public function rules()
     {
         return [
-            'event'          => 'required|array',
-            'event.start'    => 'required|date', 
-            'services'       => 'required|array|min:1',
-            'services.*.id'  => 'required|uuid',
-
+            'event'               => 'required|array',
+            'event.start'         => 'required|date', 
+            'services'            => 'required|array|min:1',
+            'services.*.id'       => 'required|uuid',
+            'manual_client_name'  => 'nullable|string',
         ];
     }
 
