@@ -2,12 +2,11 @@
 
 namespace App\Mail;
 
-use App\Models\Company;
-use App\Models\Employee;
+use App\Models\User;
 use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\URL;
 
-class ClientForgotPassword extends Mailable
+class UserForgotPassword extends Mailable
 {
 
     public string $url;
@@ -16,11 +15,17 @@ class ClientForgotPassword extends Mailable
     public function __construct(string $email)
     {   
         $this->email = $email;
+        
+        $user = User::where('email', $this->email)->first();
+
+        $baseUrl = $user->isClient()
+            ? config('app.client_spa_url')
+            : config('app.man_spa_url'); 
 
         $this->url = 
-            config('app.client_spa_url').  
+            $baseUrl.  
             '/password/reset?signed-url='.
-            rawurlencode( URL::temporarySignedRoute( 'client-reset-password', now()->addWeek() ) ).
+            rawurlencode( URL::temporarySignedRoute( 'user-reset-password', now()->addDay() ) ).
             '&email='.rawurlencode($this->email);
 
     }
@@ -28,7 +33,7 @@ class ClientForgotPassword extends Mailable
     public function build()
     {
         return $this->from('simplebarberapp@gmail.com', 'Simple Barber')           
-            ->subject('Simple Barber password reset requested')
-            ->markdown('email.client-forgot-password');
+            ->subject('Password reset requested')
+            ->markdown('email.user-forgot-password');
     }
 }

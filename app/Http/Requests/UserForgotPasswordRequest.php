@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class ClientForgotPasswordRequest extends FormRequest
+class UserForgotPasswordRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.

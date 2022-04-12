@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
 
-class ClientResetPasswordController extends ApiController
+class UserResetPasswordController extends ApiController
 {
     public function store(): JsonResponse
     {
