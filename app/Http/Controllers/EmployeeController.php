@@ -68,7 +68,9 @@ class EmployeeController extends ApiController
             $bookingIds = $employee->bookings()->pluck('id');
 
             TimeSlot::where('employee_id', $employee->id)->delete();
+
             Service::whereIn('booking_id', $bookingIds->all())->delete();
+            DB::table('employee_service_definition')->where('employee_id', $employee->id)->delete();
             Booking::whereIn('id', $bookingIds->all())->delete();
             $employee->delete();
             $employee->user->delete();

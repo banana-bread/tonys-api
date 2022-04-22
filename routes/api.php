@@ -18,8 +18,8 @@ use App\Http\Controllers\EmployeeBaseScheduleController;
 use App\Http\Controllers\EmployeeBookingController;
 use App\Http\Controllers\EmployeeBookingsEnabledController;
 use App\Http\Controllers\EmployeeInvitationController;
-use App\Http\Controllers\ClientForgotPasswordController;
-use App\Http\Controllers\ClientResetPasswordController;
+use App\Http\Controllers\UserForgotPasswordController;
+use App\Http\Controllers\UserResetPasswordController;
 use App\Http\Controllers\EmployeeOwnerController;
 use App\Http\Controllers\ServiceDefinitionController;
 use App\Http\Controllers\TimeSlotController;
@@ -63,8 +63,8 @@ Route::get('/clients/{id}',           [ClientController::class, 'show'])->middle
 Route::get('/clients/{id}/bookings',  [ClientBookingController::class, 'index'])->middleware('auth:api');
 Route::delete('/bookings/{id}',          [BookingController::class, 'destroy'])->middleware('auth:api');
 
-Route::post('/clients/forgot-password',           [ClientForgotPasswordController::class, 'store']);
-Route::post('/clients/reset-password',            [ClientResetPasswordController::class, 'store'])->name('client-reset-password');   
+Route::post('/users/forgot-password',           [UserForgotPasswordController::class, 'store']);
+Route::post('/users/reset-password',            [UserResetPasswordController::class, 'store'])->name('user-reset-password');   
 
 
 Route::prefix('/locations/{companyId}')->group(function() {    
