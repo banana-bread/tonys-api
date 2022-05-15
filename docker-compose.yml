@@ -1,6 +1,22 @@
 # For more information: https://laravel.com/docs/sail
 version: '3'
 services:
+    management-app:
+        build: ../management-spa
+        volumes: 
+            - '../management-spa:/usr/src/app'
+        ports:
+            - '4200:4200'
+        command:
+            bash -c "npm install && ng config -g cli.warnings.versionMismatch false && ng serve --host 0.0.0.0 --port 4200"
+    client-app:
+        build: ../client-spa
+        volumes:
+            - '../client-spa:/usr/src/app'
+        ports: 
+            - '4100:4100'
+        command:
+            bash -c "npm install && ng config -g cli.warnings.versionMismatch false && ng serve --host 0.0.0.0 --port 4100"
     laravel.test:
         build:
             context: ./vendor/laravel/sail/runtimes/7.4
