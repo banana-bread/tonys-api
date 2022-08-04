@@ -27,6 +27,8 @@ class Kernel extends ConsoleKernel
     {
         $this->_purgeOldSlots($schedule);
         $this->_createNewSlots($schedule);
+        $schedule->call(fn() => logger('running this command......'))
+        ->everyMinute();
     }
 
     /**
