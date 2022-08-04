@@ -67,7 +67,7 @@ services:
         environment:
             MYSQL_ROOT_PASSWORD: '${TEST_DB_PASSWORD}'
             MYSQL_DATABASE: '${TEST_DB_DATABASE}'
-            MYSQL_USER: '${TEST_DB_USERNAME}'
+            # MYSQL_USER: '${TEST_DB_USERNAME}'
             MYSQL_PASSWORD: '${TEST_DB_PASSWORD}'
             MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
         networks:
