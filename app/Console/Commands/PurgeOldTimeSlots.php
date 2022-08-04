@@ -30,6 +30,8 @@ class PurgeOldTimeSlots extends Command
     {
         TimeSlot::where('end_time', '<', now()->subDay())->delete();
 
+        logger('Purged old time slots');
+
         return Command::SUCCESS;
     }
 }
