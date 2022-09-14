@@ -7,6 +7,7 @@ services:
             - '../management-spa:/usr/src/app'
         ports:
             - '4200:4200'
+        container_name: management-ui
         command:
             bash -c "npm install && ng config -g cli.warnings.versionMismatch false && ng serve --host 0.0.0.0 --port 4200"
     client-app:
@@ -15,17 +16,19 @@ services:
             - '../client-spa:/usr/src/app'
         ports: 
             - '4100:4100'
+        container_name: client-ui
         command:
             bash -c "npm install && ng config -g cli.warnings.versionMismatch false && ng serve --host 0.0.0.0 --port 4100"
     laravel.test:
         build:
-            context: ./vendor/laravel/sail/runtimes/7.4
+            context: ./docker/7.4
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
         image: sail-7.4/app
         ports:
             - '${APP_PORT:-80}:80'
+        container_name: api
         environment:
             WWWUSER: '${WWWUSER}'
             LARAVEL_SAIL: 1
@@ -59,6 +62,7 @@ services:
             MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
         volumes:
             - 'sailmysql:/var/lib/mysql'
+        container_name: mysql
         networks:
             - sail
     mysql_test:
@@ -70,6 +74,7 @@ services:
             # MYSQL_USER: '${TEST_DB_USERNAME}'
             MYSQL_PASSWORD: '${TEST_DB_PASSWORD}'
             MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+        container_name: mysql-test
         networks:
             - sail
     redis:
@@ -80,6 +85,7 @@ services:
             - 'sailredis:/data'
         networks:
             - sail
+        container_name: redis
     # memcached:
     #     image: 'memcached:alpine'
     #     ports:
@@ -93,6 +99,7 @@ services:
             - 8025:8025
         networks:
             - sail
+        container_name: mail-ui
 networks:
     sail:
         driver: bridge
