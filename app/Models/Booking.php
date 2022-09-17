@@ -67,6 +67,11 @@ class Booking extends BaseModel
         return $this->hasMany(TimeSlot::class);
     }
 
+    public function note()
+    {
+        return $this->morphOne(Note::class, 'notable');
+    }
+
     // CUSTOM ATTRIBUTES
 
     public function getDurationAttribute()
