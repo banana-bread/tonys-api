@@ -19,7 +19,7 @@ class Note extends BaseModel
 
   // RELATIONS
 
-  public function notable()
+  public function noteable()
   {
       return $this->morphTo();
   }

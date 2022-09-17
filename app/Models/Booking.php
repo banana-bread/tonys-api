@@ -30,6 +30,7 @@ class Booking extends BaseModel
         'client',
         'employee',
         'services',
+        'note',
 
         'duration',
         'formatted_duration',
@@ -69,7 +70,7 @@ class Booking extends BaseModel
 
     public function note()
     {
-        return $this->morphOne(Note::class, 'notable');
+        return $this->morphOne(Note::class, 'noteable');
     }
 
     // CUSTOM ATTRIBUTES

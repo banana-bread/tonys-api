@@ -15,13 +15,13 @@ class CreateNotesTable extends Migration
     {
         Schema::create('notes', function (Blueprint $table) {
           $table->uuid('id');
-          $table->uuid('notable_id');
-          $table->string('notable_type');
+          $table->uuid('noteable_id');
+          $table->string('noteable_type');
           $table->text('body');
           $table->timestamps();
 
           $table->primary('id');
-          $table->index(['notable_id', 'notable_type']);
+          $table->index(['noteable_id', 'noteable_type']);
         });
     }
 
