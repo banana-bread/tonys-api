@@ -30,6 +30,7 @@ class Booking extends BaseModel
         'client',
         'employee',
         'services',
+        'note',
 
         'duration',
         'formatted_duration',
@@ -65,6 +66,11 @@ class Booking extends BaseModel
     public function time_slots()
     {
         return $this->hasMany(TimeSlot::class);
+    }
+
+    public function note()
+    {
+        return $this->morphOne(Note::class, 'noteable');
     }
 
     // CUSTOM ATTRIBUTES
