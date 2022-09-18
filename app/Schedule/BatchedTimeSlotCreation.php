@@ -14,6 +14,9 @@ class BatchedTimeSlotCreation
   public function dispatch()
   {
     $employeeIdsToCreateSlotsFor = $this->_getEmployeeIds();
+
+    if ($employeeIdsToCreateSlotsFor->empty()) return;
+
     $createSlotsJobBatches = $this->_createJobBatches($employeeIdsToCreateSlotsFor);
     $this->_dispatchJobBus($createSlotsJobBatches);
   }
