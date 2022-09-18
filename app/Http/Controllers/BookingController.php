@@ -18,6 +18,7 @@ class BookingController extends ApiController
         // TODO: this may end up being moved to EmployeeBookingController
         $bookings = Booking::forCompany($companyId)
             // ->select('bookings.*', '''clients.name', )
+            ->with(['note'])
             ->whereDate('started_at', Carbon::createFromTimestamp(request('date_for')) )
             ->whereNull('cancelled_at')
             ->orderBy('started_at')
