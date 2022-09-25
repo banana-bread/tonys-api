@@ -15,15 +15,16 @@ class BookingService
     {
         return DB::transaction(function () {
             // getting query data
-            $client = Client::findOrFail(request('client_id'));
+            $client = Client::findOrFail(request('client.id'));
             $startingTimeSlot = TimeSlot::findOrFail(request('time_slot_id'));
-            $serviceDefinitions = ServiceDefinition::findOrFail(request('service_definition_ids'));
+            $serviceDefinitionIds = collect(request('services'))->pluck('id');
+            $serviceDefinitions = ServiceDefinition::findOrFail($serviceDefinitionIds);
             $booking = $client->createBooking($startingTimeSlot, $serviceDefinitions);
             $note = request('note');
 
-            if ($note)
+            if ($note && $note['body'])
             {
-              $booking->note()->create(['body' => $note]);
+              $booking->note()->create(['body' => $note['body']]);
             }
             
             // TODO move this check into the trait?
