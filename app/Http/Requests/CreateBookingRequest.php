@@ -24,10 +24,10 @@ class CreateBookingRequest extends FormRequest
     public function rules()
     {
         return [
-            'client_id'                 => 'required|uuid',
-            'time_slot_id'              => 'required|integer',
-            'service_definition_ids'    => 'required|array|min:1',
-            'service_definition_ids.*'  => 'required|uuid',
+            'services'      => 'required|array|min:1',
+            'services.*.id' => 'required|uuid',
+            'client.id'     => 'required',
+            'time_slot_id'  => 'required|integer',
         ];
     }
 }
