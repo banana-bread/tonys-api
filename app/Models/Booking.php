@@ -12,6 +12,9 @@ class Booking extends BaseModel
 {
     use HasUuid;
 
+    const TYPE_APPOINTMENT = 'booking';
+    const TYPE_TIME_OFF = 'time-off';
+
     protected $appends = [
         // 'formatted_duration',
         // 'formatted_total',
@@ -20,8 +23,9 @@ class Booking extends BaseModel
     protected $visible = [
         'id',
         'client_id',
-        'manual_client_name',
         'employee_id',
+        'type',
+        'manual_client_name',
         'cancelled_at',
         'cancelled_by',
         'started_at',

@@ -4,18 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\BookingException;
 use App\Http\Requests\CreateEmployeeBookingRequest;
-use App\Mail\BookingCancelled;
 use App\Models\Booking;
-use App\Models\Company;
 use App\Models\Employee;
 use App\Models\ServiceDefinition;
-use App\Models\TimeSlot;
-use App\Services\Booking\BookingService;
-use Carbon\Carbon;
-use Illuminate\Http\Client\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
+use Carbon\Carbon;
 
 class EmployeeBookingController extends ApiController
 {
@@ -29,16 +23,48 @@ class EmployeeBookingController extends ApiController
             throw new BookingException([], 'User not authorized to perform this action.');
         }
 
-        $booking = DB::transaction(function () use ($employee)
+        $bookingType = request('type');
+        $startingSlot = $employee->time_slots()->where('start_time', request('started_at'))->first();
+        $startedAt = Carbon::parse(request('started_at'));
+        $endedAt = Carbon::parse(request('ended_at'));
+        $manualClientName = request('manual_client_name');
+        $serviceDefinitions = ServiceDefinition::whereIn('id', collect(request('services'))->pluck('id'))->get();
+        $noteBody = request('note.body');
+        $duration = $bookingType === Booking::TYPE_APPOINTMENT
+          ? $serviceDefinitions->sum('duration')
+          : $startedAt->diffInSeconds($endedAt);
+
+        $booking = DB::transaction(function () use ($employee, $startingSlot, $duration, $noteBody, $bookingType, $manualClientName)
         {
-            $serviceDefinitions = ServiceDefinition::whereIn(
-                'id', collect(request('services'))->pluck('id')
-            )->get();
-            $startingSlot = $employee->time_slots()->where('start_time', request('event.start'))->first();
-            return $employee->createBooking($startingSlot, $serviceDefinitions, request('manual_client_name'));
+            $booking = $employee->createBooking($startingSlot, $duration, $bookingType, $manualClientName);
+
+            if ($booking->type === Booking::TYPE_APPOINTMENT)
+            {
+              $services = $serviceDefinitions->map(function ($definition) use ($booking) {
+                  $service = new Service();
+                  $service->service_definition_id = $definition->id;
+                  $service->booking_id = $booking->id;
+                  $service->name = $definition->name;
+                  $service->description = $definition->description;
+                  $service->price = $definition->price;
+                  $service->duration = $definition->duration;
+      
+                  return $service;
+              });
+      
+              $booking->services()->saveMany($services);
+            }
+
+            if (!!$noteBody)
+            {
+              $booking->note()->create(['body' => $noteBody]);
+            }
+
+            return $booking;
         });
 
         $booking->load('services');
+        $booking->load('note');
 
         return $this->ok(['booking' => $booking], 'Booking created.');
     }
