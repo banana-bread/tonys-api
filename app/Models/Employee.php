@@ -8,9 +8,7 @@ use App\Helpers\BaseSchedule;
 use App\Models\Contracts\UserModel;
 use App\Traits\HasUuid;
 use App\Traits\ReceivesEmails;
-
 use Illuminate\Support\Collection;
-use App\Jobs\UpdateEmployeeTimeSlots;
 use App\Traits\CreatesTimeSlots;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -182,13 +180,10 @@ class Employee extends BaseModel implements UserModel
 
     // ACTIONS
 
-
-
-    public function createBooking(TimeSlot $startingSlot, Collection $serviceDefinitions, ?string $manualClientName)
+    public function createBooking(TimeSlot $startingSlot, int $duration, string $bookingType, ?string $manualClientName)
     {
-        return DB::transaction(function () use ($startingSlot, $serviceDefinitions, $manualClientName) {
+        return DB::transaction(function () use ($startingSlot, $duration, $bookingType, $manualClientName) {
 
-        $duration = $serviceDefinitions->sum('duration');
         $slotsRequired = $startingSlot->company->slotsRequiredFor($duration);
 
         $allSlots = $slotsRequired > 1
@@ -202,26 +197,13 @@ class Employee extends BaseModel implements UserModel
 
         $booking = Booking::create([
             'employee_id' => $this->id,
-            'manual_client_name' => $manualClientName ?: 'Walk-in',
+            'type' => $bookingType,
+            'manual_client_name' => $bookingType === Booking::TYPE_APPOINTMENT ? ($manualClientName ?: 'Walk-in') : null,
             'started_at' => $allSlots->first()->start_time,
             'ended_at' => $allSlots->first()->start_time->copy()->addSeconds($duration),
         ]); 
 
         TimeSlot::lockAndReserve($allSlots, $booking);
-
-        $services = $serviceDefinitions->map(function ($definition) use ($booking) {
-            $service = new Service();
-            $service->service_definition_id = $definition->id;
-            $service->booking_id = $booking->id;
-            $service->name = $definition->name;
-            $service->description = $definition->description;
-            $service->price = $definition->price;
-            $service->duration = $definition->duration;
-
-            return $service;
-        });
-
-        $booking->services()->saveMany($services);
 
         return $booking;
         });
