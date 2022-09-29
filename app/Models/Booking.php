@@ -12,7 +12,7 @@ class Booking extends BaseModel
 {
     use HasUuid;
 
-    const TYPE_APPOINTMENT = 'booking';
+    const TYPE_APPOINTMENT = 'appointment';
     const TYPE_TIME_OFF = 'time-off';
 
     protected $appends = [

@@ -6,6 +6,7 @@ use App\Exceptions\BookingException;
 use App\Http\Requests\CreateEmployeeBookingRequest;
 use App\Models\Booking;
 use App\Models\Employee;
+use App\Models\Service;
 use App\Models\ServiceDefinition;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -32,12 +33,12 @@ class EmployeeBookingController extends ApiController
         $noteBody = request('note.body');
         $duration = $bookingType === Booking::TYPE_APPOINTMENT
           ? $serviceDefinitions->sum('duration')
-          : $startedAt->diffInSeconds($endedAt);
+          : $startedAt->diffInSeconds($endedAt);       
 
-        $booking = DB::transaction(function () use ($employee, $startingSlot, $duration, $noteBody, $bookingType, $manualClientName)
+        $booking = DB::transaction(function () use ($employee, $startingSlot, $duration, $noteBody, $bookingType, $manualClientName, $serviceDefinitions)
         {
             $booking = $employee->createBooking($startingSlot, $duration, $bookingType, $manualClientName);
-
+        
             if ($booking->type === Booking::TYPE_APPOINTMENT)
             {
               $services = $serviceDefinitions->map(function ($definition) use ($booking) {

@@ -8,9 +8,7 @@ use App\Helpers\BaseSchedule;
 use App\Models\Contracts\UserModel;
 use App\Traits\HasUuid;
 use App\Traits\ReceivesEmails;
-
 use Illuminate\Support\Collection;
-use App\Jobs\UpdateEmployeeTimeSlots;
 use App\Traits\CreatesTimeSlots;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
